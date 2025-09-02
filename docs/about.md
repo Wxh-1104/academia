@@ -33,6 +33,8 @@ markdown语言是一种轻量级标记语言，允许用户使用纯文本格式
 
 <Icon icon="fa7-brands:openai" href="https://openai.com/"/>
 
+<Icon icon="simple-icons:googlegemini" href="https://gemini.google.com/"/>
+
 <Icon icon="fa7-brands:wikipedia-w" href="https://www.wikipedia.org/"/>
 
 <Icon icon="fa7-brands:bilibili" href="https://www.bilibili.com/"/>
