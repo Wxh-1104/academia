@@ -4,9 +4,6 @@
 2. 运行 `npm install`
 3. 执行 `npm run docs:dev`
 
-<<<<<<< HEAD
-:confused:
-=======
 ## 原点，星图，The First Echo
 
 > The most profound technologies are those that disappear.
