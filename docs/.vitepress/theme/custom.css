@@ -1,13 +1,13 @@
 /* 引入外部字体 */
 @import url('https://cdn.jsdelivr.net/npm/jetbrains-mono@2.242.0/css/jetbrains-mono.min.css');
 @import url('https://cdn.jsdelivr.net/npm/maple-mono/dist/maple-mono.css');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;700&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;900&display=swap');
 
 /* :root 全局变量定义 */
 :root {
   /* 正文字体 */
-  --vp-font-family-base: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --vp-font-family-base: 'Noto Serif SC', 'Source Han Serif SC', 'Source Han Serif CN', serif;
   --vp-font-family-heading: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
 
   /* 等宽字体（代码块） */
@@ -22,10 +22,15 @@
 .vp-doc pre {
   font-family: var(--vp-font-family-mono);
   font-feature-settings: var(--vp-font-feature-settings-mono);
+  font-weight: 400 !important;
 }
 
 body {
   font-family: var(--vp-font-family-base) !important;
+  font-weight: 500 !important;
+}
+strong, b {
+  font-weight: 900 !important;
 }
 
 /* 为紧跟在 h2 后面的 h3 增加顶部外边距 */
