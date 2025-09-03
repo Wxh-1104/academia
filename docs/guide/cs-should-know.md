@@ -1,7 +1,9 @@
 # 每个计算机科学专业的学生应该知道什么？
 
 > [!NOTE] 
-> 原文为 Matt Might 的 [What every computer science major should know](https://matt.might.net/articles/what-cs-majors-should-know/)
+> 原文为 Matt Might 的 [What every computer science major should know](https://matt.might.net/articles/what-cs-majors-should-know/)。
+> 
+> 由 <Icon icon="simple-icons:googlegemini" href="https://gemini.google.com/"/>Gemini 2.5 Pro 翻译。
 
 鉴于该领域的迅猛发展，要辨别现代计算机科学学位应包含哪些内容已变得颇具挑战性。
 

@@ -65,7 +65,7 @@ export default withMermaid(defineConfig({
           items: [
             { text: "安装说明", link: "/guide/install" },
             { text: "开始使用人工智能", link: "/guide/ai" },
-            { text: "马克思主义基本原理概论", link: "/guide/marxism" },
+
             { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
           ],
         },
@@ -76,6 +76,21 @@ export default withMermaid(defineConfig({
             { text: "python入门", link: "/guide/python-tutorial" },
             { text: "自然语言处理", link: "/guide/nlp" },
             { text: "计算机视觉", link: "/guide/cv" },
+          ]
+        },
+        {
+          text: "思政课",
+          collapsed: false,
+          items: [
+            { text: "思想道德与法治", link: "/guide/ideology-morality-and-rule-of-law" },
+            { text: "马克思主义基本原理", link: "/guide/marxism-general-principle" },
+            { text: "中国近现代史纲要", link: "/guide/essentials-of-chinese-modern-history" },
+            { text: "毛泽东思想和中国特色社会主义理论体系概论", link: "/guide/fundamentals-of-mao-zedong-thoughts-and-socialism-with-chinese-characteristics" },
+            { text: "习近平新时代中国特色社会主义思想概论", link: "/guide/introduction-to-xijinping-thought-on-socialism-with-chinese-characteristics-for-a-new-era" },
+            { text: "形势与政策", link: "/guide/situation-and-policy" },
+            { text: "劳动教育", link: "/guide/labor-education" },
+            { text: "军事理论", link: "/guide/military-theory" },
+            { text: "心理健康教育", link: "/guide/mental-health-education" },
           ]
         }
       ],
