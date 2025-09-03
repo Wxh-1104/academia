@@ -7,8 +7,8 @@
 /* :root 全局变量定义 */
 :root {
   /* 正文字体 */
-  --vp-font-family-base: 'Noto Serif SC', 'Source Han Serif SC', 'Source Han Serif CN', serif;
-  --vp-font-family-heading: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --vp-font-family-base: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --vp-font-family-heading: 'Noto Serif SC', 'Source Han Serif SC', 'Source Han Serif CN', serif;
 
   /* 等宽字体（代码块） */
   --vp-font-family-mono: 'Maple Mono', 'JetBrains Mono', 'Noto Sans SC', monospace;
@@ -29,7 +29,11 @@
 
 body {
   font-family: var(--vp-font-family-base) !important;
-  font-weight: 500 !important;
+  font-weight: 400 !important;
+}
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--vp-font-family-heading) !important;
+  font-weight: 900 !important;
 }
 strong, b {
   font-weight: 900 !important;

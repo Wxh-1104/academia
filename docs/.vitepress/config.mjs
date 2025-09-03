@@ -45,10 +45,10 @@ export default withMermaid(defineConfig({
     nav: [
       { text: "首页", link: "/" },
       { text: "指南", link: "/guide/" },
+      { text: "关于", link: "/about" },
       {
         text: "更多",
         items: [
-          { text: "关于", link: "/about" },
           { text: "外部链接示例", link: "https://vitepress.dev/" },
         ]
       }
