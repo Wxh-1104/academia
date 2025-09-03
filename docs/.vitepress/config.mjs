@@ -69,6 +69,15 @@ export default withMermaid(defineConfig({
             { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
           ],
         },
+        {
+          text: "进阶",
+          collapsed: false,
+          items: [
+            { text: "python入门", link: "/guide/python-tutorial" },
+            { text: "自然语言处理", link: "/guide/nlp" },
+            { text: "计算机视觉", link: "/guide/cv" },
+          ]
+        }
       ],
     },
     footer: {

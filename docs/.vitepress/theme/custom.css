@@ -13,6 +13,7 @@
   /* 等宽字体（代码块） */
   --vp-font-family-mono: 'Maple Mono', 'JetBrains Mono', 'Noto Sans SC', monospace;
   --vp-font-feature-settings-mono: "cv01", "cv02", "cv05", "cv35", "cv40", "cv42", "cv43", "cv61", "cv62", "cv63", "ss01", "ss03", "ss04", "ss05", "ss06";
+  --vp-font-variant-ligatures-mono: none;
 }
 
 /* 应用代码字体高级特性 */
@@ -21,6 +22,7 @@
 .vp-doc pre {
   font-family: var(--vp-font-family-mono);
   font-feature-settings: var(--vp-font-feature-settings-mono);
+  font-variant-ligatures: var(--vp-font-variant-ligatures-mono);
   font-weight: 400 !important;
   font-size: 0.95em;
 }
