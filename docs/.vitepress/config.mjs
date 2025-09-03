@@ -64,7 +64,7 @@ export default withMermaid(defineConfig({
           collapsed: false,
           items: [
             { text: "安装说明", link: "/guide/install" },
-            { text: "快速开始", link: "/guide/start" },
+            { text: "开始使用人工智能", link: "/guide/ai" },
             { text: "马克思主义基本原理概论", link: "/guide/marxism" },
             { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
           ],
