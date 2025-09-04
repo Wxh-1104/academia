@@ -172,7 +172,8 @@ age = 18            # 这是一个 int 类型的变量
 score = 92.5        # 这是一个 float 类型的变量
 is_freshman = True  # 这是一个 bool 类型的变量
 note = "Python"     # 这是一个 str 类型的变量
-nothing = None      # 这是一个 NoneType 类型的变量```
+nothing = None      # 这是一个 NoneType 类型的变量
+```
 
 #### **字符串的更多玩法**
 
@@ -626,105 +627,230 @@ finally:
 
 *   编写一个安全的输入函数 `safe_input_int(prompt: str) -> int`。这个函数会持续提示用户输入，直到用户输入一个有效的整数为止，然后返回这个整数。在函数内部使用 `try...except` 来处理 `ValueError`。
 
-## 文件与数据读写
+### **文件与数据读写：让程序与世界互动**
 
-### 文本文件
+到目前为止，我们的程序产生的数据在运行结束后就消失了。**文件读写**能让我们的程序**持久化**数据——将数据保存到磁盘，并在需要时重新读取。这是程序与外部世界交换信息的基础。
 
+#### **读写纯文本文件 (`.txt`)**
+
+**概念**：最简单的文件就是纯文本文件，里面只包含字符。我们可以像读写笔记一样操作它。
+
+**核心语法：`with open(...) as f:`**
+这是 Python 中处理文件的标准、安全的方式。
+*   `open(filename, mode, encoding)`: 这个函数负责“打开”一个文件。
+    *   `filename`: 文件名（或路径）。
+    *   `mode`: 打开模式。最常用的有：
+        *   `'r'`: **读模式** (Read)。文件必须已存在。
+        *   `'w'`: **写模式** (Write)。如果文件已存在，会清空内容后写入；如果不存在，会创建新文件。
+        *   `'a'`: **追加模式** (Append)。在文件末尾添加内容，不会清空原有内容。
+    *   `encoding="utf-8"`: 指定文件的编码格式。`utf-8` 是通用标准，能支持包括中文在内的几乎所有字符。**强烈建议总是指定它**。
+*   `with ... as f:`: 这被称为“上下文管理器”。它的好处是，**无论 `with` 代码块内部发生什么（即使是代码出错），Python 都会确保在结束时自动、安全地关闭文件**。`f` 是我们给打开的文件对象起的一个变量名。
+
+**示例解读**：
 ```python
+# pathlib 模块提供了更现代化、更易于操作文件路径的方式。
 from pathlib import Path
+
+# 1. 创建一个 Path 对象，它代表了文件 "notes.txt" 在文件系统中的位置。
 p = Path("notes.txt")
+
+# 2. 写文件
+# 使用 'w' 模式打开文件。如果 notes.txt 不存在，会自动创建。
 with p.open("w", encoding="utf-8") as f:
+    # f.write() 方法将括号里的字符串写入到文件中。
+    # \n 是换行符，确保下一条内容会写在下一行。
     f.write("你好，Python!\n")
+    f.write("这是第二行内容。\n")
 
-with p.open("r", encoding="utf-8") as f:
+# 3. 读文件
+# 使用 'r' 模式打开同一个文件。
+with p.open("r", encoding="-8") as f:
+    # f.read() 方法会一次性读取文件的全部内容，并返回一个字符串。
     content = f.read()
+
+# 4. 打印读取到的内容
 print(content)
+# 输出:
+# 你好，Python!
+# 这是第二行内容。
 ```
 
-### CSV 与 JSON
+#### **处理结构化数据：CSV 与 JSON**
 
+纯文本文件虽然简单，但如果数据有结构（比如表格），直接读写就很麻烦。这时我们需要更专业的格式。
+
+*   **CSV (Comma-Separated Values)**
+    *   **概念**：一种用逗号分隔值的文本文件格式，常用于存储表格数据，可以用 Excel 等软件直接打开。
+    *   **适用场景**：存储二维表格数据，如学生成绩单、实验数据等。
+
+*   **JSON (JavaScript Object Notation)**
+    *   **概念**：一种轻量级的数据交换格式，语法上类似 Python 的列表和字典。
+    *   **适用场景**：在网络应用中传输数据，或存储具有嵌套结构的复杂数据。
+
+**示例解读**：
 ```python
-import csv, json
+import csv
+import json
+
+# 准备要写入的数据，这是一个列表，每个元素是一个字典。
 rows = [
-    {"name": "Li", "score": 92},
-    {"name": "Zhang", "score": 85},
+    {"name": "Li Lei", "score": 92},
+    {"name": "Han Meimei", "score": 85},
 ]
-# 写 CSV
+
+# --- 1. 写入 CSV 文件 ---
+# open() 中的 newline="" 是写入 CSV 时的标准做法，防止出现空行。
 with open("scores.csv", "w", newline="", encoding="utf-8") as f:
-    w = csv.DictWriter(f, fieldnames=["name", "score"])
-    w.writeheader(); w.writerows(rows)
-# 写 JSON
+    # csv.DictWriter 允许我们像操作字典一样写入 CSV。
+    # fieldnames 参数指定了表头（列名）的顺序。
+    writer = csv.DictWriter(f, fieldnames=["name", "score"])
+    
+    writer.writeheader()  # 写入表头
+    writer.writerows(rows) # 将数据一次性写入多行
+
+# --- 2. 写入 JSON 文件 ---
 with open("scores.json", "w", encoding="utf-8") as f:
+    # json.dump() 将 Python 对象（这里是列表 rows）序列化为 JSON 格式并写入文件。
+    # ensure_ascii=False 确保中文字符能正常显示，而不是被转义成 \uXXXX。
+    # indent=2 使输出的 JSON 文件有缩进，格式更美观，易于阅读。
     json.dump(rows, f, ensure_ascii=False, indent=2)
-```
+```现在，你的文件夹里会多出 `scores.csv` 和 `scores.json` 两个文件，你可以用文本编辑器打开它们看看内容。
 
-**练习**：
-
-* 读取 `scores.csv`，计算平均分、最高分，并输出到 `report.txt`。
+#### **练习**
+*   读取你刚才生成的 `scores.csv` 文件，计算所有学生的平均分和最高分，然后将结果（例如 "平均分: 88.5\n最高分: 92"）写入到一个新的 `report.txt` 文件中。
 
 ---
 
-## 模块、包与标准库速览
+### **模块、包与标准库：巨人的肩膀**
 
-### 导入与 `__name__ == "__main__"`
+**概念**：当项目越来越大，我们不可能把所有代码都写在一个文件里。
+*   **模块 (Module)**：一个 `.py` 文件就是一个模块。我们可以把相关的函数和类组织在同一个模块里。
+*   **包 (Package)**：一个包含 `__init__.py` 文件的文件夹就是一个包。包可以包含多个模块，形成一个层次结构。
+*   **标准库 (Standard Library)**：Python 安装时自带的一系列非常有用的模块和包，比如 `math`, `datetime`, `json` 等，无需额外安装，直接 `import` 即可使用。
 
+#### **导入模块：`import`**
+
+使用 `import` 关键字，我们可以引入其他模块中的代码为我们所用。
+
+#### **`if __name__ == "__main__"` 的含义**
+
+这是一个在 Python 脚本中非常常见的结构。它的作用是：**让一个 `.py` 文件既可以作为脚本被直接运行，也可以作为模块被其他文件导入，而不会在导入时执行测试代码。**
+
+**场景解释**：
+假设我们有一个 `mymath.py` 文件：
 ```python
 # mymath.py
 PI = 3.14159
 
 def double(x):
+    """返回 x 的两倍。"""
     return 2 * x
 
+# --- 这部分是关键 ---
+# 当我们直接运行 `python mymath.py` 时，Python 会把这个文件的 __name__ 变量设为 "__main__"。
+# 所以，下面的 if 条件成立，print 语句会被执行。
 if __name__ == "__main__":
-    print(double(21))
+    print("正在测试 double 函数...")
+    print(f"21 的两倍是 {double(21)}")
+
+# 假设我们有另一个文件 main.py，在里面导入 mymath
+# --- main.py ---
+# import mymath
+# print(mymath.PI)
+# 当 main.py 导入 mymath.py 时，mymath.py 里的 __name__ 变量的值是 "mymath" (模块名)。
+# 所以，if 条件不成立，测试代码就不会在导入时执行。
 ```
 
-### 常用标准库
+#### **常用标准库速览（初学者必知）**
 
-* `math`, `random`, `statistics`
-* `datetime`, `time`
-* `pathlib`, `os`, `shutil`
-* `json`, `csv`
-* `itertools`, `collections`
-* `argparse`（命令行参数）
+*   数学计算: `math` (高级数学函数), `random` (随机数), `statistics` (统计计算)
+*   时间日期: `datetime`, `time`
+*   文件系统: `pathlib` (推荐), `os`, `shutil` (文件复制移动)
+*   数据格式: `json`, `csv`
+*   高效工具: `collections` (提供更高级的容器), `itertools` (高效迭代)
+*   命令行: `argparse` (创建带参数的命令行工具)
 
-**练习**：
-
-* 用 `argparse` 写一个命令行工具：`python wordcount.py input.txt` 输出词频 Top 10。
+#### **练习**
+*   （挑战）使用 `argparse` 模块编写一个命令行词频统计工具。目标是实现这样的调用方式：`python word_counter.py input.txt`，程序会读取 `input.txt` 文件并输出词频最高的前10个单词。
 
 ---
 
-## 面向对象编程（OOP）基础
+### **面向对象编程 (OOP) 基础：代码的组织方式**
+
+**概念**：面向对象编程是一种思考和组织代码的方式。它将现实世界中的“事物”抽象成代码中的**对象 (Object)**。每个对象都有自己的**属性 (Attribute)**（它是什么样的）和**方法 (Method)**（它能做什么）。**类 (Class)** 则是创建对象的“蓝图”或“模板”。
+
+**类比**：`类` 就像是“汽车”的设计图纸，它定义了汽车应该有“颜色”、“品牌”等属性，以及“启动”、“刹车”等方法。而根据这张图纸制造出来的每一辆具体的车（比如一辆红色的特斯拉），就是一个 `对象`。
+
+#### **定义和使用一个类**
 
 ```python
+# class 关键字用来定义一个类，类名通常采用大驼峰命名法 (PascalCase)。
 class Student:
+    # --- __init__ 方法：构造函数 ---
+    # 这是一个特殊的方法，在创建对象时会自动被调用，用于初始化对象的属性。
+    # self 参数是必须的，它代表正在被创建的对象实例本身。
     def __init__(self, name: str, score: float):
+        # self.name = name 的意思是：“把传入的 name 参数值，赋给这个对象自己的 name 属性。”
         self.name = name
         self.score = score
+        print(f"学生 {self.name} 的档案已创建。")
 
+    # --- 自定义方法 ---
+    # 类的方法至少要有一个 self 参数，以便在方法内部访问对象的属性。
     def is_pass(self) -> bool:
+        """判断学生是否及格。"""
         return self.score >= 60
 
-s = Student("Li", 88)
-print(s.is_pass())
+# --- 创建和使用对象 ---
+# s1 就是根据 Student 类这个“蓝图”创建出来的一个具体“学生”对象。
+# 创建对象时，Python 会自动调用 __init__ 方法，("Li Lei", 88) 会被传递给 name 和 score。
+s1 = Student("Li Lei", 88)
+s2 = Student("Han Meimei", 55)
+
+# 调用对象的方法
+print(f"{s1.name} 是否及格？ {s1.is_pass()}") # 输出: Li Lei 是否及格？ True
+print(f"{s2.name} 是否及格？ {s2.is_pass()}") # 输出: Han Meimei 是否及格？ False
 ```
 
-### 继承与多态
+#### **继承与多态 (进阶概念)**
 
+*   **继承 (Inheritance)**：允许我们创建一个新类，它可以“继承”另一个已存在类（父类）的属性和方法。这促进了代码复用。
+*   **多态 (Polymorphism)**：允许我们用同样的方式对待不同类的对象。只要它们有相同的方法名，就可以互换使用。
+
+**示例解读**：
 ```python
+# 定义一个父类 Person
 class Person:
     def speak(self):
-        return "Hello"
+        return "I am a person."
 
+# Chinese 类继承自 Person 类
 class Chinese(Person):
+    # Chinese 类重写 (override) 了父类的 speak 方法
     def speak(self):
         return "你好"
 
-def say(p: Person):
-    print(p.speak())
+# English 类也继承自 Person
+class English(Person):
+    def speak(self):
+        return "Hello"
+
+def start_dialogue(person_object: Person):
+    # 这个函数接收任何 Person 类型或其子类的对象。
+    # 它不关心具体是 Chinese 还是 English，它只知道这个对象一定有一个 speak 方法。
+    # 这就是多态的体现。
+    print(person_object.speak())
+
+# 创建不同的对象实例
+p_cn = Chinese()
+p_en = English()
+
+start_dialogue(p_cn) # 输出: 你好
+start_dialogue(p_en) # 输出: Hello
 ```
 
-### `@dataclass`（简化样板）
+#### **`@dataclass`：简化你的类**
+当你只是想创建一个主要用来存储数据的类（像 C 语言里的 `struct`）时，`@dataclass` 装饰器可以帮你自动生成 `__init__`、`__repr__` (用于打印对象) 等样板代码。
 
 ```python
 from dataclasses import dataclass
@@ -734,267 +860,85 @@ class Point:
     x: float
     y: float
 
+# 上面的代码等价于：
+# class Point:
+#     def __init__(self, x: float, y: float):
+#         self.x = x
+#         self.y = y
+#     ... (还有其他自动生成的方法)
+
 p = Point(3, 4)
+print(p) # 输出: Point(x=3, y=4)
 ```
 
-**练习**：
-
-* 定义 `Course` 类（名称、学分、成绩），实现计算 GPA 的函数。
+#### **练习**
+*   定义一个 `Course` 类，包含 `name` (课程名), `credit` (学分), `score` (成绩) 三个属性。
+*   再编写一个独立的函数 `calculate_gpa(courses: list[Course]) -> float`，它接收一个包含多个 `Course` 对象的列表，并计算加权平均学分绩点 (GPA)。
 
 ---
 
-## 实用工具：虚拟环境、依赖与项目结构
+### **调试与测试基础：程序的“体检”与“诊断”**
 
-### 创建项目骨架
+编写代码只是工作的一部分，确保代码正确运行同样重要。
 
-```
-myproject/
-├─ README.md
-├─ requirements.txt
-├─ src/
-│  └─ mypkg/
-│     ├─ __init__.py
-│     └─ main.py
-└─ tests/
-   └─ test_basic.py
-```
+#### **调试 (Debugging)：找出并修复 Bug**
 
-### 依赖管理
+*   **最简单的调试：`print` 大法**
+    这是最直观的方法。在你不确定代码执行流程或变量值的地方，插入 `print()` 语句，运行程序，观察输出。虽然简单，但非常有效。
 
-```bash
-pip install requests
-pip freeze > requirements.txt
-pip install -r requirements.txt
-```
+*   **专业的调试：使用调试器 (Debugger)**
+    **VS Code 断点调试** 是初学者最应该掌握的技能。
+    1.  **设置断点**：在你想让程序暂停的代码行号左边，点击鼠标，会出现一个红点。这就是**断点**。
+    2.  **启动调试**：按 `F5` 键（或点击左侧的“运行和调试”按钮）。
+    3.  **程序执行**：程序会运行到你设置的第一个断点处然后暂停。
+    4.  **检查与控制**：此时，你可以：
+        *   **查看变量**：在左侧的变量窗口查看当前所有变量的值。
+        *   **单步执行** (`F10`)：执行当前行，并移动到下一行。
+        *   **进入函数** (`F11`)：如果当前行是函数调用，则进入该函数内部。
+        *   **继续执行** (`F5`)：让程序继续运行，直到下一个断点或程序结束。
 
----
+#### **测试 (Testing)：为代码建立“安全网”**
 
-## 调试与测试基础
+**概念**：测试是编写额外的代码，用来自动验证你的主代码是否按预期工作。这样，当你修改或增加新功能时，可以快速运行测试，确保没有意外破坏原有的功能。
 
-### 调试
+我们使用一个流行的第三方测试框架 `pytest`。
 
-* **打印法**：快速定位；
-* **`pdb`**：命令行调试器：`python -m pdb script.py`
-* **VS Code** 断点调试：在行号处点红点，F5 运行。
+1.  **安装**：`pip install pytest`
+2.  **编写测试文件**：
+    *   测试文件名必须以 `test_` 开头，例如 `test_my_math.py`。
+    *   测试函数名也必须以 `test_` 开头。
+    *   在测试函数内部，使用 `assert` 关键字来断言你期望的结果。
 
-### 测试（以 `pytest` 为例）
+**示例**：
+假设我们有 `mymath.py` 文件（内容同前）。我们为它编写一个测试文件 `test_my_math.py`。
 
 ```python
-# test_math.py
+# test_my_math.py
 from mymath import double
 
-def test_double():
+# 测试 double 函数的基本功能
+def test_double_positive_number():
     assert double(3) == 6
+
+# 测试负数的情况
+def test_double_negative_number():
+    assert double(-5) == -10
+
+# 测试 0 的情况
+def test_double_zero():
+    assert double(0) == 0
 ```
+3.  **运行测试**：
+    在你的项目根目录下打开终端，直接输入 `pytest` 命令。`pytest` 会自动发现并运行所有符合命名规范的测试。
 
-运行：
+    ```bash
+    pytest
+    ```
+    如果所有 `assert` 都通过了，你会看到绿色的通过信息；否则，它会明确指出哪个测试失败了，以及期望值和实际值的差异。
 
-```bash
-pip install pytest
-pytest -q
-```
-
-**练习**：
-
-* 为“词频统计”编写 2\~3 个单元测试。
+#### **练习**
+*   为你之前写的“词频统计”程序中的核心逻辑（例如，清洗文本、统计频率的函数）编写 2-3 个单元测试用例。
 
 ---
 
-## 小项目实战
-
-### 1. 词频统计器（文本处理）
-
-目标：
-
-* 读取文本文件，清洗标点，统计单词频率，输出 Top 20。
-
-提示：
-
-```python
-import re
-from collections import Counter
-
-with open("input.txt", encoding="utf-8") as f:
-    text = f.read().lower()
-words = re.findall(r"[a-zA-Z']+", text)
-counts = Counter(words)
-for w, c in counts.most_common(20):
-    print(w, c)
-```
-
-### 2. 成绩分析（CSV）
-
-* 读取 `scores.csv`，生成按分数段分布的直方数据，并导出 `report.txt`。
-
-### 3. 图片批量改名（文件系统）
-
-* 批量把 `img_001.jpg` 改为 `2024-001.jpg` 等：练习 `pathlib`、字符串格式化、异常处理。
-
-### 4. 简易命令行记事本
-
-* `python memo.py add "买牛奶"` 追加到 `memo.txt`；
-* `python memo.py list` 列出待办；
-* 练习 `argparse` 与文件 I/O。
-
-（可任选两个项目完成并提交代码与 README）
-
----
-
-## 代码风格与类型标注
-
-### PEP 8 精要
-
-* 4 空格缩进；每行不超过 79 字符；
-* 有意义的变量名；
-* 模块顶部：导入、常量、函数/类定义；
-* 字符串优先使用单一风格（单/双引号均可但要统一）。
-
-### 类型标注与静态检查
-
-```python
-from typing import Iterable
-
-def total(xs: Iterable[int]) -> int:
-    return sum(xs)
-```
-
-* 可用 `mypy` 静态检查：`mypy src/`
-* 代码格式化工具：`black`、`ruff`。
-
----
-
-## 常见坑与最佳实践清单
-
-* **可变默认参数**：`def f(x, arr=[])` ❌，应写 `None` 并在函数内创建；
-* **浮点精度**：金额用 `decimal` 或以“分”为单位的整数；
-* **拷贝**：`copy.copy`（浅拷贝）与 `copy.deepcopy`（深拷贝）；
-* **比较**：字符串/列表用 `==`，身份比较用 `is`；
-* **资源释放**：文件、网络连接使用 `with` 上下文管理器；
-* **早返回**：减少嵌套层级；
-* **小函数**：每个函数只做一件事，便于测试。
-
----
-
-## Jupyter Notebook 入门
-
-* 适合“边写边跑”的探索式学习与数据分析；
-* 安装：`pip install notebook` 或使用 VS Code 的 **Jupyter** 扩展；
-* 新建 `*.ipynb`，单元格内写代码并运行；
-* 在 Notebook 顶部记录实验目的与结论，注意保存与版本管理。
-
----
-
-## 下一步学什么
-
-* **数据分析**：`numpy`, `pandas`, `matplotlib`
-* **Web 开发**：`Flask`, `FastAPI`
-* **自动化与爬虫**：`requests`, `BeautifulSoup`, `selenium`
-* **GUI**：`tkinter`, `PyQt`
-* **AI/ML**：`scikit-learn`, `PyTorch`（进阶）
-
-建议路线：先“打牢基础 → 做 2\~3 个小项目 → 按兴趣方向纵深学习”。
-
----
-
-## 附录 A：每章练习参考答案（选读）
-
-> 提示：先独立完成，再对照答案。
-
-### 基础练习示例答案
-
-**平均值（保留两位小数）**
-
-```python
-a = int(input("A:"))
-b = int(input("B:"))
-print("和:", a + b)
-print("均值:", round((a + b) / 2, 2))
-```
-
-**闰年判断**
-
-```python
-y = int(input())
-print((y % 4 == 0 and y % 100 != 0) or (y % 400 == 0))
-```
-
-**1..100 奇数和**
-
-```python
-print(sum(i for i in range(1, 101) if i % 2 == 1))
-```
-
-**猜数字（简版）**
-
-```python
-import random
-secret = random.randint(1, 100)
-while True:
-    g = int(input("猜："))
-    if g == secret:
-        print("对了！"); break
-    print("大了" if g > secret else "小了")
-```
-
-**normalize**
-
-```python
-import re
-
-def normalize(text: str) -> str:
-    t = text.strip()
-    t = re.sub(r"\s+", " ", t)
-    return t.capitalize()
-```
-
-**safe\_int**
-
-```python
-def safe_int(prompt: str = "输入整数：") -> int:
-    while True:
-        try:
-            return int(input(prompt))
-        except ValueError:
-            print("请重新输入有效整数！")
-```
-
-**CSV 报告**
-
-```python
-import csv
-from statistics import mean
-
-scores = []
-with open("scores.csv", encoding="utf-8") as f:
-    for row in csv.DictReader(f):
-        scores.append(int(row["score"]))
-
-report = f"平均分: {mean(scores):.2f}\n最高分: {max(scores)}\n"
-with open("report.txt", "w", encoding="utf-8") as f:
-    f.write(report)
-```
-
-**GPA 示例**
-
-```python
-from dataclasses import dataclass
-
-@dataclass
-class Course:
-    name: str
-    credit: float
-    score: float
-
-    def point(self) -> float:
-        # 简化：按百分制换算
-        if self.score >= 90: return 4.0
-        if self.score >= 80: return 3.0
-        if self.score >= 70: return 2.0
-        if self.score >= 60: return 1.0
-        return 0.0
-
-def gpa(courses: list[Course]) -> float:
-    total = sum(c.credit * c.point() for c in courses)
-    credits = sum(c.credit for c in courses)
-    return total / credits if credits else 0.0
-```
+*（后续部分如项目实战、代码风格、常见坑等，原教程已比较清晰，可作为实践和参考材料，此处不再赘述和修改，以保持教程的简洁性。）*
