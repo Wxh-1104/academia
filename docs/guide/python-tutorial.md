@@ -714,7 +714,9 @@ with open("scores.json", "w", encoding="utf-8") as f:
     # ensure_ascii=False 确保中文字符能正常显示，而不是被转义成 \uXXXX。
     # indent=2 使输出的 JSON 文件有缩进，格式更美观，易于阅读。
     json.dump(rows, f, ensure_ascii=False, indent=2)
-```现在，你的文件夹里会多出 `scores.csv` 和 `scores.json` 两个文件，你可以用文本编辑器打开它们看看内容。
+```
+
+现在，你的文件夹里会多出 `scores.csv` 和 `scores.json` 两个文件，你可以用文本编辑器打开它们看看内容。
 
 #### **练习**
 *   读取你刚才生成的 `scores.csv` 文件，计算所有学生的平均分和最高分，然后将结果（例如 "平均分: 88.5\n最高分: 92"）写入到一个新的 `report.txt` 文件中。
