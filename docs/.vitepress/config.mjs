@@ -74,7 +74,7 @@ export default withMermaid(defineConfig({
           collapsed: false,
           items: [
             { text: "python入门", link: "/guide/python-tutorial" },
-            { text: "自然语言处理", link: "/guide/nlp" },
+            { text: "NumPy", link: "/guide/numpy" },
             { text: "计算机视觉", link: "/guide/cv" },
           ]
         },
