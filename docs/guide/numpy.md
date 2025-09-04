@@ -1,6 +1,9 @@
-好的，这是您提供的 NumPy 官方文档 “the absolute basics for beginners” 前半部分的简体中文翻译，已转换为 Markdown 格式，并对链接和措辞进行了仔细处理。
+# NumPy 入门绝对指南
 
-***
+> [!NOTE] 
+> 原文为 [NumPy: the absolute basics for beginners](https://numpy.org/doc/stable/user/absolute_beginners.html)。
+> 
+> 由 <Icon icon="simple-icons:googlegemini" href="https://gemini.google.com/"/>Gemini 2.5 Pro 翻译。
 
 欢迎阅读 NumPy 入门绝对指南！
 
