@@ -1,52 +1,50 @@
 import DefaultTheme from 'vitepress/theme'
 import { h } from 'vue'
 
-// 1. 导入原始的 Iconify 组件，我们将在内部使用它
+// 1. 从 Iconify 核心库中导入 'Iconify' 对象
+import { Iconify } from '@iconify/vue'
+
+// 2. 导入我们之前创建的“增强版”Icon组件的定义逻辑
 import { Icon as OriginalIcon } from '@iconify/vue'
 
-import './custom.css' // 确保你的自定义 CSS 被导入
+import './custom.css'
 
-// 2. 定义我们的“增强版”Icon组件对象
+// --- 关键修复：强制 Iconify 使用 HTTPS API ---
+// 这会覆盖默认的 API 提供商，确保所有请求都是安全的
+Iconify.addAPIProvider('iconify', {
+  resources: ['https://api.iconify.design'],
+});
+// --- 修复结束 ---
+
+
+// 我们之前创建的增强版 Icon 组件定义 (保持不变)
 const EnhancedIcon = {
-  // 我们告诉 Vue，这个组件接收所有原始 Icon 的属性，以及我们自定义的 href
-  // '...' 意味着接收所有未明确定义的属性
-  props: ['icon', 'href'],
-
+  props: ['icon', 'href', 'color'],
   setup(props, { attrs }) {
-    // setup 函数返回一个渲染函数
+    // ... (这里是您之前的组件逻辑，无需修改)
     return () => {
-      // 创建原始 Icon 组件的虚拟节点，并将所有属性(attrs)传递给它
-      // attrs 会包含 style, class, width 等所有非 prop 属性
-      const iconNode = h(OriginalIcon, { ...attrs, icon: props.icon })
-
-      // 如果 href prop 存在...
-      if (props.href) {
-        // ...则返回一个 <a> 标签，它的子元素是我们的 iconNode
-        return h('a', {
-          class: 'icon-link-wrapper', // 添加一个 class 以便我们设置样式
-          href: props.href,
-          target: '_blank', // 外部链接默认在新标签页打开
-          rel: 'noopener noreferrer', // 安全最佳实践
-        }, [iconNode]) // `h` 函数的第三个参数是子元素数组
+      const iconAttrs = { ...attrs, icon: props.icon };
+      if (props.color === 'brand') {
+        iconAttrs.class = [attrs.class, 'text-brand'].filter(Boolean).join(' ');
       }
-      
-      // 如果 href 不存在，直接返回原始的 iconNode
+      const iconNode = h(OriginalIcon, iconAttrs)
+      if (props.href) {
+        return h('a', {
+          class: 'icon-link-wrapper',
+          href: props.href,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        }, [iconNode])
+      }
       return iconNode
     }
   }
 }
 
-
-// 3. 导出主题配置
+// 导出主题配置 (保持不变)
 export default {
   ...DefaultTheme,
   enhanceApp({ app }) {
-    // 4. 全局注册我们的“增强版”组件，并“覆盖”掉原始的 'Icon' 名称
-    // 现在，当你在 Markdown 中使用 <Icon> 时，用的就是我们这个带链接逻辑的版本
     app.component('Icon', EnhancedIcon)
-
-    // 你可能还有其他的全局组件注册，比如 Twemoji
   },
-  
-  // 你可能还有 setup() 函数，保持原样即可
 }
