@@ -52,6 +52,10 @@
   font-variant-ligatures: var(--vp-font-variant-ligatures-mono);
   font-size: 0.95em;
 }
+.vp-doc :not(pre) > code {
+  color: var(--vp-c-text-1);
+  padding: 0.1em 0.2em;
+}
 
 body {
   font-family: var(--vp-font-family-base) !important;
