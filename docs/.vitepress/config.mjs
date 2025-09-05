@@ -93,7 +93,7 @@ export default withMermaid(defineConfig({
           collapsed: false,
           items: [
             { text: "安装说明", link: "/guide/install" },
-            { text: "开始使用人工智能", link: "/guide/ai" },
+            { text: "开始使用生成式人工智能", link: "/guide/ai" },
             { text: "向学长学姐请教", link: "/guide/getting-advice-from-senior" },
             { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
           ],
@@ -139,6 +139,9 @@ export default withMermaid(defineConfig({
       prev: '上一页',
       next: '下一页'
     },
-    externalLinkIcon: false
+    externalLinkIcon: false,
+    navMenuLabel: '导航',
+    sidebarMenuLabel: '侧栏',
+    returnToTopLabel: '返回顶部',
   },
 }));
