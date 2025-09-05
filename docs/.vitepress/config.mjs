@@ -73,6 +73,7 @@ export default withMermaid(defineConfig({
     nav: [
       { text: "首页", link: "/" },
       { text: "指南", link: "/guide/" },
+      { text: "思政课", link: "/sizheng/" },
       { text: "关于", link: "/about" },
       {
         text: "更多",
@@ -106,6 +107,8 @@ export default withMermaid(defineConfig({
             { text: "计算机视觉", link: "/guide/cv" },
           ]
         },
+      ],
+      "/sizheng/": [
         {
           text: "思政课",
           collapsed: false,

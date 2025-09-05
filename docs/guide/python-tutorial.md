@@ -608,7 +608,8 @@ if x > 5
 #   File "<stdin>", line 2
 #     if x > 5
 #              ^
-# SyntaxError: invalid syntax```
+# SyntaxError: invalid syntax
+```
 
 ### 8.2. 异常
 
