@@ -2,6 +2,10 @@ import DefaultTheme from "vitepress/theme";
 import { h } from "vue";
 import { Icon as OriginalIcon, addAPIProvider } from "@iconify/vue";
 
+import { onMounted, watch, nextTick } from 'vue'
+import { useRoute } from 'vitepress'
+import twemoji from 'twemoji'
+
 import "./custom.css";
 
 // --- 关键修复：强制 Iconify 使用 HTTPS API ---
@@ -45,4 +49,35 @@ export default {
   enhanceApp({ app }) {
     app.component("Icon", EnhancedIcon);
   },
+
+  setup() {
+    const route = useRoute();
+
+    // 定义一个函数，用于查找并解析页面中的 emoji
+    const parseEmojis = () => {
+      nextTick(() => {
+        const content = document.querySelector('.vp-doc');
+        if (content) {
+          // --- 关键修改在这里 ---
+          twemoji.parse(content, {
+            // 指定文件夹格式为 SVG
+            folder: 'svg',
+            // 指定文件扩展名为 .svg
+            ext: '.svg',
+            // 指定 CDN 的基础 URL，指向 Iconify 提供的 Fluent Emoji Flat 资源
+            base: 'https://cdn.jsdelivr.net/npm/@iconify-icons/fluent-emoji-flat@latest/svg/'
+          });
+        }
+      });
+    };
+    // 页面初次加载时执行
+    onMounted(() => {
+      parseEmojis();
+    });
+    // 监听路由变化，VitePress 是 SPA，页面切换时需要重新执行
+    watch(
+      () => route.path,
+      () => parseEmojis()
+    );
+  }
 };
