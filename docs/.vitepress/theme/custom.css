@@ -95,10 +95,17 @@ strong, b {
   font-size: 1.15em;
 }
 
+.vp-doc .custom-block > p:first-child {
+  font-family: var(--vp-font-family-heading);
+  font-size: 1.2em;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
 /* Iconify 图标样式 */
 .iconify {
   display: inline-block;
-  vertical-align: text-bottom;
+  vertical-align: middle;
   font-size: 1.25em;
 }
 
