@@ -29,7 +29,36 @@ export default withMermaid(defineConfig({
     },
   },
 
-  base: '/my-vitepress-site/',
+  transformHead({ assets }) {
+    const fontFileNames = [
+      'MapleMono-Regular.ttf.woff2',
+      'MapleMono-Bold.ttf.woff2',
+      'MapleMono-Italic.ttf.woff2',
+      'MapleMono-ExtraBoldItalic.ttf.woff2'
+    ];
+    const preloadLinks = fontFileNames.flatMap(fileName => {
+      const fontAsset = assets.find(asset => asset.endsWith(fileName));
+      if (fontAsset) {
+        return [
+          [
+            'link',
+            {
+              rel: 'preload',
+              href: fontAsset,
+              as: 'font',
+              type: 'font/woff2',
+              crossorigin: 'anonymous'
+            }
+          ]
+        ];
+      }
+      return [];
+    });
+
+    return preloadLinks;
+  },
+
+  base: '/',
   
   title: "Academia",
   description: "一个基于 VitePress 的 Markdown 文档网站",
