@@ -1,8 +1,21 @@
 /* 引入外部字体 */
-@import url('https://cdn.jsdelivr.net/npm/jetbrains-mono@2.242.0/css/jetbrains-mono.min.css');
-@import url('https://cdn.jsdelivr.net/npm/maple-mono/dist/maple-mono.css');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;900&display=swap');
+
+@font-face {
+  font-family: 'Maple Mono';
+  src: url('./fonts/MapleMono-Regular.ttf.woff2') format('woff2');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap; /* 优化加载体验 */
+}
+@font-face {
+  font-family: 'Maple Mono';
+  src: url('./fonts/MapleMono-Bold.ttf.woff2') format('woff2');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap; /* 优化加载体验 */
+}
 
 /* :root 全局变量定义 */
 :root {
