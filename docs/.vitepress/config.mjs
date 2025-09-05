@@ -83,7 +83,7 @@ export default withMermaid(defineConfig({
       }
     ],
     socialLinks: [
-      { icon: "github", link: "https://github.com/Wxh-1104/my-vitepress-site" },
+      { icon: "github", link: "https://github.com/Wxh-1104/academia" },
     ],
     sidebar: {
       "/guide/": [
