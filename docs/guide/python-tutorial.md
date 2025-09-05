@@ -1,5 +1,8 @@
 # Python 通识课讲义（面向大一新生）
 
+> [!NOTE] 推荐阅读
+> [Python官方中文文档](https://docs.python.org/zh-cn/)
+
 ### **前言：为什么学 Python，以及如何学**
 
 欢迎来到 Python 的世界！在开始编程之旅前，我们先明确两个问题：为什么要选择 Python，以及如何才能学好它。
