@@ -50,7 +50,6 @@
   font-family: var(--vp-font-family-mono);
   font-feature-settings: var(--vp-font-feature-settings-mono);
   font-variant-ligatures: var(--vp-font-variant-ligatures-mono);
-  font-size: 0.95em;
 }
 .vp-doc :not(pre) > code {
   color: var(--vp-c-text-1);
@@ -89,6 +88,11 @@ strong, b {
 .vp-doc h2 {
   border-top: none; /* 移除 h2 标题上方的分割线 */
   margin-top: 1.25em; /* 设置 h2 标题上方的外边距 */
+}
+
+.VPNavBar .title {
+  font-family: var(--vp-font-family-heading);
+  font-size: 1.15em;
 }
 
 /* Iconify 图标样式 */

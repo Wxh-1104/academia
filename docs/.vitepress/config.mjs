@@ -54,13 +54,12 @@ export default withMermaid(defineConfig({
       }
       return [];
     });
-
     return preloadLinks;
   },
 
   base: '/',
   
-  title: "Academia",
+  title: "✨Academia",
   description: "一个基于 VitePress 的 Markdown 文档网站",
 
   themeConfig: {
