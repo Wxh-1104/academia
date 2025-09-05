@@ -58,7 +58,7 @@ export default withMermaid(defineConfig({
     return preloadLinks;
   },
 
-  base: '/academia/',
+  base: '/',
   
   title: "Academia",
   description: "一个基于 VitePress 的 Markdown 文档网站",
