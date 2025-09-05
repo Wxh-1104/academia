@@ -109,6 +109,7 @@ export default withMermaid(defineConfig({
         },
       ],
       "/sizheng/": [
+        { text: "思政课首页", link: "/sizheng/" },
         {
           text: "思政课",
           collapsed: false,
