@@ -1,8 +1,4 @@
-# 安装说明
-
-1. 克隆仓库
-2. 运行 `npm install`
-3. 执行 `npm run docs:dev`
+# 计算机科学概览
 
 ## 原点，星图，The First Echo
 

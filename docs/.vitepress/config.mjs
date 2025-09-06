@@ -89,24 +89,23 @@ export default withMermaid(defineConfig({
       "/guide/": [
         { text: "指南首页", link: "/guide/" },
         {
-          text: "安装与使用",
+          text: "学习生活",
           collapsed: false,
           items: [
-            { text: "安装说明", link: "/guide/install" },
-            { text: "开始使用生成式人工智能", link: "/guide/ai" },
+            { text: "开始使用生成式人工智能", link: "/guide/genai" },
             { text: "向学长学姐请教", link: "/guide/getting-advice-from-senior" },
             { text: "保研那点儿事", link: "/guide/baoyan" },
-            { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
-            { text: "缺失的计科课程", link: "/guide/missing-cs-course" },
           ],
         },
         {
-          text: "进阶",
+          text: "计算机进阶",
           collapsed: false,
           items: [
-            { text: "python入门", link: "/guide/python-tutorial" },
+            { text: "计算机科学概览", link: "/guide/cs-overview" },
+            { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
+            { text: "缺失的计科课程", link: "/guide/missing-cs-course" },
+            { text: "Python入门", link: "/guide/python-tutorial" },
             { text: "NumPy", link: "/guide/numpy" },
-            { text: "计算机视觉", link: "/guide/cv" },
           ]
         },
       ],
