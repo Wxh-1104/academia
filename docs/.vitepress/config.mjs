@@ -97,6 +97,7 @@ export default withMermaid(defineConfig({
             { text: "向学长学姐请教", link: "/guide/getting-advice-from-senior" },
             { text: "保研那点儿事", link: "/guide/baoyan" },
             { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
+            { text: "缺失的计科课程", link: "/guide/missing-cs-course" },
           ],
         },
         {
