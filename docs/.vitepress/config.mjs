@@ -105,7 +105,7 @@ export default withMermaid(defineConfig({
             { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
             { text: "缺失的计科课程", link: "/guide/missing-cs-course" },
             { text: "Python入门", link: "/guide/python-tutorial" },
-            { text: "NumPy", link: "/guide/numpy" },
+            { text: "NumPy完全入门指南", link: "/guide/numpy" },
           ]
         },
       ],

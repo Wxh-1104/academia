@@ -1,4 +1,7 @@
-# Python 通识课讲义（面向大一新生）
+# Python 入门
+
+> [!NOTE]
+> 由 <Icon icon="simple-icons:googlegemini" href="https://gemini.google.com/"/>Gemini 2.5 Pro 生成，请对内容进行甄别。
 
 > [!NOTE] 推荐阅读
 > [Python官方中文文档](https://docs.python.org/zh-cn/)

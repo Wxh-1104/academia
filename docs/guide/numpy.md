@@ -1,11 +1,11 @@
-# NumPy 入门绝对指南
+# NumPy 完全入门指南
 
 > [!NOTE] 
 > 原文为 [NumPy: the absolute basics for beginners](https://numpy.org/doc/stable/user/absolute_beginners.html)。
 > 
 > 由 <Icon icon="simple-icons:googlegemini" href="https://gemini.google.com/"/>Gemini 2.5 Pro 翻译。
 
-欢迎阅读 NumPy 入门绝对指南！
+欢迎阅读 NumPy 完全入门指南！
 
 <Icon icon="devicon-plain:numpy" href="https://numpy.org/"/>NumPy (**Num**erical **Py**thon) 是一个开源的 Python 库，广泛用于科学和工程领域。NumPy 库包含多维数组数据结构，例如同构的 N 维 `ndarray`，以及一个庞大的、能对这些数据结构进行高效运算的函数库。在[什么是 NumPy](https://numpy.org/doc/stable/user/whatisnumpy.html#whatisnumpy) 中了解更多关于 NumPy 的信息，如果您有任何意见或建议，请[联系我们](https://numpy.org/community/)！
 
