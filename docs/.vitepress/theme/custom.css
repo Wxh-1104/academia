@@ -87,7 +87,8 @@ strong, b {
 
 .vp-doc h2 {
   border-top: none; /* 移除 h2 标题上方的分割线 */
-  margin-top: 1.11em; /* 设置 h2 标题上方的外边距 */
+  margin-top: 1em; /* 设置 h2 标题上方的外边距 */
+  padding-top: 0.3em;
 }
 
 .VPNavBar .title {
