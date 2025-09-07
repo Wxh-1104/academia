@@ -73,7 +73,7 @@ export default withMermaid(defineConfig({
     nav: [
       { text: "首页", link: "/" },
       { text: "指南", link: "/guide/" },
-      { text: "思政课", link: "/sizheng/" },
+      { text: "课业", link: "/schoolwork/" },
       { text: "关于", link: "/about" },
       {
         text: "更多",
@@ -109,21 +109,31 @@ export default withMermaid(defineConfig({
           ]
         },
       ],
-      "/sizheng/": [
-        { text: "思政课首页", link: "/sizheng/" },
+      "/schoolwork/": [
+        { text: "课业篇：写在前面", link: "/schoolwork/" },
+        {
+          text: "大学英语",
+          collapsed: false,
+          items: [
+            { text: "大学英语（1）", link: "/schoolwork/english/college-english-1" },
+            { text: "大学英语（2）", link: "/schoolwork/english/college-english-2" },
+            { text: "大学英语（3）", link: "/schoolwork/english/college-english-3" },
+            { text: "大学英语（4）", link: "/schoolwork/english/college-english-4" },
+          ]
+        },
         {
           text: "思政课",
           collapsed: false,
           items: [
-            { text: "思想道德与法治", link: "/sizheng/ideology-morality-and-rule-of-law" },
-            { text: "马克思主义基本原理", link: "/sizheng/marxism-general-principle" },
-            { text: "中国近现代史纲要", link: "/sizheng/essentials-of-chinese-modern-history" },
-            { text: "毛泽东思想和中国特色社会主义理论体系概论", link: "/sizheng/fundamentals-of-mao-zedong-thoughts-and-socialism-with-chinese-characteristics" },
-            { text: "习近平新时代中国特色社会主义思想概论", link: "/sizheng/introduction-to-xijinping-thought-on-socialism-with-chinese-characteristics-for-a-new-era" },
-            { text: "形势与政策", link: "/sizheng/situation-and-policy" },
-            { text: "劳动教育", link: "/sizheng/labor-education" },
-            { text: "军事理论", link: "/sizheng/military-theory" },
-            { text: "心理健康教育", link: "/sizheng/mental-health-education" },
+            { text: "思想道德与法治", link: "/schoolwork/sizheng/ideology-morality-and-rule-of-law" },
+            { text: "马克思主义基本原理", link: "/schoolwork/sizheng/marxism-general-principle" },
+            { text: "中国近现代史纲要", link: "/schoolwork/sizheng/essentials-of-chinese-modern-history" },
+            { text: "毛泽东思想和中国特色社会主义理论体系概论", link: "/schoolwork/sizheng/fundamentals-of-mao-zedong-thoughts-and-socialism-with-chinese-characteristics" },
+            { text: "习近平新时代中国特色社会主义思想概论", link: "/schoolwork/sizheng/introduction-to-xijinping-thought-on-socialism-with-chinese-characteristics-for-a-new-era" },
+            { text: "形势与政策", link: "/schoolwork/sizheng/situation-and-policy" },
+            { text: "劳动教育", link: "/schoolwork/sizheng/labor-education" },
+            { text: "军事理论", link: "/schoolwork/sizheng/military-theory" },
+            { text: "心理健康教育", link: "/schoolwork/sizheng/mental-health-education" },
           ]
         }
       ],
