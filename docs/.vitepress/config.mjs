@@ -123,6 +123,16 @@ export default withMermaid(defineConfig({
           ]
         },
         {
+          text: "大学数学",
+          collapsed: false,
+          items: [
+            { text: "高等数学（1）", link: "/schoolwork/math/calculus-1" },
+            { text: "高等数学（2）", link: "/schoolwork/math/calculus-2" },
+            { text: "线性代数", link: "/schoolwork/math/linear-algebra" },
+            { text: "概率论与数理统计", link: "/schoolwork/math/probability-and-statistics" },
+          ]
+        },
+        {
           text: "思政课",
           collapsed: false,
           items: [
