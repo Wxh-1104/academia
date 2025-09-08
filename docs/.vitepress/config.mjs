@@ -74,6 +74,7 @@ export default withMermaid(defineConfig({
       { text: "首页", link: "/" },
       { text: "指引", link: "/guide/" },
       { text: "课业", link: "/schoolwork/" },
+      { text: "教程", link: "/tutorial/" },
       { text: "关于", link: "/about" },
       {
         text: "更多",
@@ -89,6 +90,8 @@ export default withMermaid(defineConfig({
       "/guide/": [
         { text: "指引篇：写在前面", link: "/guide/" },
         { text: "为什么是大学？", link: "/guide/why-university" },
+        { text: "雾海漫游者", link: "/guide/wanderer-above-the-sea-of-fog" },
+        { text: "展望未来", link: "/guide/looking-forward" },
       ],
       "/tutorial/": [
         {
