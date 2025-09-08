@@ -1,8 +1,6 @@
-# 安装说明
+# 开始使用生成式人工智能
 
-1. 克隆仓库
-2. 运行 `npm install`
-3. 执行 `npm run docs:dev`
+作为一名大学生，能够熟练操作各种工具来辅助学习和生活是非常重要的技能。
 
 > [!TIP] <Icon icon="fa6-solid:user" width="18" style="vertical-align: -0.15em;"/> 用户
 > 

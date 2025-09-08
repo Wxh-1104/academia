@@ -3,9 +3,7 @@ layout: home
 
 hero:
   name: ✨Academia
-  
-  text: 个人知识管理中心
-  
+
   tagline: 基于 VitePress 构建，集成了数学公式、流程图与自定义主题，旨在提供极致的阅读与创作体验。
   
   # 您可以在这里添加一个 Logo 或主视觉图 (可选)

@@ -72,7 +72,7 @@ export default withMermaid(defineConfig({
     },
     nav: [
       { text: "首页", link: "/" },
-      { text: "指南", link: "/guide/" },
+      { text: "指引", link: "/guide/" },
       { text: "课业", link: "/schoolwork/" },
       { text: "关于", link: "/about" },
       {
@@ -87,31 +87,35 @@ export default withMermaid(defineConfig({
     ],
     sidebar: {
       "/guide/": [
-        { text: "指南篇：写在前面", link: "/guide/" },
+        { text: "指引篇：写在前面", link: "/guide/" },
+        { text: "为什么是大学？", link: "/guide/why-university" },
+      ],
+      "/tutorial/": [
         {
           text: "学习生活",
           collapsed: false,
           items: [
             { text: "从成长到成才", link: "/guide/growth" },
-            { text: "开始使用生成式人工智能", link: "/guide/genai" },
-            { text: "向学长学姐请教", link: "/guide/getting-advice-from-senior" },
-            { text: "保研那点儿事", link: "/guide/baoyan" },
+            { text: "开始使用生成式人工智能", link: "/tutorial/genai" },
+            { text: "向学长学姐请教", link: "/tutorial/getting-advice-from-senior" },
+            { text: "保研那点儿事", link: "/tutorial/baoyan" },
           ],
         },
         {
           text: "计算机进阶",
           collapsed: false,
           items: [
-            { text: "计算机科学概览", link: "/guide/cs-overview" },
-            { text: "每个计算机科学专业的学生应该知道什么？", link: "/guide/cs-should-know" },
-            { text: "缺失的计科课程", link: "/guide/missing-cs-course" },
-            { text: "Python入门", link: "/guide/python-tutorial" },
-            { text: "NumPy完全入门指南", link: "/guide/numpy" },
+            { text: "计算机科学概览", link: "/tutorial/cs-overview" },
+            { text: "每个计算机科学专业的学生应该知道什么？", link: "/tutorial/cs-should-know" },
+            { text: "缺失的计科课程", link: "/tutorial/missing-cs-course" },
+            { text: "Python入门", link: "/tutorial/python-tutorial" },
+            { text: "NumPy完全入门指南", link: "/tutorial/numpy" },
           ]
         },
       ],
       "/schoolwork/": [
         { text: "课业篇：写在前面", link: "/schoolwork/" },
+        { text: "专业课", link: "/schoolwork/major-courses" },
         {
           text: "大学英语",
           collapsed: false,
