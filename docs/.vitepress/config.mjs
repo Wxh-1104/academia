@@ -113,6 +113,7 @@ export default withMermaid(defineConfig({
             { text: "缺失的计科课程", link: "/tutorial/missing-cs-course" },
             { text: "Python入门", link: "/tutorial/python-tutorial" },
             { text: "NumPy完全入门指南", link: "/tutorial/numpy" },
+            { text: "Matrix Computations for Signal Processing翻译", link: "/tutorial/ee731-lecture-notes" },
           ]
         },
       ],
