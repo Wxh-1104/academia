@@ -1798,8 +1798,8 @@ where $\tilde{\mathbf{\Lambda}} = \text{diag}[\lambda_1, \dots, \lambda_r, 0, \d
 [^chapter3-1]: The concept of *positive definiteness* is discussed next lecture. It means all the eigenvalues are greater than or equal to zero.
 [^chapter3-2]: Golub and van Loan pg. 73.
 
-## 4 Orthogonal Projections
-### 4.1 Sufficient Conditions for a Projector
+# 4 Orthogonal Projections
+## 4.1 Sufficient Conditions for a Projector
 Suppose we have a subspace $S = \mathcal{R}(\mathbf{X})$, where $\mathbf{X} = [\mathbf{x}_1 \dots \mathbf{x}_n] \in \mathbb{R}^{m \times n}$ is full rank, $m > n$, and an arbitrary vector $\mathbf{y} \in \mathbb{R}^m$. How do we find a matrix $\mathbf{P} \in \mathbb{R}^{m \times m}$ so that the product $\mathbf{P}\mathbf{y} \in S$?
 
 The matrix $\mathbf{P}$ is referred to as a **projector**. That is, we can project an arbitrary vector $\mathbf{y}$ onto the subspace $S$, by premultiplying $\mathbf{y}$ by $\mathbf{P}$. Note that this projection has non-trivial meaning only when $m > n$. Otherwise, $\mathbf{y} \in S$ already for arbitrary $\mathbf{y}$.
@@ -1841,7 +1841,7 @@ $$
 $$
 i.e., $\mathbf{P}$ projects both column- and row–vectors onto $S$, by pre- and post-multiplying, respectively. Because this property is a direct consequence of the three conditions above, then these conditions are *sufficient* for $\mathbf{P}$ to be a projector.
 
-### 4.2 A Definition for P
+## 4.2 A Definition for P
 Let $\mathbf{X} = [\mathbf{x}_1 \dots \mathbf{x}_n]$, $\mathbf{x}_i \in \mathbb{R}^m, n < m$ be full rank. Then the matrix $\mathbf{P}$ where
 $$
 \mathbf{P} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \tag{61}
@@ -1877,7 +1877,7 @@ $\square$
 
 In Section 4.1 we discussed *sufficient* conditions for a projector. This means that while these conditions are enough to specify a projector, there may be other conditions which also specify a projector. But since we have now proved the projector is unique, the conditions in Section 4.1 are also *necessary*.
 
-### 4.3 The Orthogonal Complement Projector
+## 4.3 The Orthogonal Complement Projector
 Consider the vector $\mathbf{y}$, and let $\mathbf{y}_s$ be the projection of $\mathbf{y}$ onto our subspace $S$, and $\mathbf{y}_c$ be the projection onto the orthogonal complement subspace $S_{\perp}$. Thus,
 $$
 \mathbf{y} = \mathbf{y}_s + \mathbf{y}_c = \mathbf{P}\mathbf{y} + \mathbf{y}_c. \tag{64}
@@ -1891,7 +1891,7 @@ $$
 $$
 It follows that if $\mathbf{P}$ is a projector onto $S$, then the matrix $(\mathbf{I} - \mathbf{P})$ is a projector onto $S_{\perp}$. It is easily verified that this matrix satisfies the all required properties for this projector.
 
-### 4.4 Orthogonal Projections and the SVD
+## 4.4 Orthogonal Projections and the SVD
 Suppose we have a matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$ of rank $r$. Then, using the partitions of eqeqpart, we have these useful relations:
 1. $\mathbf{V}_1\mathbf{V}_1^T$ is the orthogonal projector onto $[\mathcal{N}(\mathbf{A})]_{\perp} = \mathcal{R}(\mathbf{A}^T)$.
 2. $\mathbf{V}_2\mathbf{V}_2^T$ is the orthogonal projector onto $\mathcal{N}(\mathbf{A})$
@@ -1958,4 +1958,66 @@ $\square$
 Note that $\mathbf{A}$ in this case can only be positive semi-definite if $\mathbf{A}$ has a non-empty null space. Otherwise, it is strictly positive definite.
 
 The fact that $\mathbf{A}$ can be decomposed into two symmetric factors in this way is the fundamental idea behind the Cholesky factorization, which is a major topic of the following chapter.
+
+## 5.1 The Gaussian Multi-Variate Probability Density Function
+Here, we very briefly introduce this topic so we can use this material for an example of the application of the Cholesky decomposition later in this course, and also in least-squares analysis to follow shortly. This topic is a good application of quadratic forms. More detail is provided in several books.[^chapter5-1]
+
+First we consider the uni-variate case of the Gaussian probability distribution function (pdf). The pdf $p(x)$ of a Gaussian-distributed random variable x with mean $\mu$ and variance $\sigma^2$ is given as
+$$
+p(x) = \frac{1}{\sqrt{2\pi\sigma^2}} \exp \left[ -\frac{1}{2\sigma^2}(x-\mu)^2 \right]. \tag{8}
+$$
+This is the familiar bell-shaped curve. It is completely specified by two parameters- the mean $\mu$ which determines the position of the peak, and the variance $\sigma^2$ which determines the width or spread of the curve.
+
+We now consider the more interesting multi-dimensional case. Consider a Gaussian-distributed vector $\mathbf{x} \in \mathbb{R}^n$ with mean $\mathbf{\mu}$ and covariance $\mathbf{\Sigma}$. The multivariate pdf describing the variation of $\mathbf{x}$ is
+$$
+p(\mathbf{x}) = (2\pi)^{-\frac{n}{2}} |\mathbf{\Sigma}|^{-\frac{1}{2}} \exp \left[ -\frac{1}{2}(\mathbf{x}-\mathbf{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x}-\mathbf{\mu}) \right]. \tag{9}
+$$
+We can see that the multi-variate case collapses to the uni-variate case when the number of variables becomes one. A plot of $p(\mathbf{x})$ vs. $\mathbf{x}$ is shown in Fig. 3, for $\mathbf{\mu} = \mathbf{0}$ and $\mathbf{\Sigma}$ defined as
+$$
+\mathbf{\Sigma} = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}. \tag{10}
+$$
+Because the exponent in (9) is a quadratic form, the set of points satisfied by the equation $\frac{1}{2}(\mathbf{x}-\mathbf{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x}-\mathbf{\mu}) = k$ where $k$ is a constant, is an ellipse. Therefore this ellipse defines a contour of equal probability density. The interior of this ellipse defines a region into which an observation will fall with a specified probability $\alpha$ which is dependent on $k$. This probability level $\alpha$ is given as
+$$
+\alpha = \int_R (2\pi)^{-\frac{n}{2}} |\mathbf{\Sigma}|^{-\frac{1}{2}} \exp \left[ -\frac{1}{2}(\mathbf{x}-\mathbf{\mu})^T \mathbf{\Sigma}^{-1} (\mathbf{x}-\mathbf{\mu}) \right] d\mathbf{x}. \tag{11}
+$$
+where $R$ is the interior of the ellipse. Stated another way, an *ellipse* is the region in which any observation governed by the probability distribution (9) will fall with a specified probability level $\alpha$. As $k$ increases, the ellipse gets larger, and $\alpha$ increases. These ellipses are referred to as *joint confidence regions* at probability level $\alpha$.
+
+<center>Figure 3: A Gaussian probability density function.</center>
+
+The covariance matrix $\mathbf{\Sigma}$ controls the shape of the ellipse. Because the quadratic form in this case involves $\mathbf{\Sigma}^{-1}$, the length of the ith principal axis is $\sqrt{2k\lambda_i}$ instead of $\sqrt{2k/\lambda_i}$ as it would be if the quadratic form were in $\mathbf{\Sigma}$. Therefore as the eigenvalues of $\mathbf{\Sigma}$ increase, the size of the joint confidence regions increase (i.e., the spread of the distribution increases) for a given value of $k$.
+
+<center>Figure 4: A Gaussian pdf with a more poorly-conditioned covariance matrix.</center>
+
+Now suppose we let $\mathbf{\Sigma}$ become poorly conditioned in such a way that the variances (main diagonal elements of $\mathbf{\Sigma}$) remain constant. Then the ratio of the largest to smallest principal axes become large, and the ellipse becomes elongated. In this case, the pdf takes on more of the shape shown in Fig. 4, which shows a multi-variate Gaussian pdf for $\mathbf{\mu} = \mathbf{0}$ for a relatively poorly conditioned $\mathbf{\Sigma}$ given as
+$$
+\mathbf{\Sigma} = \begin{bmatrix} 2 & 1.9 \\ 1.9 & 2 \end{bmatrix}. \tag{12}
+$$
+Here, because the ellipse describing the joint confidence region is elongated, we see that if one of the variables is known, the distribution of the other variable becomes more concentrated around the value of the first; i.e., knowledge of one variable tells us relatively more about the other. This implies the variables are more highly *correlated* with one another. But we have seen previously that if the variables in a vector random process are highly correlated, then the off-diagonal elements of the covariance matrix become larger, which leads to their eigenvalues becomming more disparate; i.e., the condition number of the covariance matrix becomes worse. It is precisely this poorer condition number that causes the ellipse in Fig. 4 to become elongated.
+
+With this discussion, we we now have gone full circle: a highly correlated system has large off-diagonal elements in its covariance matrix. This leads to a poorly conditioned covariance matrix. But a Gaussian-distributed process with a poorly-conditioned covariance matrix has a joint confidence region that is elongated. In turn, an elongated joint confidence region means the system is highly correlated, which takes us back to the beginning.
+
+Understanding these relationships is a key element in the signal processing rigor.
+
+## 5.2 The Rayleigh Quotient
+The *Rayleigh quotient* is a simple mathematical structure that has a great deal of interesting uses. The Rayleigh quotient $r(\mathbf{x})$ is defined as
+$$
+r(\mathbf{x}) = \frac{\mathbf{x}^T \mathbf{A} \mathbf{x}}{\mathbf{x}^T \mathbf{x}}. \tag{13}
+$$
+It is easily verified that if $\mathbf{x}$ is the ith eigenvector $\mathbf{v}_i$ of $\mathbf{A}$, (not necessarliy normalized to unit norm), then $r(\mathbf{x}) = \lambda_i$:
+$$
+\frac{\mathbf{v}_i^T \mathbf{A} \mathbf{v}_i}{\mathbf{v}_i^T \mathbf{v}_i} = \frac{\lambda_i \mathbf{v}_i^T \mathbf{v}_i}{\mathbf{v}_i^T \mathbf{v}_i} = \lambda_i. \tag{14}
+$$
+In fact, it is easily shown by differentiating $r(\mathbf{x})$ with respect to $\mathbf{x}$, that $\mathbf{x} = \mathbf{v}_i$ is a stationary point of $r(\mathbf{x})$.
+
+Further along this line of reasoning, let us define a subspace $S_k$ as $S_k = \text{span}\{\mathbf{v}_1, \dots, \mathbf{v}_k\}$, $k=1, \dots, n$, where $\mathbf{v}_i$ is the ith eigenvector of $\mathbf{A} \in \mathbb{R}^{n \times n}$, where $\mathbf{A}$ is symmetric. Then, a variation of the Courant Fischer minimax theorem[^chapter5-2] says that
+$$
+\lambda_k = \min_{\mathbf{x} \in S_k, \mathbf{x} \ne \mathbf{0}} \frac{\mathbf{x}^T \mathbf{A} \mathbf{x}}{\mathbf{x}^T \mathbf{x}}. \tag{15}
+$$
+
+**Question:** It is easily shown by differentiation that (13) for $r(\mathbf{x}) = \lambda_i$ minimizes $\|\mathbf{A} - \lambda_i\mathbf{I}\mathbf{x}\|_2$. The perturbation theory of Golub and Van Loan says that if $\mathbf{x}$ in (13) is a good approximation to an eigenvector, then $r(\mathbf{x})$ is a good approximation to the corresponding eigenvalue, and vice versa. Starting with an initial estimate $\mathbf{x}_0$ with unit 2-norm, suggest an iteration using (13) which gives an improved estimate of the eigenvector. How can the eigenvalue be found?
+
+This technique is referred to as the *Rayleigh quotient iteration* for computing an eigenvalue and eigenvector. In fact, this iteration is remarkably effective; it can be shown to have cubic convergence.
+
+[^chapter5-1]: e.g., H. Van Trees, "Detection, Estimation and Modulation Theory", Part 1. L.L. Scharf, "Statistical Signal Processing: Detection, Estimation, and Time Series Analysis," pg. 55.
+[^chapter5-2]: See Wilkinson, "The Algebraic Eigenvalue Problem", pp. 100-101.
 
