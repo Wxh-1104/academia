@@ -1,3 +1,5 @@
+# EE731 Lecture Notes: Matrix Computations for Signal Processing
+
 > [!NOTE]
 > 原文档为 EE731 Lecture Notes: Matrix Computations for Signal Processing
 > 
@@ -6,1103 +8,1954 @@
 > Department of Electrical and Computer Engineering, McMaster University
 > 
 > September 13, 2004
->
-> 由 <Icon icon="simple-icons:googlegemini" href="https://gemini.google.com/"/>Gemini 2.5 Pro 翻译。
 
-## **0 前言**
+# 0 Preface
 
-这本由十章组成的笔记将向读者介绍线性代数的基本原理，及其在现代工程与科学诸多学科中的应用，包括信号处理、控制理论、过程控制、应用统计学、机器人学等。我们假定读者已具备与大学一年级线性代数课程相当的背景知识，对概率论和统计学有初步了解，并掌握傅里叶变换的基础知识。
+This collection of ten chapters of notes will give the reader an introduction to the fundamental principles of linear algebra for application in many disciplines of modern engineering and science, including signal processing, control theory, process control, applied statistics, robotics, etc. We assume the reader has an equivalent background to a freshman course in linear algebra, some introduction to probability and statistics, and a basic knowledge of the Fourier transform.
 
-第一章确立了课程后续部分所需的一些基本概念。首先，我们探讨了线性代数的一些基本思想，如**线性无关 (linear independence)**、**子空间 (subspaces)**、**秩 (rank)**、**零空间 (nullspace)**、**值域 (range)** 等，以及这些概念之间的相互关系。接着，讨论并解释了**自相关 (autocorrelation)** 的概念以及信号的**协方差矩阵 (covariance matrix)**。
+The first chapter, some fundamental ideas required for the remaining portion of the course are established. First, we look at some fundamental ideas of linear algebra such as linear independence, subspaces, rank, nullspace, range, etc., and how these concepts are interrelated. The idea of autocorrelation, and the covariance matrix of a signal, are then discussed and interpreted.
 
-在第二章中，介绍了最基本的矩阵分解，即所谓的**特征分解 (eigendecomposition)**。本章的重点在于直观地揭示这种分解的作用。我们通过 **Karhunen-Loeve变换** 来说明特征分解的应用。这样，读者便能熟悉这种分解的重要性质。随后，Karhunen-Loeve变换被推广为更广泛的**变换编码 (transform coding)** 思想。
+In chapter 2, the most basic matrix decomposition, the so-called eigendecomposition, is presented. The focus of the presentation is to give an intuitive insight into what this decomposition accomplishes. We illustrate how the eigendecomposition can be applied through the Karhunen-Loeve transform. In this way, the reader is made familiar with the important properties of this decomposition. The Karhunen-Loeve transform is then generalized to the broader idea of transform coding.
 
-在第三章中，我们详细讲解了**奇异值分解 (singular value decomposition, SVD)**，它与矩阵的特征分解密切相关。我们阐述了这两种分解之间的关系，并探讨了SVD的各种性质。
+In chapter 3, we develop the *singular value decomposition (SVD)*, which is closely related to the eigendecomposition of a matrix. We develop the relationships between these two decompositions and explore various properties of the SVD.
 
-第四章讨论**二次型 (quadratic form)** 及其与特征分解的关系，并初步介绍了浮点数系统中的**误差机制 (error mechanisms)**。此外，本章还阐述了矩阵的**条件数 (condition number)**，它是在确定**线性方程组 (linear equations)** 解的相对误差**下界 (lower bound)** 时的关键部分。
+Chapter 4 deals with the quadratic form and its relation to the eigendecomposition, and also gives an introduction to error mechanisms in floating point number systems. The condition number of a matrix, which is a critical part in determining a lower bound on the relative error in the solution of a system of linear equations, is also developed.
 
-第五章和第六章讨论了通过**高斯消元法 (Gaussian elimination)** 求解线性方程组。高斯消元过程通过一种更大分块矩阵的方法来描述，该方法能引出其他有用的分解，例如对称方阵的**Cholesky分解**。
+Chapters 5 and 6 deal with solving linear systems of equations by Gaussian elimination. The Gaussian elimination process is described through a bigger-block matrix approach, that leads to other useful decompositions, such as the Cholesky decomposition of a square symmetric matrix.
 
-第七至十章致力于求解**最小二乘问题 (least-squares problems)**。第七章阐述了**标准最小二乘问题 (standard least squares problem)** 及其解法。在第八章，我们提出了一种广义**“伪逆” (pseudoinverse)** 方法来求解最小二乘问题。第九章阐述了**QR分解**，其在线性最小二乘问题求解中的应用在第十章进行了讨论。
+Chapters 7-10 deal with solving least-squares problems. The standard least squares problem and its solution are developed in Chapter 7. In Chapter 8, we develop a generalized "pseudoinverse" approach to solving the least-squares problem. The QR decomposition in developed in Chapter 9, and its application to the solution of linear least squares problems is discussed in Chapter 10.
 
-最后，在第十一章中，阐述了**托普利兹 (Toeplitz) 方程组**的解法及其相关理论。
+Finally, in Chapter 11, the solution of Toeplitz systems of equations and its underlying theory is developed.
 
-## **1 基本概念**
+# 1 Fundamental Concepts
+The purpose of this lecture is to review important fundamental concepts in linear algebra, as a foundation for the rest of the course. We first discuss the fundamental building blocks, such as an overview of matrix multiplication from a “big block” perspective, linear independence, subspaces and related ideas, rank, etc., upon which the rigor of linear algebra rests. We then discuss vector norms, and various interpretations of the matrix multiplication operation. We close the chapter with a discussion on determinants.
 
-本讲旨在回顾线性代数中的重要基本概念，为后续课程奠定基础。我们首先从“大块”（big block）的视角来讨论矩阵乘法、线性无关、子空间及相关思想、秩等基本构成要素，这些是线性代数严谨体系的基石。接着，我们将讨论向量范数以及矩阵乘法运算的多种解读。本章最后将以行列式的讨论作结。
+## 1.1 Notation
+Throughout this course, we shall indicate that a matrix $\mathbf{A}$ is of dimension $m \times n$, and whose elements are taken from the set of real numbers, by the notation $\mathbf{A} \in \mathbb{R}^{m \times n}$. This means that the matrix $\mathbf{A}$ belongs to the Cartesian product of the real numbers, taken $m \times n$ times, one for each element of $\mathbf{A}$. In a similar way, the notation $\mathbf{A} \in \mathbb{C}^{m \times n}$ means the matrix is of dimension $m \times n$, and the elements are taken from the set of complex numbers. By the matrix dimension “$m \times n$”, we mean $\mathbf{A}$ consists of $m$ rows and $n$ columns.
 
-### **1.1 符号表示**
+Similarly, the notation $\mathbf{a} \in \mathbb{R}^m (\mathbb{C}^m)$ implies a vector of dimension $m$ whose elements are taken from the set of real (complex) numbers. By “dimension of a vector”, we mean its length, i.e., that it consists of $m$ elements.
 
-在本课程中，我们将用符号 $\mathbf{A} \in \mathbb{R}^{m \times n}$ 表示一个维度为 $m \times n$ 且其元素取自实数集的矩阵 $\mathbf{A}$。这意味着矩阵 $\mathbf{A}$ 属于实数的笛卡尔积，该积共包含 $m \times n$ 个实数，对应于 $\mathbf{A}$ 的每一个元素。类似地，符号 $\mathbf{A} \in \mathbb{C}^{m \times n}$ 表示该矩阵的维度为 $m \times n$，其元素取自复数集。矩阵维度 $m \times n$ 指的是 $\mathbf{A}$ 包含 $m$ 行和 $n$ 列。
+Also, we shall indicate that a scalar $a$ is from the set of real (complex) numbers by the notation $a \in \mathbb{R}(\mathbb{C})$. Thus, an upper case bold character denotes a matrix, a lower case bold character denotes a vector, and a lower case non-bold character denotes a scalar.
 
-同样地，符号 $\mathbf{a} \in \mathbb{R}^m (\mathbb{C}^m)$ 表示一个维度为 $m$ 的向量，其元素取自实数（或复数）集。我们所说的“向量的维度”，是指它的长度，即它包含 $m$ 个元素。
+By convention, a vector by default is taken to be a column vector. Further, for a matrix $\mathbf{A}$, we denote its $i$th column as $\mathbf{a}_i$. We also imply that its $j$th row is $\mathbf{a}_j^T$, even though this notation may be ambiguous, since it may also be taken to mean the transpose of the $j$th column. The context of the discussion will help to resolve the ambiguity.
 
-此外，我们用符号 $a \in \mathbb{R}(\mathbb{C})$ 表示一个标量 $a$ 来自实数（或复数）集。因此，大写粗体字母表示矩阵，小写粗体字母表示向量，小写非粗体字母表示标量。
-
-按照惯例，向量默认指列向量。对于一个矩阵 $\mathbf{A}$，我们用 $\mathbf{a}_i$ 表示其第 $i$ 列。我们同样用 $\mathbf{a}_j^T$ 表示其第 $j$ 行，尽管这种表示法可能存在歧义，因为它也可能被理解为第 $j$ 列的转置。具体的含义需要根据上下文来判断。
-
-### **1.2 “大块”视角下的矩阵乘法解读**
-
-我们定义矩阵乘积 $\mathbf{C}$ 如下：
+## 1.2 “Bigger-Block” Interpretations of Matrix Multiplication
+Let us define the matrix product $\mathbf{C}$ as
 $$
-\mathbf{C}_{m \times n} = \mathbf{A}_{m \times k} \mathbf{B}_{k \times n} \quad (1)
+\underset{m \times n}{\mathbf{C}} = \underset{m \times k}{\mathbf{A}} \underset{k \times n}{\mathbf{B}} \tag{1}
 $$
-该运算的三种解读如下：
+The three interpretations of this operation now follow:
 
-#### **1.2.1 内积表示**
+### 1.2.1 Inner-Product Representation
+If $\mathbf{a}$ and $\mathbf{b}$ are column vectors of the same length, then the scalar quantity $\mathbf{a}^T\mathbf{b}$ is referred to as the *inner product* of $\mathbf{a}$ and $\mathbf{b}$. If we define $\mathbf{a}_i^T \in \mathbb{R}^k$ as the $i$th row of $\mathbf{A}$ and $\mathbf{b}_j \in \mathbb{R}^k$ as the $j$th column of $\mathbf{B}$, then the element $c_{ij}$ of $\mathbf{C}$ is defined as the inner product $\mathbf{a}_i^T \mathbf{b}_j$. This is the conventional small-block representation of matrix multiplication.
 
-如果 $\mathbf{a}$ 和 $\mathbf{b}$ 是两个长度相同的列向量，那么标量 $\mathbf{a}^T \mathbf{b}$ 被称为 $\mathbf{a}$ 和 $\mathbf{b}$ 的**内积 (inner product)**。如果我们定义 $\mathbf{a}_i^T \in \mathbb{R}^k$ 为 $\mathbf{A}$ 的第 $i$ 行，$\mathbf{b}_j \in \mathbb{R}^k$ 为 $\mathbf{B}$ 的第 $j$ 列，那么 $\mathbf{C}$ 的元素 $c_{ij}$ 就被定义为内积 $\mathbf{a}_i^T \mathbf{b}_j$。这是传统的小块表示法下的矩阵乘法。
-
-#### **1.2.2 列表示**
-
-这是矩阵乘法的一种更大块的视角。在这里，我们着眼于一次形成乘积的一列。$\mathbf{C}$ 的第 $j$ 列 $\mathbf{c}_j$可以表示为 $\mathbf{A}$ 的各列 $\mathbf{a}_i$ 的线性组合，其系数为 $\mathbf{B}$ 的第 $j$ 列的元素。因此，
+### 1.2.2 Column Representation
+This is the next bigger–block view of matrix multiplication. Here we look at forming the product one column at a time. The $j$th column $\mathbf{c}_j$ of $\mathbf{C}$ may be expressed as a linear combination of columns $\mathbf{a}_i$ of $\mathbf{A}$ with coefficients which are the elements of the $j$th column of $\mathbf{B}$. Thus,
 $$
-\mathbf{c}_j = \sum_{i=1}^{k} \mathbf{a}_i b_{ij}, \quad j = 1, \dots, n. \quad (2)
+\mathbf{c}_j = \sum_{i=1}^k \mathbf{a}_i b_{ij}, \quad j = 1, \dots, n. \tag{2}
 $$
-这个运算与上面的内积表示法是相同的，只是我们一次形成一列。例如，如果我们只计算第 $j$ 列 $\mathbf{c}_j$ 的第 $p$ 个元素，我们会发现 (2) 式退化为 $\sum_{i=1}^{k} a_{pi} b_{ij}$。这正是 $\mathbf{A}$ 的第 $p$ 行与 $\mathbf{B}$ 的第 $j$ 列的内积，也就是 $\mathbf{C}$ 的 $(p, j)$ 位置元素所需的表达式。
+This operation is identical to the inner–product representation above, except we form the product one column at a time. For example, if we evaluate only the $p$th element of the $j$th column $\mathbf{c}_j$, we see that (2) degenerates into $\sum_{i=1}^k a_{pi}b_{ij}$. This is the inner product of the $p$th row and $j$th column of $\mathbf{A}$ and $\mathbf{B}$ respectively, which is the required expression for the $(p, j)$th element of $\mathbf{C}$.
 
-#### **1.2.3 外积表示**
+### 1.2.3 Outer–Product Representation
+This is the largest–block representation. Let us define a column vector $\mathbf{a} \in \mathbb{R}^m$ and a row vector $\mathbf{b}^T \in \mathbb{R}^n$. Then the *outer product* of $\mathbf{a}$ and $\mathbf{b}$ is an $m \times n$ matrix of rank one and is defined as $\mathbf{a}\mathbf{b}^T$.
 
-这是最大块的表示法。我们定义一个列向量 $\mathbf{a} \in \mathbb{R}^m$ 和一个行向量 $\mathbf{b}^T \in \mathbb{R}^n$。那么 $\mathbf{a}$ 和 $\mathbf{b}$ 的**外积 (outer product)** 是一个秩为 1 的 $m \times n$ 矩阵，定义为 $\mathbf{ab}^T$。
-
-现在，令 $\mathbf{a}_i$ 和 $\mathbf{b}_i^T$ 分别为 $\mathbf{A}$ 的第 $i$ 列和 $\mathbf{B}$ 的第 $i$ 行。那么乘积 $\mathbf{C}$ 也可以表示为：
+Now let $\mathbf{a}_i$ and $\mathbf{b}_i^T$ be the $i$th column and row of $\mathbf{A}$ and $\mathbf{B}$ respectively. Then the product $\mathbf{C}$ may also be expressed as
 $$
-\mathbf{C} = \sum_{i=1}^{k} \mathbf{a}_i \mathbf{b}_i^T. \quad (3)
+\mathbf{C} = \sum_{i=1}^k \mathbf{a}_i \mathbf{b}_i^T. \tag{3}
 $$
-通过一次考察一列，我们可以看到这种形式的矩阵乘法与上面的列表述执行的是完全相同的操作。例如，乘积的第 $j$ 列 $\mathbf{c}_j$ 可由 (3) 式确定为 $\mathbf{c}_j = \sum_{i=1}^{k} \mathbf{a}_i b_{ij}$，这与 (2) 式完全相同。
-
-#### **1.2.4 矩阵的左乘与右乘**
+By looking at this operation one column at a time, we see this form of matrix multiplication performs exactly the same operations as the column representation above. For example, the $j$th column $\mathbf{c}_j$ of the product is determined from (3) to be $\mathbf{c}_j = \sum_{i=1}^k \mathbf{a}_i b_{ij}$, which is identical to (2) above.
 
-现在我们来看一些区分矩阵左乘和右乘的基本思想。在这方面，考虑矩阵 $\mathbf{A}$ **被** $\mathbf{B}$ **左乘 (pre-multiplied)** 得到 $\mathbf{Y} = \mathbf{BA}$。（所有矩阵均假定具有相容的维度）。我们可以将这个乘法解释为 $\mathbf{B}$ 作用于 $\mathbf{A}$ 的各列，从而得到乘积的各列。这是因为乘积的每一列 $\mathbf{y}_i$ 都是 $\mathbf{A}$ 对应列的变换版本；即 $\mathbf{y}_i = \mathbf{B}\mathbf{a}_i, \ i=1,\dots,n$。同样地，我们考虑 $\mathbf{A}$ **被**矩阵 $\mathbf{C}$ **右乘 (post-multiplied)** 得到 $\mathbf{X} = \mathbf{AC}$。那么，我们将这个乘法解释为 $\mathbf{C}$ 作用于 $\mathbf{A}$ 的各行，因为乘积的每一行 $\mathbf{x}_j^T$ 都是 $\mathbf{A}$ 对应行的变换版本；即 $\mathbf{x}_j^T = \mathbf{a}_j^T\mathbf{C}, \ j=1,\dots,m$，其中我们定义 $\mathbf{a}_j^T$ 为 $\mathbf{A}$ 的第 $j$ 行。
+### 1.2.4 Matrix Pre– and Post–Multiplication
+Let us now look at some fundamental ideas distinguishing matrix pre– and post–multiplication. In this respect, consider a matrix $\mathbf{A}$ *pre–multiplied* by $\mathbf{B}$ to give $\mathbf{Y} = \mathbf{B}\mathbf{A}$. (All matrices are assumed to have conformable dimensions). Then we can interpret this multiplication as $\mathbf{B}$ operating on the *columns* of $\mathbf{A}$ to give the columns of the product. This follows because each column $\mathbf{y}_i$ of the product is a transformed version of the corresponding column of $\mathbf{A}$; i.e., $\mathbf{y}_i = \mathbf{B}\mathbf{a}_i$, $i = 1, \dots, n$. Likewise, let’s consider $\mathbf{A}$ *post–multiplied* by a matrix $\mathbf{C}$ to give $\mathbf{X} = \mathbf{A}\mathbf{C}$. Then, we interpret this multiplication as $\mathbf{C}$ operating on the *rows* of $\mathbf{A}$, because each row $\mathbf{x}_j^T$ of the product is a transformed version of the corresponding row of $\mathbf{A}$; i.e., $\mathbf{x}_j^T = \mathbf{a}_j^T \mathbf{C}$, $j = 1, \dots, m$, where we define $\mathbf{a}_j^T$ as the $j$th row of $\mathbf{A}$.
 
-**示例：**
-*   考虑一个适当维度的**标准正交矩阵 (orthonormal matrix)** $\mathbf{Q}$。我们知道，乘以一个标准正交矩阵会产生旋转操作。操作 $\mathbf{QA}$ 旋转 $\mathbf{A}$ 的每一列。操作 $\mathbf{AQ}$ 旋转每一行。
+**Example:**
+- Consider an orthonormal matrix $\mathbf{Q}$ of appropriate dimension. We know that multiplication by an orthonormal matrix results in a rotation operation. The operation $\mathbf{Q}\mathbf{A}$ rotates each column of $\mathbf{A}$. The operation $\mathbf{A}\mathbf{Q}$ rotates each row.
 
-还有另一种方式来解读左乘和右乘。再次考虑矩阵 $\mathbf{A}$ 被 $\mathbf{B}$ 左乘得到 $\mathbf{Y} = \mathbf{BA}$。根据 (2) 式，$\mathbf{Y}$ 的第 $j$ 列 $\mathbf{y}_j$ 是 $\mathbf{B}$ 各列的线性组合，其系数是 $\mathbf{A}$ 的第 $j$ 列。同样，对于 $\mathbf{X} = \mathbf{AB}$，我们可以说 $\mathbf{X}$ 的第 $i$ 行 $\mathbf{x}_i^T$ 是 $\mathbf{B}$ 各行的线性组合，其系数是 $\mathbf{A}$ 的第 $i$ 行。
+There is another way to interpret pre– and post–multiplication. Again consider the matrix $\mathbf{A}$ pre–multiplied by $\mathbf{B}$ to give $\mathbf{Y} = \mathbf{B}\mathbf{A}$. Then according to (2), the $j$th column $\mathbf{y}_i$ of $\mathbf{Y}$ is a *linear combination of the columns of* $\mathbf{B}$, whose coefficients are the $j$th column of $\mathbf{A}$. Likewise, for $\mathbf{X} = \mathbf{A}\mathbf{B}$, we can say that the $i$th row $\mathbf{x}_i^T$ of $\mathbf{X}$ is a *linear combination of the rows of* $\mathbf{B}$, whose coefficients are the $i$th row of $\mathbf{A}$.
 
-这两种解读都是同样有效的。熟练掌握本节中的各种表示法，是精通线性代数领域的重要一步。
+Either of these interpretations is equally valid. Being comfortable with the representations of this section is a big step in mastering the field of linear algebra.
 
-### **1.3 基础线性代数**
-
-#### **1.3.1 线性无关**
-
-假设我们有一个由 $n$ 个 $m$ 维向量组成的集合 $\{\mathbf{a}_1, \dots, \mathbf{a}_n\}$，其中 $\mathbf{a}_i \in \mathbb{R}^m, i=1,\dots,n$。这个集合是线性无关的，需满足以下条件：[^1]
+## 1.3 Fundamental Linear Algebra
+### 1.3.1 Linear Independence
+Suppose we have a set of $n$ $m$-dimensional vectors $\{\mathbf{a}_1, \dots, \mathbf{a}_n\}$, where $\mathbf{a}_i \in \mathbb{R}^m, i = 1, \dots, n$. This set is linearly independent under the conditions [^chapter1-1]
 $$
-\sum_{j=1}^{n} c_j \mathbf{a}_j = \mathbf{0} \quad \text{当且仅当} \quad c_1, \dots, c_n = 0 \quad (4)
+\sum_{j=1}^n c_j \mathbf{a}_j = \mathbf{0} \quad \text{if and only if} \quad c_1, \dots, c_n = 0 \tag{4}
 $$
-换言之：
-> 式 (4) 意味着，一个向量集合是**线性无关 (linearly independent)** 的，**当且仅当**这些向量的唯一零线性组合是系数全为零的组合。
+In words:
+> Eq. (4) means that a set of vectors is linearly independent if and only if the only zero linear combination of the vectors has coefficents which are all zero.
 
-[^1]: 式 (4) 被称为向量 $\mathbf{a}_j$ 的**线性组合 (linear combination)**。每个向量乘以一个权重（或**系数**）$c_j$，然后将结果求和。
+A set of $n$ vectors is linearly independent if an $n$–dimensional space may be formed by taking all possible linear combinations of the vectors. If the dimension of the space is less than $n$, then the vectors are linearly dependent. The concept of a *vector space* and the *dimension* of a vector space is made more precise later.
 
-一个由 $n$ 个向量组成的集合是线性无关的，如果通过取这些向量的所有可能的线性组合，可以形成一个 $n$ 维空间。如果这个空间的维度小于 $n$，那么这些向量是**线性相关 (linearly dependent)** 的。关于向量空间和向量空间维度的概念将在稍后更精确地阐述。
+Note that a set of vectors $\{\mathbf{a}_1, \dots, \mathbf{a}_n\}$, where $n > m$ cannot be linearly independent.
 
-请注意，一个向量集合 $\{\mathbf{a}_1, \dots, \mathbf{a}_n\}$，在 $n > m$ 的情况下，不可能是线性无关的。
-
-**示例 1**
+**Example 1**
 $$
-\mathbf{A} = [\mathbf{a}_1 \ \mathbf{a}_2 \ \mathbf{a}_3] = \begin{bmatrix} 1 & 2 & 1 \\ 0 & 3 & -1 \\ 0 & 0 & 1 \end{bmatrix} \quad (5)
+\mathbf{A} = [\mathbf{a}_1 \ \mathbf{a}_2 \ \mathbf{a}_3] = \begin{bmatrix} 1 & 2 & 1 \\ 0 & 3 & -1 \\ 0 & 0 & 1 \end{bmatrix} \tag{5}
 $$
-这个集合是线性无关的。另一方面，集合
+This set is linearly independent. On the other hand, the set
 $$
-\mathbf{B} = [\mathbf{b}_1 \ \mathbf{b}_2 \ \mathbf{b}_3] = \begin{bmatrix} 1 & 2 & -3 \\ 0 & 3 & -3 \\ 0 & 0 & 0 \end{bmatrix} \quad (6)
+\mathbf{B} = [\mathbf{b}_1 \ \mathbf{b}_2 \ \mathbf{b}_3] = \begin{bmatrix} 1 & 2 & -3 \\ 0 & 3 & -3 \\ 0 & 0 & 0 \end{bmatrix} \tag{6}
 $$
-不是线性无关的。这是因为第三列是前两列的线性组合。（-1 乘以第一列加上 -1 乘以第二列等于第三列。因此，在 (4) 式中导致结果为零的系数 $c_j$ 是 (1, 1, 1) 的任意标量倍数）。
-
-#### **1.3.2 张成、值域与子空间**
+is not. This follows because the third column is a linear combination of the first two. ($-1$ times the first column plus $-1$ times the second equals the third column. Thus, the coefficients $c_j$ in (4) resulting in zero are any scalar multiple of $(1, 1, 1)$).
 
-在本节中，我们将探讨这三个密切相关的概念。事实上，它们的数学定义几乎相同，但在每种情况下的解释有所不同。
+### 1.3.2 Span, Range, and Subspaces
+In this section, we explore these three closely-related ideas. In fact, their mathematical definitions are almost the same, but the interpretation is different for each case.
 
-**张成 (Span):**
-
-一个向量集合 $[\mathbf{a}_1, \dots, \mathbf{a}_n]$ 的张成，记作 $\text{span}[\mathbf{a}_1, \dots, \mathbf{a}_n]$，其中 $\mathbf{a}_i \in \mathbb{R}^m$，是由以下映射得到的点的集合：
+**Span:**
+The span of a vector set $[\mathbf{a}_1, \dots, \mathbf{a}_n]$, written as $\text{span}[\mathbf{a}_1, \dots, \mathbf{a}_n]$, where $\mathbf{a}_i \in \mathbb{R}^m$, is the set of points mapped by
 $$
-\text{span} [\mathbf{a}_1, \dots, \mathbf{a}_n] = \left\{ \mathbf{y} \in \mathbb{R}^m \ | \ \mathbf{y} = \sum_{j=1}^{n} c_j \mathbf{a}_j, \ c_j \in \mathbb{R} \right\}. \quad (7)
+\text{span} [\mathbf{a}_1, \dots, \mathbf{a}_n] = \left\{ \mathbf{y} \in \mathbb{R}^m \mid \mathbf{y} = \sum_{j=1}^n c_j \mathbf{a}_j, \quad c_j \in \mathbb{R} \right\}. \tag{7}
 $$
-换句话说，$\text{span} [\mathbf{a}_1, \dots, \mathbf{a}_n]$ 是向量 $\mathbf{a}_i$ 的所有可能线性组合的集合。如果这些向量是线性无关的，那么这个线性组合集合的维度是 $n$。如果向量是线性相关的，则维度小于 $n$。
-
-张成空间中的向量集合被称为**向量空间 (vector space)**。向量空间的维度是构成该空间的线性组合中线性无关向量的数量。请注意，向量空间的维度**不是**构成线性组合的向量的维度（长度）。
-
-**示例 2：** 考虑图 1 中的以下两个向量：
-
+In other words, $\text{span} [\mathbf{a}_1, \dots, \mathbf{a}_n]$ is the set of all possible linear combinations of the vectors $\mathbf{a}$. If the vectors are linearly independent, then the dimension of this set of linear combinations is $n$. If the vectors are linearly dependent, then the dimension is less.
 
+The set of vectors in a span is referred to as a *vector space*. The *dimension* of a vector space is the number of linearly independent vectors in the linear combination which forms the space. Note that the vector space dimension is *not* the dimension (length) of the vectors forming the linear combinations.
 
-这两个向量的张成是这张纸所在的（无限延伸的）平面。
+**Example 2:** Consider the following 2 vectors in Fig. 1:
+The span of these vectors is the (infinite extension of the) plane of the paper.
 
-**子空间 (Subspaces):**
+**Subspaces**
+Given a set (space) of vectors $[\mathbf{a}_1, \dots, \mathbf{a}_n] \in \mathbb{R}^m, m \ge n$, a subspace $S$ is a vector subset that satisfies two requirements:
+1. If $\mathbf{x}$ and $\mathbf{y}$ are in the subspace, then $\mathbf{x} + \mathbf{y}$ is still in the subspace.
+2. If we multiply any vector $\mathbf{x}$ in the subspace by a scalar $c$, then $c\mathbf{x}$ is still in the subspace.
 
-给定一个向量集合（空间）$[\mathbf{a}_1, \dots, \mathbf{a}_n] \in \mathbb{R}^m, m \ge n$，一个子空间 $S$ 是满足两个要求的向量子集：
+These two requirements imply that for a subspace, any linear combination of vectors which are in the subspace is itself in the subspace. Comparing this idea with that of span, we see a subspace defined by the vectors $[\mathbf{a}_1, \dots, \mathbf{a}_n]$ is identical to $\text{span}[\mathbf{a}_1, \dots, \mathbf{a}_n]$. However, a subspace has the interpretation that the set of vectors comprizing the subspace must be a subset of a larger space. For example, the vectors $[\mathbf{a}_1, \mathbf{a}_2]$ in Fig. 1 define a subspace (the plane of the paper) which is a subset of the three–dimensional universe $\mathbb{R}^3$.
 
-1.  如果 $\mathbf{x}$ 和 $\mathbf{y}$ 在子空间中，那么 $\mathbf{x} + \mathbf{y}$ 仍然在子空间中。
-2.  如果我们将子空间中的任意向量 $\mathbf{x}$ 乘以一个标量 $c$，那么 $c\mathbf{x}$ 仍然在子空间中。
+Hence formally, a $k$–dimensional subspace $S$ of $\text{span} [\mathbf{a}_1, \dots, \mathbf{a}_n]$ is determined by $\text{span}[\mathbf{a}_{i_1}, \dots, \mathbf{a}_{i_k}]$, where the distinct indices satisfy $\{i_1, \dots, i_k\} \subset \{1, \dots, n\}$; that is, the vector space $S = \text{span}[\mathbf{a}_{i_1}, \dots, \mathbf{a}_{i_k}]$ is a subset of $\text{span}[\mathbf{a}_1, \dots, \mathbf{a}_n]$.
 
-这两个要求意味着，对于一个子空间，其中向量的任何线性组合本身也在该子空间内。将这个概念与张成的概念相比较，我们发现由向量 $[\mathbf{a}_1, \dots, \mathbf{a}_n]$ 定义的子空间与 $\text{span}[\mathbf{a}_1, \dots, \mathbf{a}_n]$ 是相同的。然而，子空间的概念多了一层解释，即构成子空间的向量集合必须是某个更大空间的子集。例如，图 1 中的向量 $[\mathbf{a}_1, \mathbf{a}_2]$ 定义了一个子空间（纸所在的平面），它是三维宇宙 $\mathbb{R}^3$ 的一个子集。
+Note that $[\mathbf{a}_{i_1}, \dots, \mathbf{a}_{i_k}]$ is not necessarily a *basis* for the subspace $S$. This set is a basis only if it is a maximally independent set. This idea is discussed shortly. The set $\{\mathbf{a}_i\}$ need not be linearly independent to define the span or subset.
 
-因此，形式上，$\text{span} [\mathbf{a}_1, \dots, \mathbf{a}_n]$ 的一个 $k$ 维子空间 $S$ 由 $\text{span}[\mathbf{a}_{i_1}, \dots, \mathbf{a}_{i_k}]$ 确定，其中不同的索引满足 $\{i_1, \dots, i_k\} \subset \{1, \dots, n\}$；也就是说，向量空间 $S = \text{span}[\mathbf{a}_{i_1}, \dots, \mathbf{a}_{i_k}]$ 是 $\text{span}[\mathbf{a}_1, \dots, \mathbf{a}_n]$ 的一个子集。
+∗ What is the span of the vectors $[\mathbf{b}_1, \dots, \mathbf{b}_3]$ in example 1?
 
-请注意，$[\mathbf{a}_{i_1}, \dots, \mathbf{a}_{i_k}]$ 不一定是子空间 $S$ 的一个**基 (basis)**。这个集合只有当它是一个**极大线性无关组 (maximally independent set)** 时才是一个基。这个概念稍后会讨论。集合 $\{\mathbf{a}_i\}$ 不需要是线性无关的来定义张成或子集。
-
-* 示例 1 中向量 $[\mathbf{b}_1, \dots, \mathbf{b}_3]$ 的张成是什么？
-
-**值域 (Range):**
-
-矩阵 $\mathbf{A} \in \mathbb{R}^{m \times n}$ 的值域，记作 $R(\mathbf{A})$，是一个满足以下条件的子空间（向量集合）：
+**Range:**
+The *range* of a matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$, denoted $\mathcal{R}(\mathbf{A})$, is a subspace (set of vectors) satisfying
 $$
-R(\mathbf{A}) = \{ \mathbf{y} \in \mathbb{R}^m \ | \ \mathbf{y} = \mathbf{Ax}, \text{对于} \ \mathbf{x} \in \mathbb{R}^n \}. \quad (8)
+\mathcal{R}(\mathbf{A}) = \{ \mathbf{y} \in \mathbb{R}^m \mid \mathbf{y} = \mathbf{A}\mathbf{x}, \text{ for } \mathbf{x} \in \mathbb{R}^n \}. \tag{8}
 $$
-我们可以根据矩阵乘法的列表示 (2) 来解释上面的矩阵-向量乘法 $\mathbf{y} = \mathbf{Ax}$，其中乘积 $\mathbf{C}$ 只有一列。因此，我们看到 $\mathbf{y}$ 是 $\mathbf{A}$ 的列向量 $\mathbf{a}_i$ 的线性组合，其系数是 $\mathbf{x}$ 的元素 $x_i$。因此，(8) 等价于 (7)，$R(\mathbf{A})$ 就是 $\mathbf{A}$ 的列的张成。值域和张成之间的区别在于，值域的参数是一个矩阵，而张成的参数是一个向量集合。如果 $\mathbf{A}$ 的列是（或不是）线性无关的，那么 $R(\mathbf{A})$ 将（或不会）张成 $n$ 维空间。因此，向量空间 $R(\mathbf{A})$ 的维度小于或等于 $n$。任何向量 $\mathbf{y} \in R(\mathbf{A})$ 的维度（长度）是 $m$。
+We can interpret the matrix–vector multiplication $\mathbf{y} = \mathbf{A}\mathbf{x}$ above according to the column representation for matrix multiplication (2), where the product $\mathbf{C}$ has only one column. Thus, we see that $\mathbf{y}$ is a linear combination of the columns $\mathbf{a}_i$ of $\mathbf{A}$, whose coefficients are the elements $x_i$ of $\mathbf{x}$. Therefore, (8) is equivalent to (7), and $\mathcal{R}(\mathbf{A})$ is thus the span of the columns of $\mathbf{A}$. The distinction between *range* and *span* is that the argument of *range* is a matrix, while for *span* it is a set of vectors. If the columns of $\mathbf{A}$ are (not) linearly independent, then $\mathcal{R}(\mathbf{A})$ will (not) span $n$ dimensions. Thus, the dimension of the vector space $\mathcal{R}(\mathbf{A})$ is less than or equal to $n$. Any vector $\mathbf{y} \in \mathcal{R}(\mathbf{A})$ is of dimension (length) $m$.
 
-**示例 3:**
+**Example 3:**
 $$
-\mathbf{A} = \begin{bmatrix} 1 & 5 & 3 \\ 2 & 4 & 3 \\ 3 & 3 & 3 \end{bmatrix} \quad (\text{最后一列是前两列的平均值}) \quad (9)
+\mathbf{A} = \begin{bmatrix} 1 & 5 & 3 \\ 2 & 4 & 3 \\ 3 & 3 & 3 \end{bmatrix} \quad (\text{the last column is the average of the first two}) \tag{9}
 $$
-$R(\mathbf{A})$ 是 $\mathbf{A}$ 的任意两列的所有线性组合的集合。
+$\mathcal{R}(\mathbf{A})$ is the set of all linear combinations of any two columns of $\mathbf{A}$.
 
-在 $n < m$（即 $\mathbf{A}$ 是一个**高矩阵 (tall matrix)**）的情况下，需要注意的是 $R(\mathbf{A})$ 确实是 $m$ 维“宇宙”$\mathbb{R}^m$ 的一个子空间。在这种情况下，$R(\mathbf{A})$ 的维度小于或等于 $n$。因此，$R(\mathbf{A})$ 并不张成整个宇宙，所以是它的一个子空间。
+In the case when $n < m$ (i.e., $\mathbf{A}$ is a *tall* matrix), it is important to note that $\mathcal{R}(\mathbf{A})$ is indeed a subspace of the $m$-dimensional “universe” $\mathbb{R}^m$. In this case, the dimension of $\mathcal{R}(\mathbf{A})$ is less than or equal to $n$. Thus, $\mathcal{R}(\mathbf{A})$ does not span the whole universe, and therefore is a subspace of it.
 
-#### **1.3.3 极大线性无关组 (Maximally Independent Set)**
+### 1.3.3 Maximally Independent Set
+This is a vector set which cannot be made larger without losing independence, and smaller without remaining maximal; i.e. it is a set containing the maximum number of independent vectors spanning the space.
 
-这是一个向量集合，它不能在不失去无关性的情况下变得更大，也不能在保持极大性的情况下变得更小；即，它是一个包含张成该空间的最大数量的无关向量的集合。
+### 1.3.4 A Basis
+A basis for a subspace is any maximally independent set within the subspace. It is not unique.
 
-#### **1.3.4 基 (A Basis)**
-
-一个子空间的**基 (basis)** 是该子空间内的任意一个极大线性无关组。它不是唯一的。
-
-**示例 4.** 对于由以下矩阵前两列张成的子空间 $S$
+**Example 4.** A basis for the subspace $S$ spanning the first 2 columns of
 $$
-\mathbf{A} = \begin{bmatrix} 1 & 2 & 3 \\ 3 & -3 & \\ & 3 & \end{bmatrix}, \quad \text{即,} \quad S = \left\{ \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 2 \\ 3 \\ 0 \end{bmatrix} \right\}
+\mathbf{A} = \begin{bmatrix} 1 & 2 & 3 \\ 3 & -3 & 3 \end{bmatrix}, \quad \text{i.e., } S = \left\{ \begin{bmatrix} 1 \\ 0 \\ 0 \end{bmatrix}, \begin{bmatrix} 2 \\ 3 \\ 0 \end{bmatrix} \right\}
 $$
-的一个基是
+is
 $$
-\mathbf{e}_1 = (1, 0, 0)^T \\
-\mathbf{e}_2 = (0, 1, 0)^T.
+\begin{aligned}
+\mathbf{e}_1 &= (1, 0, 0)^T \\
+\mathbf{e}_2 &= (0, 1, 0)^T.
+\end{aligned}
 $$
-[^2]或在 $\text{span}[\mathbf{e}_1, \mathbf{e}_2]$ 中的任何其他线性无关集。
+[^chapter1-2]or any other linearly independent set in $\text{span}[\mathbf{e}_1, \mathbf{e}_2]$.
 
-$S$ 中的任何向量都可以唯一地表示为基向量的线性组合。
+Any vector in $S$ is *uniquely* represented as a linear combination of the basis vectors.
 
-#### **1.3.5 正交补子空间 (Orthogonal Complement Subspace)**
-
-如果我们有一个由向量 $[\mathbf{a}_1, \dots, \mathbf{a}_n]$ 组成的 $n$ 维子空间 $S$，其中 $\mathbf{a}_i \in \mathbb{R}^m, i=1, \dots, n$，对于 $n \le m$，那么 $S$ 的维度为 $m-n$ 的正交补子空间 $S_{\perp}$ 定义为
+### 1.3.5 Orthogonal Complement Subspace
+If we have a subspace $S$ of dimension $n$ consisting of vectors $[\mathbf{a}_1, \dots, \mathbf{a}_n]$, $\mathbf{a}_i \in \mathbb{R}^m, i = 1, \dots, n$, for $n \le m$, the orthogonal complement subspace $S_{\perp}$ of $S$ of dimension $m-n$ is defined as
 $$
-S_{\perp} = \{ \mathbf{y} \in \mathbb{R}^m | \mathbf{y}^T \mathbf{x} = 0 \ \text{对于所有} \ \mathbf{x} \in S \} \quad (10)
+S_{\perp} = \{ \mathbf{y} \in \mathbb{R}^m \mid \mathbf{y}^T\mathbf{x} = 0 \text{ for all } \mathbf{x} \in S \} \tag{10}
 $$
-即，$S_{\perp}$ 中的任何向量都与 $S$ 中的任何向量正交。$S_{\perp}$ 读作“S-perp”。
+i.e., any vector in $S_{\perp}$ is orthogonal to any vector in $S$. The quantity $S_{\perp}$ is pronounced “S–perp”.
 
-**示例 5：** 取示例 4 中定义 $S$ 的向量集：
+**Example 5:** Take the vector set defining $S$ from Example 4:
 $$
-S \equiv \begin{bmatrix} 1 & 2 \\ 0 & 3 \\ 0 & 0 \end{bmatrix} \quad (11)
+S \equiv \begin{bmatrix} 1 & 2 \\ 0 & 3 \\ 0 & 0 \end{bmatrix} \tag{11}
 $$
-那么，$S_{\perp}$ 的一个基是
+then, a basis for $S_{\perp}$ is
 $$
-\begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \quad (12)
+\begin{bmatrix} 0 \\ 0 \\ 1 \end{bmatrix} \tag{12}
 $$
-
-#### **1.3.6 秩 (Rank)**
 
-秩是一个重要的概念，我们将在整个课程中频繁使用。在这里，我们只简要描述秩的几个基本特征。这个概念将在后续章节中更充分地展开。
+### 1.3.6 Rank
+Rank is an important concept which we will use frequently throughout this course. We briefly describe only a few basic features of rank here. The idea is expanded more fully in the following sections.
 
-1.  矩阵的**秩 (rank)** 是其线性无关的行或列的最大数量。因此，它是该矩阵的列（或行）的基的维度。
-2.  $\mathbf{A}$ 的秩（记作 $\text{rank}(\mathbf{A})$）是 $R(\mathbf{A})$ 的维度。
-3.  如果 $\mathbf{A} = \mathbf{BC}$，且 $r_1 = \text{rank}(\mathbf{B}), r_2 = \text{rank}(\mathbf{C})$，那么 $\text{rank}(\mathbf{A}) \le \min(r_1, r_2)$。
-4.  如果一个矩阵 $\mathbf{A} \in \mathbb{R}^{m \times n}$ 的秩小于 $\min(m, n)$，则称其为**秩亏 (rank deficient)**。否则，称其为**满秩 (full rank)**。
-5.  如果 $\mathbf{A}$ 是方阵且秩亏，则 $\det(\mathbf{A}) = 0$。
-6.  可以证明 $\text{rank}(\mathbf{A}) = \text{rank}(\mathbf{A}^T)$。稍后会对此进行更多说明。
+1. The rank of a matrix is the maximum number of linearly independent rows or columns. Thus, it is the dimension of a basis for the columns (rows) of a matrix.
+2. Rank of $\mathbf{A}$ (denoted $\text{rank}(\mathbf{A})$), is the dimension of $\mathcal{R}(\mathbf{A})$.
+3. if $\mathbf{A} = \mathbf{B}\mathbf{C}$, and $r_1 = \text{rank}(\mathbf{B})$, $r_2 = \text{rank}(\mathbf{C})$, then $\text{rank}(\mathbf{A}) \le \min(r_1, r_2)$.
+4. A matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$ is said to be *rank deficient* if its rank is less than $\min(m, n)$. Otherwise, it is said to be *full rank*.
+5. If $\mathbf{A}$ is square and rank deficient, then $\det(\mathbf{A}) = 0$.
+6. It can be shown that $\text{rank}(\mathbf{A}) = \text{rank}(\mathbf{A}^T)$. More is said on this point later.
 
-如果一个矩阵的秩等于其列（行）的数量，则称其为**列满秩 (full column rank)**（或**行满秩 (full row rank)**）。
+A matrix is said to be *full column (row) rank* if its rank is equal to the number of columns (rows).
 
-**示例：** 示例 4 中 $\mathbf{A}$ 的秩是 3，而示例 3 中 $\mathbf{A}$ 的秩是 2。
+**Example:** The rank of $\mathbf{A}$ in Example 4 is 3, whereas the rank of $\mathbf{A}$ in Example 3 is 2.
 
-[^2]: 向量 $\mathbf{e}_i$ 被称为**基本向量 (elementary vector)**，它在第 $i$ 个位置为 1，其余位置均为零。
-
-#### **1.3.7 A的零空间 (Null Space of A)**
-
-$\mathbf{A}$ 的**零空间 (null space)** $N(\mathbf{A})$ 定义为
+### 1.3.7 Null Space of A
+The null space $\mathcal{N}(\mathbf{A})$ of $\mathbf{A}$ is defined as
 $$
-N(\mathbf{A}) = \{ \mathbf{x} \in \mathbb{R}^n \ne \mathbf{0} \ | \ \mathbf{Ax} = \mathbf{0} \}. \quad (13)
+\mathcal{N}(\mathbf{A}) = \{ \mathbf{x} \in \mathbb{R}^n \ne \mathbf{0} \mid \mathbf{A}\mathbf{x} = \mathbf{0} \}. \tag{13}
 $$
-根据之前的讨论，乘积 $\mathbf{Ax}$ 是 $\mathbf{A}$ 的列向量 $\mathbf{a}_i$ 的线性组合，其中 $\mathbf{x}$ 的元素 $x_i$ 是对应的系数。因此，从 (13) 可知，$N(\mathbf{A})$ 是 $\mathbf{A}$ 的列的所有零线性组合的非零系数集。如果 $\mathbf{A}$ 的列是线性无关的，那么根据定义，$N(\mathbf{A}) = \emptyset$，因为除了全零系数外，不存在任何系数可以产生零线性组合。在这种情况下，零空间的维度为零，且 $\mathbf{A}$ 是列满秩的。零空间为空当且仅当 $\mathbf{A}$ 是列满秩的，并且当 $\mathbf{A}$ 是**列秩亏 (column rank deficient)**[^3]:  时，零空间非空。请注意，$N(\mathbf{A})$ 中的任何向量的维度都是 $n$。$N(\mathbf{A})$ 中的任何向量都与 $\mathbf{A}$ 的行正交，因此它位于 $\mathbf{A}$ 行的张成的正交补空间中。
+From previous discussions, the product $\mathbf{A}\mathbf{x}$ is a linear combination of the columns $\mathbf{a}_i$ of $\mathbf{A}$, where the elements $x_i$ of $\mathbf{x}$ are the corresponding coefficients. Thus, from (13), $\mathcal{N}(\mathbf{A})$ is the set of non–zero coefficients of all zero linear combinations of the columns of $\mathbf{A}$. If the columns of $\mathbf{A}$ are linearly independent, then $\mathcal{N}(\mathbf{A}) = \emptyset$ by definition, because there can be no coefficients except zero which result in a zero linear combination. In this case, the dimension of the null space is zero, and $\mathbf{A}$ is full column rank. The null space is empty if and only if $\mathbf{A}$ is full column rank, and is non–empty when $\mathbf{A}$ is column rank deficient[^chapter1-3]. Note that any vector in $\mathcal{N}(\mathbf{A})$ is of dimension $n$. Any vector in $\mathcal{N}((\mathbf{A}))$ is orthogonal to the rows of $\mathbf{A}$, and is thus in the orthogonal complement of the span of the rows of $\mathbf{A}$.
 
-**示例 6：** 令 $\mathbf{A}$ 如示例 3 所示。则 $N(\mathbf{A}) = c(1, 1, -2)^T$，其中 $c$ 是一个实常数。
+**Example 6:** Let $\mathbf{A}$ be as before in Example 3. Then $\mathcal{N}(\mathbf{A}) = c(1, 1, -2)^T$, where $c$ is a real constant.
 
-另一个例子如下。取 3 个向量 $[\mathbf{a}_1, \mathbf{a}_2, \mathbf{a}_3]$，其中 $\mathbf{a}_i \in \mathbb{R}^3, i=1, \dots, 3$，且它们被约束在一个二维平面内。那么，这些向量存在一个零线性组合。这个线性组合的系数定义了一个向量 $\mathbf{x}$，它位于 $\mathbf{A} = [\mathbf{a}_1, \mathbf{a}_2, \mathbf{a}_3]$ 的零空间中。在这种情况下，我们看到 $\mathbf{A}$ 是秩亏的。
+A further example is as follows. Take 3 vectors $[\mathbf{a}_1, \mathbf{a}_2, \mathbf{a}_3]$ where $\mathbf{a}_i \in \mathbb{R}^3$, $i=1, \dots, 3$, that are constrained to lie in a 2–dimensional plane. Then there exists a zero linear combination of these vectors. The coefficients of this linear combination define a vector $\mathbf{x}$ which is in the nullspace of $\mathbf{A} = [\mathbf{a}_1, \mathbf{a}_2, \mathbf{a}_3]$. In this case, we see that $\mathbf{A}$ is rank deficient.
 
-矩阵的另一个重要特征是它的**零度 (nullity)**。$\mathbf{A}$ 的零度是 $\mathbf{A}$ 的零空间的维度。在上面的示例 6 中，$\mathbf{A}$ 的零度是一。我们有以下有趣的性质：
+Another important characterization of a matrix is its *nullity*. The nullity of $\mathbf{A}$ is the dimension of the nullspace of $\mathbf{A}$. In Example 6 above, the nullity of $\mathbf{A}$ is one. We then have the following interesting property:
 $$
-\text{rank}(\mathbf{A}) + \text{nullity}(\mathbf{A}) = n. \quad (14)
+\text{rank}(\mathbf{A}) + \text{nullity}(\mathbf{A}) = n. \tag{14}
 $$
-### **1.4 矩阵的四个基本子空间**
-
-我们关注的四个矩阵子空间是：**列空间 (column space)**、**行空间 (row space)**，以及它们各自的**正交补空间 (orthogonal complements)**。这四个子空间的建立与 $N(\mathbf{A})$ 和 $R(\mathbf{A})$ 密切相关。本节我们假设 $\mathbf{A} \in \mathbb{R}^{m \times n}, r \le \min(m, n)$，其中 $r = \text{rank}\mathbf{A}$。
-
-#### **1.4.1 列空间 (The Column Space)**
 
-这即是 $R(\mathbf{A})$。它的维度是 $r$。它是 $\mathbf{A}$ 的列的所有线性组合的集合。
+## 1.4 Four Fundamental Subspaces of a Matrix
+The four matrix subspaces of concern are: the *column space*, the *row space*, and their respective *orthogonal complements*. The development of these four subspaces is closely linked to $\mathcal{N}(\mathbf{A})$ and $\mathcal{R}(\mathbf{A})$. We assume for this section that $\mathbf{A} \in \mathbb{R}^{m \times n}$, $r \le \min(m, n)$, where $r = \text{rank}\mathbf{A}$.
 
-#### **1.4.2 列空间的正交补空间 (The Orthogonal Complement of the Column Space)**
+### 1.4.1 The Column Space
+This is simply $\mathcal{R}(\mathbf{A})$. Its dimension is $r$. It is the set of all linear combinations of the columns of $\mathbf{A}$.
 
-这可以表示为 $R(\mathbf{A})_{\perp}$，维度为 $m-r$。可以证明它等价于 $N(\mathbf{A}^T)$，如下所示：根据定义，$N(\mathbf{A}^T)$ 是满足以下条件的向量 $\mathbf{x}$ 的集合：
+### 1.4.2 The Orthogonal Complement of the Column Space
+This may be expressed as $\mathcal{R}(\mathbf{A})_{\perp}$, with dimension $m-r$. It may be shown to be equivalent to $\mathcal{N}(\mathbf{A}^T)$, as follows: By definition, $\mathcal{N}(\mathbf{A}^T)$ is the set $\mathbf{x}$ satisfying:
 $$
-\begin{bmatrix} & \\ & \mathbf{A}^T \\ & \end{bmatrix} \begin{bmatrix} x_1 \\ \vdots \\ x_m \end{bmatrix} = \mathbf{0}, \quad (15)
+\begin{bmatrix} & \\ & \mathbf{A}^T & \\ & \end{bmatrix}
+\begin{bmatrix} x_1 \\ \vdots \\ x_m \end{bmatrix} = \mathbf{0}, \tag{15}
 $$
-其中 $\mathbf{A}$ 的列是 $\mathbf{A}^T$ 的行。从 (15) 中，我们看到 $N(\mathbf{A}^T)$ 是与 $\mathbf{A}$ 的所有列（即 $\mathbf{A}^T$ 的行）正交的 $\mathbf{x} \in \mathbb{R}^m$ 的集合。根据定义，这就是 $R(\mathbf{A})$ 的正交补空间。
+where columns of $\mathbf{A}$ are the rows of $\mathbf{A}^T$. From (15), we see that $\mathcal{N}(\mathbf{A}^T)$ is the set of $\mathbf{x} \in \mathbb{R}^m$ which is orthogonal to all columns of $\mathbf{A}$ (rows of $\mathbf{A}^T$). This by definition is the orthogonal complement of $\mathcal{R}(\mathbf{A})$.
 
-#### **1.4.3 行空间 (The Row Space)**
+### 1.4.3 The Row Space
+The row space is defined simply as $\mathcal{R}(\mathbf{A}^T)$, with dimension $r$. The row space is the range of the rows of $\mathbf{A}$, or the subspace spanned by the rows, or the set of all possible linear combinations of the rows of $\mathbf{A}$.
 
-行空间简单地定义为 $R(\mathbf{A}^T)$，维度为 $r$。行空间是 $\mathbf{A}$ 的行的值域，或者是行的张成子空间，或者是 $\mathbf{A}$ 的行的所有可能线性组合的集合。
-
-#### **1.4.4 行空间的正交补空间 (The Orthogonal Complement of the Row Space)**
-
-这可以表示为 $R(\mathbf{A}^T)_{\perp}$。它的维度是 $n-r$。这个集合必须与 $\mathbf{A}$ 的所有行都正交：即，对于属于该空间的向量 $\mathbf{x}$，$\mathbf{x}$ 必须满足
+### 1.4.4 The Orthogonal Complement of the Row Space
+This may be denoted as $\mathcal{R}(\mathbf{A}^T)_{\perp}$. Its dimension is $n-r$. This set must be that which is orthogonal to all rows of $\mathbf{A}$: i.e., for $\mathbf{x}$ to be in this space, $\mathbf{x}$ must satisfy
 $$
-\begin{matrix} \text{rows} \\ \text{of} \\ \mathbf{A} \end{matrix} \rightarrow \begin{bmatrix} & & \\ & & \\ & & \\ & & \end{bmatrix} \begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} = \mathbf{0}. \quad (16)
+\begin{matrix} \text{rows} \\ \text{of} \\ \mathbf{A} \end{matrix} \rightarrow
+\begin{bmatrix} \\ \vdots \\ \\ \end{bmatrix}
+\begin{bmatrix} x_1 \\ \vdots \\ x_n \end{bmatrix} = \mathbf{0}. \tag{16}
 $$
-因此，满足 (16) 的向量集合 $\mathbf{x}$，即行空间的正交补空间，就是 $N(\mathbf{A})$。
-
-[^3]: 列秩亏是指矩阵的秩小于其列数。
-
-我们之前已经注意到 $\text{rank}(\mathbf{A}) = \text{rank}(\mathbf{A}^T)$。因此，行子空间和列子空间的维度是相等的。这一点令人惊讶，因为它意味着一个矩阵的线性无关行的数量与线性无关列的数量相同。这与矩阵的大小或秩无关。这不是一个直观上显而易见的事实，也没有直接明显的理由说明为什么会这样。然而，一个矩阵的秩就是其独立行或列的数量。
+Thus, the set $\mathbf{x}$, which is the orthogonal complement of the row space satisfying (16), is simply $\mathcal{N}(\mathbf{A})$.
 
-### **1.5 向量范数 (Vector Norms)**
+We have noted before that $\text{rank}(\mathbf{A}) = \text{rank}(\mathbf{A}^T)$. Thus, the dimension of the row and column subspaces are equal. This is surprising, because it implies the number of linearly independent rows of a matrix is the same as the number of linearly independent columns. This holds regardless of the size or rank of the matrix. It is not an intuitively obvious fact and there is no immediately obvious reason why this should be so. Nevertheless, the rank of a matrix is the number of independent rows *or* columns.
 
-**向量范数 (vector norm)** 是一种表示与向量相关的长度或距离的方法。向量空间 $\mathbb{R}^n$ 上的范数是一个函数 $f$，它将 $\mathbb{R}^n$ 中的一个点映射到 $\mathbb{R}$ 中的一个点。形式上，这在数学上表述为 $f: \mathbb{R}^n \rightarrow \mathbb{R}$。范数具有以下性质：
+## 1.5 Vector Norms
+A *vector norm* is a means of expressing the length or distance associated with a vector. A norm on a vector space $\mathbb{R}^n$ is a function $f$, which maps a point in $\mathbb{R}^n$ into a point in $\mathbb{R}$. Formally, this is stated mathematically as $f: \mathbb{R}^n \rightarrow \mathbb{R}$. The norm has the following properties:
+1. $f(\mathbf{x}) \ge 0$ for all $\mathbf{x} \in \mathbb{R}^n$.
+2. $f(\mathbf{x}) = 0$ if and only if $\mathbf{x} = \mathbf{0}$.
+3. $f(\mathbf{x}+\mathbf{y}) \le f(\mathbf{x}) + f(\mathbf{y})$ for $\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$.
+4. $f(a\mathbf{x}) = |a|f(\mathbf{x})$ for $a \in \mathbb{R}, \mathbf{x} \in \mathbb{R}^n$.
 
-1.  $f(\mathbf{x}) \ge 0$ 对于所有 $\mathbf{x} \in \mathbb{R}^n$。
-2.  $f(\mathbf{x}) = 0$ 当且仅当 $\mathbf{x} = \mathbf{0}$。
-3.  $f(\mathbf{x} + \mathbf{y}) \le f(\mathbf{x}) + f(\mathbf{y})$ 对于 $\mathbf{x}, \mathbf{y} \in \mathbb{R}^n$。
-4.  $f(a\mathbf{x}) = |a|f(\mathbf{x})$ 对于 $a \in \mathbb{R}, \mathbf{x} \in \mathbb{R}^n$。
+We denote the function $f(\mathbf{x})$ as $\|\mathbf{x}\|$.
 
-我们用 $||\mathbf{x}||$ 表示函数 $f(\mathbf{x})$。
-
-**p-范数 ($p$-norms):** 这是一类有用的范数，推广了欧几里得范数的概念。它们的定义如下：
+**The p-norms:** This is a useful class of norms, generalizing on the idea of the Euclidean norm. They are defined by
 $$
-||\mathbf{x}||_p = (|x_1|^p + |x_2|^p + \dots + |x_n|^p)^{1/p}. \quad (17)
+\|\mathbf{x}\|_p = (|x_1|^p + |x_2|^p + \dots + |x_n|^p)^{1/p}. \tag{17}
 $$
-如果 $p=1$：
+If $p=1$:
 $$
-||\mathbf{x}||_1 = \sum_i |x_i|
+\|\mathbf{x}\|_1 = \sum_i |x_i|
 $$
-这即是各元素绝对值之和。
+which is simply the sum of absolute values of the elements.
 
-如果 $p=2$：
+If $p=2$:
 $$
-||\mathbf{x}||_2 = \left(\sum_i x_i^2\right)^{1/2} = (\mathbf{x}^T\mathbf{x})^{1/2}
+\|\mathbf{x}\|_2 = \left( \sum_i x_i^2 \right)^{\frac{1}{2}} = (\mathbf{x}^T\mathbf{x})^{\frac{1}{2}}
 $$
-这就是我们熟悉的欧几里得范数。
+which is the familiar Euclidean norm.
 
-如果 $p=\infty$：
+If $p=\infty$:
 $$
-||\mathbf{x}||_{\infty} = \max_i |x_i|
+\|\mathbf{x}\|_\infty = \max_i |x_i|
 $$
-即 $\mathbf{x}$ 中最大的元素。这可以通过以下方式证明。当 $p \rightarrow \infty$ 时，(17) 式圆括号内的最大项将主导所有其他项。因此 (17) 式可以写为
+which is the largest element of $\mathbf{x}$. This may be shown in the following way. As $p \rightarrow \infty$, the largest term within the round brackets in (17) dominates all the others. Therefore (17) may be written as
 $$
-||\mathbf{x}||_{\infty} = \lim_{p\to\infty} \left[\sum_{i=1}^{n} x_i^p\right]^{1/p} = \lim_{p\to\infty} [x_k^p]^{1/p} = x_k \quad (18)
+\|\mathbf{x}\|_\infty = \lim_{p \to \infty} \left[ \sum_{i=1}^n x_i^p \right]^{\frac{1}{p}} = \lim_{p \to \infty} [x_k^p]^{\frac{1}{p}} = x_k \tag{18}
 $$
-其中 $k$ 是对应最大元素 $x_i$ 的索引。
-
-请注意，$p=2$ 范数有许多有用的性质，但计算成本较高。显然，1-范数和 $\infty$-范数更容易计算，但在代数上处理起来更困难。所有的 p-范数都遵循向量范数的所有性质。
-
-### **1.6 行列式 (Determinants)**
+where $k$ is the index corresponding to the largest element $x_i$.
 
-考虑一个方阵 $\mathbf{A} \in \mathbb{R}^{m \times m}$。我们可以将矩阵 $\mathbf{A}_{ij}$ 定义为从 $\mathbf{A}$ 中删除第 $i$ 行和第 $j$ 列得到的子矩阵。标量数值 $\det(\mathbf{A}_{ij})$（其中 $\det(\cdot)$ 表示行列式）被称为与 $\mathbf{A}$ 的元素 $a_{ij}$ 相关联的**子式 (minor)**。带符号的子式 $c_{ij} \triangleq (-1)^{j+i} \det(\mathbf{A}_{ij})$ 被称为 $a_{ij}$ 的**代数余子式 (cofactor)**。
+Note that the $p=2$ norm has many useful properties, but is expensive to compute. Obviously, the 1– and $\infty$–norms are easier to compute, but are more difficult to deal with algebraically. All the p–norms obey all the properties of a vector norm.
 
-$\mathbf{A}$ 的行列式是由 $\mathbf{A}$ 的列（或行）所包含的 $m$ 维体积。行列式的这种解释非常有用，我们很快就会看到。
+## 1.6 Determinants
+Consider a square matrix $\mathbf{A} \in \mathbb{R}^{m \times m}$. We can define the matrix $\mathbf{A}_{ij}$ as the submatrix obtained from $\mathbf{A}$ by deleting the $i$th row and $j$th column of $\mathbf{A}$. The scalar number $\det(\mathbf{A}_{ij})$ ( where $\det(\cdot)$ denotes determinant) is called the *minor* associated with the element $a_{ij}$ of $\mathbf{A}$. The signed minor $c_{ij} \triangleq (-1)^{j+i} \det(\mathbf{A}_{ij})$ is called the *cofactor* of $a_{ij}$.
 
-矩阵的行列式可以通过以下表达式计算：
+The determinant of $\mathbf{A}$ is the m-dimensional volume contained within the columns (rows) of $\mathbf{A}$. This interpretation of determinant is very useful as we see shortly. The determinant of a matrix may be evaluated by the expression
 $$
-\det(\mathbf{A}) = \sum_{j=1}^{m} a_{ij} c_{ij}, \quad i \in (1 \dots m). \quad (19)
+\det(\mathbf{A}) = \sum_{j=1}^m a_{ij}c_{ij}, \quad i \in (1 \dots m). \tag{19}
 $$
-或者
+or
 $$
-\det(\mathbf{A}) = \sum_{i=1}^{m} a_{ij} c_{ij}, \quad j \in (1 \dots m). \quad (20)
+\det(\mathbf{A}) = \sum_{i=1}^m a_{ij}c_{ij}, \quad j \in (1 \dots m). \tag{20}
 $$
-以上两者都被称为行列式的**代数余子式展开 (cofactor expansion)**。式 (19) 是沿 $\mathbf{A}$ 的第 $i$ 行展开，而 (20) 是沿第 $j$ 列展开。有趣的是，无论 $i$ 或 $j$ 的值如何，这两个版本都给出完全相同的数值。
-
-式 (19) 和 (20) 用 $\mathbf{A}$ 的代数余子式 $c_{ij}$ 来表示 $m \times m$ 的行列式 $\det\mathbf{A}$，而这些代数余子式本身是 $(m-1) \times (m-1)$ 的行列式。因此，对 (19) 或 (20) 进行 $m-1$ 次递归最终将得到 $m \times m$ 矩阵 $\mathbf{A}$ 的行列式。
-
-从 (19) 明显可知，如果 $\mathbf{A}$ 是三角矩阵，那么 $\det(\mathbf{A})$ 是主对角元素的乘积。由于对角矩阵属于上三角矩阵集合，因此对角矩阵的行列式也是其对角元素的乘积。
-
-#### **行列式的性质 (Properties of Determinants)**
-
-在开始讨论之前，我们先定义由构成矩阵的列向量集合所定义的平行多面体的体积为该矩阵的**主积 (principal volume)**。
-
-我们有以下行列式的性质，这些性质在此不加证明地陈述：
-
-1.  $\det(\mathbf{AB}) = \det(\mathbf{A})\det(\mathbf{B}) \quad \mathbf{A, B} \in \mathbb{R}^{m \times m}$。
-    矩阵乘积的主积是每个矩阵主积的乘积。
-
-2.  $\det(\mathbf{A}) = \det(\mathbf{A}^T)$
-    这个性质表明 $\mathbf{A}$ 和 $\mathbf{A}^T$ 的特征多项式[^4]是相同的。因此，我们稍后会看到，$\mathbf{A}^T$ 和 $\mathbf{A}$ 的特征值是相同的。
-
-3.  $\det(c\mathbf{A}) = c^m \det(\mathbf{A}) \quad c \in \mathbb{R}, \mathbf{A} \in \mathbb{R}^{m \times m}$。
-    这反映了一个事实，即如果定义主积的每个向量都乘以 $c$，那么最终的体积将乘以 $c^m$。
-
-4.  $\det(\mathbf{A}) = 0 \iff \mathbf{A}$ 是奇异的。
-    这意味着相应矩阵的主积至少有一个维度坍缩为零长度。
-
-5.  $\det(\mathbf{A}) = \prod_{i=1}^{m} \lambda_i$，其中 $\lambda_i$ 是 $\mathbf{A}$ 的特征（奇异）值。
-    这意味着由矩阵的列或行向量定义的平行多面体可以变换成一个具有相同 $m$ 维体积的规则矩形实体，其边长对应于矩阵的特征（奇异）值。
-
-6.  标准正交矩阵[^5]的行列式为 $\pm 1$。
-    这很容易看出，因为标准正交矩阵的向量都是单位长度且相互正交。因此，相应的主积为 $\pm 1$。
-
-7.  如果 $\mathbf{A}$ 是非奇异的，那么 $\det(\mathbf{A}^{-1}) = [\det(\mathbf{A})]^{-1}$。
+Both the above are referred to as the *cofactor expansion* of the determinant. Eq. (19) is along the $i$th *row* of $\mathbf{A}$, whereas (20) is along the $j$th *column*. It is indeed interesting to note that both versions above give exactly the same number, regardless of the value of $i$ or $j$.
 
-8.  如果 $\mathbf{B}$ 是非奇异的，那么 $\det(\mathbf{B}^{-1}\mathbf{A}\mathbf{B}) = \det(\mathbf{A})$。
+Eqs. (19) and (20) express the $m \times m$ determinant $\det\mathbf{A}$ in terms of the cofactors $c_{ij}$ of $\mathbf{A}$, which are themselves $(m-1) \times (m-1)$ determinants. Thus, $m-1$ recursions of (19) or (20) will finally yield the determinant of the $m \times m$ matrix $\mathbf{A}$.
 
-9.  如果 $\mathbf{B}$ 是通过交换 $\mathbf{A}$ 的任意两行（或列）得到的，那么 $\det(\mathbf{B}) = -\det(\mathbf{A})$。
+From (19) it is evident that if $\mathbf{A}$ is triangular, then $\det(\mathbf{A})$ is the product of the main diagonal elements. Since diagonal matrices are in the upper triangular set, then the determinant of a diagonal matrix is also the product of its diagonal elements.
 
-10. 如果 $\mathbf{B}$ 是通过将 $\mathbf{A}$ 的一行的标量倍加到另一行（或一列的标量倍加到另一列）得到的，那么 $\det(\mathbf{B}) = \det(\mathbf{A})$。
+**Properties of Determinants**
+Before we begin this discussion, let us define the volume of a parallelopiped defined by the set of column vectors comprising a matrix as the *principal volume* of that matrix.
 
-行列式的一个进一步性质允许我们计算 $\mathbf{A}$ 的**逆 (inverse)**。定义矩阵 $\tilde{\mathbf{A}}$ 为 $\mathbf{A}$ 的**伴随矩阵 (adjoint)**：
-$$
-\tilde{\mathbf{A}} = \begin{bmatrix} c_{11} & \dots & c_{1m} \\ \vdots & \ddots & \vdots \\ c_{m1} & \dots & c_{mm} \end{bmatrix}^T \quad (21)
-$$
-其中 $c_{ij}$ 是 $\mathbf{A}$ 的代数余子式。根据 (19) 或 (20)，$\tilde{\mathbf{A}}$ 的第 $i$ 行 $\tilde{\mathbf{a}}_i^T$ 乘以第 $i$ 列 $\mathbf{a}_i$ 等于 $\det(\mathbf{A})$；即，
-$$
-\tilde{\mathbf{a}}_i^T \mathbf{a}_i = \det(\mathbf{A}), \quad i = 1, \dots, m. \quad (22)
-$$
-也可以证明
-$$
-\tilde{\mathbf{a}}_i^T \mathbf{a}_j = 0, \quad i \ne j. \quad (23)
-$$
-然后，将 (22) 和 (23) 对 $i, j \in \{1, \dots, m\}$ 结合起来，我们得到以下有趣的性质：
-$$
-\tilde{\mathbf{A}}\mathbf{A} = \det(\mathbf{A})\mathbf{I}, \quad (24)
-$$
-其中 $\mathbf{I}$ 是 $m \times m$ 的单位矩阵。从 (24) 可以得出，$\mathbf{A}$ 的逆 $\mathbf{A}^{-1}$ 由下式给出：
-$$
-\mathbf{A}^{-1} = [\det(\mathbf{A})]^{-1} \tilde{\mathbf{A}}. \quad (25)
-$$
-
-[^4]: 矩阵的特征多项式在第二章中定义。
+We have the following properties of determinants, which are stated without proof:
+1. $\det(\mathbf{A}\mathbf{B}) = \det(\mathbf{A})\det(\mathbf{B}) \quad \mathbf{A}, \mathbf{B} \in \mathbb{R}^{m \times m}$.
+The principal volume of the product of matrices is the product of principal volumes of each matrix.
+2. $\det(\mathbf{A}) = \det(\mathbf{A}^T)$
+This property shows that the characteristic polynomials[^chapter1-4] of $\mathbf{A}$ and $\mathbf{A}^T$ are identical. Consequently, as we see later, eigenvalues of $\mathbf{A}^T$ and $\mathbf{A}$ are identical.
+3. $\det(c\mathbf{A}) = c^m \det(\mathbf{A}) \quad c \in \mathbb{R}, \mathbf{A} \in \mathbb{R}^{m \times m}$.
+This is a reflection of the fact that if each vector defining the principal volume is multiplied by $c$, then the resulting volume is multiplied by $c^m$.
+4. $\det(\mathbf{A}) = 0 \iff \mathbf{A}$ is singular.
+This implies that at least one dimension of the principal volume of the corresponding matrix has collapsed to zero length.
+5. $\det(\mathbf{A}) = \prod_{i=1}^m \lambda_i$, where $\lambda_i$ are the eigen (singular) values of $\mathbf{A}$.
+This means the parallelopiped defined by the column or row vectors of a matrix may be transformed into a regular rectangular solid of the same m– dimensional volume whose edges have lengths corresponding to the eigen (singular) values of the matrix.
+6. The determinant of an orthonormal[^chapter1-5] matrix is $\pm 1$.
+This is easy to see, because the vectors of an orthonormal matrix are all unit length and mutually orthogonal. Therefore the corresponding principal volume is $\pm 1$.
+7. If $\mathbf{A}$ is nonsingular, then $\det(\mathbf{A}^{-1}) = [\det(\mathbf{A})]^{-1}$.
+8. If $\mathbf{B}$ is nonsingular, then $\det(\mathbf{B}^{-1}\mathbf{A}\mathbf{B}) = \det(\mathbf{A})$.
+9. If $\mathbf{B}$ is obtained from $\mathbf{A}$ by interchanging any two rows (or columns), then $\det(\mathbf{B}) = - \det(\mathbf{A})$.
+10. If $\mathbf{B}$ is obtained from $\mathbf{A}$ by by adding a scalar multiple of one row to another (or a scalar multiple of one column to another), then $\det(\mathbf{B}) = \det(\mathbf{A})$.
 
-[^5]: 标准正交矩阵在第二章中定义。
-
-行列式的一个进一步性质允许我们计算 $\mathbf{A}$ 的**逆 (inverse)**。定义矩阵 $\tilde{\mathbf{A}}$ 为 $\mathbf{A}$ 的**伴随矩阵 (adjoint)**：
+A further property of determinants allows us to compute the *inverse* of $\mathbf{A}$. Define the matrix $\tilde{\mathbf{A}}$ as the *adjoint* of $\mathbf{A}$:
 $$
-\tilde{\mathbf{A}} = \begin{bmatrix} c_{11} & \dots & c_{1m} \\ \vdots & \ddots & \vdots \\ c_{m1} & \dots & c_{mm} \end{bmatrix}^T \quad (21)
+\tilde{\mathbf{A}} = \begin{bmatrix} c_{11} & \dots & c_{1m} \\ \vdots & \ddots & \vdots \\ c_{m1} & \dots & c_{mm} \end{bmatrix}^T \tag{21}
 $$
-其中 $c_{ij}$ 是 $\mathbf{A}$ 的代数余子式。根据 (19) 或 (20)，$\tilde{\mathbf{A}}$ 的第 $i$ 行 $\tilde{\mathbf{a}}_i^T$ 乘以第 $i$ 列 $\mathbf{a}_i$ 等于 $\det(\mathbf{A})$；即，
+where the $c_{ij}$ are the cofactors of $\mathbf{A}$. According to (19) or (20), the $i$th row $\tilde{\mathbf{a}}_i^T$ of $\tilde{\mathbf{A}}$ times the $i$th column $\mathbf{a}_i$ is $\det(\mathbf{A})$; i.e.,
 $$
-\tilde{\mathbf{a}}_i^T \mathbf{a}_i = \det(\mathbf{A}), \quad i = 1, \dots, m. \quad (22)
+\tilde{\mathbf{a}}_i^T \mathbf{a}_i = \det(\mathbf{A}), \quad i = 1, \dots, m. \tag{22}
 $$
-也可以证明
+It can also be shown that
 $$
-\tilde{\mathbf{a}}_i^T \mathbf{a}_j = 0, \quad i \ne j. \quad (23)
+\tilde{\mathbf{a}}_i^T \mathbf{a}_j = 0, \quad i \ne j. \tag{23}
 $$
-然后，将 (22) 和 (23) 对 $i, j \in \{1, \dots, m\}$ 结合起来，我们得到以下有趣的性质：
+Then, combining (22) and (23) for $i, j \in \{1, \dots, m\}$ we have the following interesting property:
 $$
-\tilde{\mathbf{A}}\mathbf{A} = \det(\mathbf{A})\mathbf{I}, \quad (24)
+\tilde{\mathbf{A}}\mathbf{A} = \det(\mathbf{A})\mathbf{I}, \tag{24}
 $$
-其中 $\mathbf{I}$ 是 $m \times m$ 的单位矩阵。从 (24) 可以得出，$\mathbf{A}$ 的逆 $\mathbf{A}^{-1}$ 由下式给出：
+where $\mathbf{I}$ is the $m \times m$ identity matrix. It then follows from (24) that the inverse $\mathbf{A}^{-1}$ of $\mathbf{A}$ is given as
 $$
-\mathbf{A}^{-1} = [\det(\mathbf{A})]^{-1} \tilde{\mathbf{A}}. \quad (25)
+\mathbf{A}^{-1} = [\det(\mathbf{A})]^{-1} \tilde{\mathbf{A}}. \tag{25}
 $$
-无论是 (19) 还是 (25) 都不是计算行列式或逆矩阵的计算效率高的方法。利用各种矩阵分解性质的更好方法将在课程的后续部分变得显而易见。
-
+Neither (19) nor (25) are computationally efficient ways of calculating a determinant or an inverse respectively. Better methods which exploit the properties of various matrix decompositions are made evident later in the course.
 
-## **2 第二讲**
+[^chapter1-1]: Eq. (4) is called a *linear combination* of the vectors $\mathbf{a}_j$. Each vector is multiplied by a weight (or *coefficient*) $c_j$, and the result summed.
+[^chapter1-2]: A vector $\mathbf{e}_i$ is referred to as an *elementary vector*, and has zeros everywhere except for a 1 in the $i$th position.
+[^chapter1-3]: *Column rank deficient* is when the rank of the matrix is less than the number of columns.
+[^chapter1-4]: The characteristic polynomial of a matrix is defined in Chapter 2.
+[^chapter1-5]: An orthonormal matrix is defined in Chapter 2.
 
-本讲在随机过程的**卡尔胡宁-洛维 (Karhunen-Loeve, KL) 展开**背景下，讨论**特征值 (eigenvalues)** 和**特征向量 (eigenvectors)**。我们首先讨论特征值和特征向量的基本原理，然后转向**协方差矩阵 (covariance matrices)**。接着，将这两个主题结合到 K-L 展开中。最后，以一个**阵列信号处理 (array signal processing)** 领域的例子作为代数思想的应用。
+# 2 Lecture 2
+This lecture discusses eigenvalues and eigenvectors in the context of the Karhunen–Loeve (KL) expansion of a random process. First, we discuss the fundamentals of eigenvalues and eigenvectors, then go on to covariance matrices. These two topics are then combined into the K-L expansion. An example from the field of array signal processing is given as an application of algebraic ideas.
 
-本讲的一个主要目标是，通过展示特征值和特征向量在信号处理领域的一个非常重要的应用，来揭开其概念的神秘面纱。
+A major aim of this presentation is an attempt to de-mystify the concepts of eigenvalues and eigenvectors by showing a very important application in the field of signal processing.
 
-### **2.1 特征值与特征向量**
-
-假设我们有一个矩阵 $\mathbf{A}$：
+## 2.1 Eigenvalues and Eigenvectors
+Suppose we have a matrix $\mathbf{A}$:
 $$
-\mathbf{A} = \begin{bmatrix} 4 & 1 \\ 1 & 4 \end{bmatrix} \quad (1)
+\mathbf{A} = \begin{bmatrix} 4 & 1 \\ 1 & 4 \end{bmatrix} \tag{1}
 $$
-我们来研究它的特征值和特征向量。
-
+We investigate its eigenvalues and eigenvectors.
 
+<center>Figure 1: Matrix-vector multiplication for various vectors.</center>
 
-假设我们计算乘积 $\mathbf{Ax}_1$，其中 $\mathbf{x}_1 =^T$，如图1所示。
-那么，
+Suppose we take the product $\mathbf{A}\mathbf{x}_1$, where $\mathbf{x}_1 =^T$, as shown in Fig. 1.
+Then,
 $$
-\mathbf{Ax}_1 = \begin{bmatrix} 4 \\ 1 \end{bmatrix}. \quad (2)
+\mathbf{A}\mathbf{x}_1 = \begin{bmatrix} 4 \\ 1 \end{bmatrix}. \tag{2}
 $$
-通过比较向量 $\mathbf{x}_1$ 和 $\mathbf{Ax}_1$，我们看到乘积向量相对于 $\mathbf{x}_1$ 既被缩放又被**逆时针 (counter-clockwise)** 旋转了。
+By comparing the vectors $\mathbf{x}_1$ and $\mathbf{A}\mathbf{x}_1$ we see that the product vector is scaled and rotated *counter–clockwise* with respect to $\mathbf{x}_1$.
 
-现在考虑 $\mathbf{x}_2 =^T$ 的情况。那么 $\mathbf{Ax}_2 =^T$。这里，我们注意到 $\mathbf{Ax}_2$ 相对于 $\mathbf{x}_2$ 发生了**顺时针 (clockwise)** 旋转。
+Now consider the case where $\mathbf{x}_2 =^T$. Then $\mathbf{A}\mathbf{x}_2 =^T$. Here, we note a *clockwise* rotation of $\mathbf{A}\mathbf{x}_2$ with respect to $\mathbf{x}_2$.
 
-现在让我们来看一个更有趣的情况。假设 $\mathbf{x}_3 =^T$。那么 $\mathbf{A}\mathbf{x}_3 =^T$。现在，乘积向量与 $\mathbf{x}_3$ 指向**相同的方向**。向量 $\mathbf{Ax}_3$ 是向量 $\mathbf{x}_3$ 的一个缩放版本。因为这个性质，$\mathbf{x}_3 =^T$ 是 $\mathbf{A}$ 的一个**特征向量 (eigenvector)**。其缩放因子（在此例中为 5）用符号 $\lambda$ 表示，并被称为**特征值 (eigenvalue)**。
+Now lets consider a more interesting case. Suppose $\mathbf{x}_3 =^T$. Then $\mathbf{A} \mathbf{x}_3 =^T$. Now the product vector points in the *same* direction as $\mathbf{x}_3$. The vector $\mathbf{A}\mathbf{x}_3$ is a scaled version of the vector $\mathbf{x}_3$. Because of this property, $\mathbf{x}_3 =^T$ is an **eigenvector** of $\mathbf{A}$. The scale factor (which in this case is 5) is given the symbol $\lambda$ and is referred to as an **eigenvalue**.
 
-注意，$\mathbf{x} = [1, -1]^T$ 也是一个特征向量，因为在这种情况下，$\mathbf{Ax} = [3, -3]^T = 3\mathbf{x}$。对应的特征值是 3。
+Note that $\mathbf{x} = [1, -1]^T$ is also an eigenvector, because in this case, $\mathbf{A}\mathbf{x} = [3, -3]^T = 3\mathbf{x}$. The corresponding eigenvalue is 3.
 
-因此我们有，如果 $\mathbf{x}$ 是 $\mathbf{A} \in \mathbb{R}^{n \times n}$ 的一个特征向量，
+Thus we have, if $\mathbf{x}$ is an eigenvector of $\mathbf{A} \in \mathbb{R}^{n \times n}$,
 $$
-\mathbf{Ax} = \lambda\mathbf{x} \quad (3) \\
-\uparrow \text{标量倍数 (eigenvalue)}
+\mathbf{A}\mathbf{x} = \lambda\mathbf{x} \tag{3} \\
+\uparrow \text{scalar multiple (eigenvalue)}
 $$
-即，向量 $\mathbf{Ax}$ 与 $\mathbf{x}$ 方向相同，但被一个因子 $\lambda$ 缩放。
+i.e., the vector $\mathbf{A}\mathbf{x}$ is in the same direction as $\mathbf{x}$ but scaled by a factor $\lambda$.
 
-现在我们已经理解了特征向量的基本思想，我们继续深入探讨。式 (3) 可以写成如下形式
+Now that we have an understanding of the fundamental idea of an eigenvector, we proceed to develop the idea further. Eq. (3) may be written in the form
 $$
-(\mathbf{A} - \lambda\mathbf{I})\mathbf{x} = \mathbf{0} \quad (4)
+(\mathbf{A} - \lambda\mathbf{I})\mathbf{x} = \mathbf{0} \tag{4}
 $$
-其中 $\mathbf{I}$ 是 $n \times n$ 的单位矩阵。式 (4) 是一个齐次线性方程组，根据基础线性代数知识，我们知道 (4) 存在非平凡解的充要条件是
+where $\mathbf{I}$ is the $n \times n$ identity matrix. Eq. (4) is a homogeneous system of equations, and from fundamental linear algebra, we know that a nontrivial solution to (4) exists if and only if
 $$
-\det(\mathbf{A} - \lambda\mathbf{I}) = 0 \quad (5)
+\det(\mathbf{A} - \lambda\mathbf{I}) = 0 \tag{5}
 $$
-其中 $\det(\cdot)$ 表示行列式。当计算式 (5) 时，它会成为一个关于 $\lambda$ 的 $n$ 次多项式。例如，对于上面的矩阵 $\mathbf{A}$，我们有
+where $\det(\cdot)$ denotes determinant. Eq. (5), when evaluated, becomes a polynomial in $\lambda$ of degree $n$. For example, for the matrix $\mathbf{A}$ above we have
 $$
 \det \left( \begin{bmatrix} 4 & 1 \\ 1 & 4 \end{bmatrix} - \lambda \begin{bmatrix} 1 & 0 \\ 0 & 1 \end{bmatrix} \right) = 0
 $$
 $$
-\det \begin{bmatrix} 4 - \lambda & 1 \\ 1 & 4 - \lambda \end{bmatrix} = (4 - \lambda)^2 - 1
+\det \begin{bmatrix} 4 - \lambda & 1 \\ 1 & 4 - \lambda \end{bmatrix} = (4 - \lambda)^2 - 1 = \lambda^2 - 8\lambda + 15 = 0. \tag{6}
 $$
+It is easily verified that the roots of this polynomial are (5,3), which correspond to the eigenvalues indicated above.
+
+Eq. (5) is referred to as the *characteristic equation* of $\mathbf{A}$, and the corresponding polynomial is the *characteristic polynomial*. The characteristic polynomial is of degree $n$.
+
+More generally, if $\mathbf{A}$ is $n \times n$, then there are $n$ solutions of (5), or $n$ roots of the characteristic polynomial. Thus there are $n$ eigenvalues of $\mathbf{A}$ satisfying (3); i.e.,
 $$
-= \lambda^2 - 8\lambda + 15 = 0. \quad (6)
+\mathbf{A}\mathbf{x}_i = \lambda_i\mathbf{x}_i, \quad i = 1, \dots, n. \tag{7}
 $$
-很容易验证，这个多项式的根是 (5, 3)，这与上面指出的特征值相对应。
+If the eigenvalues are all *distinct*, there are $n$ associated linearly–independent eigenvectors, whose directions are *unique*, which span an $n$–dimensional Euclidean space.
 
-式 (5) 被称为 $\mathbf{A}$ 的**特征方程 (characteristic equation)**，而对应的多项式被称为**特征多项式 (characteristic polynomial)**。特征多项式的次数是 $n$。
+**Repeated Eigenvalues:** In the case where there are e.g., $r$ repeated eigenvalues, then a linearly independent set of $n$ eigenvectors exist, provided the rank of the matrix $(\mathbf{A} - \lambda\mathbf{I})$ in (5) is rank $n-r$. Then, the directions of the $r$ eigenvectors associated with the repeated eigenvalues are *not unique*. In fact, consider a set of $r$ linearly independent eigenvectors $\mathbf{v}_1, \dots, \mathbf{v}_r$ associated with the $r$ repeated eigenvalues. Then, it may be shown that any vector in $\text{span}[\mathbf{v}_1, \dots, \mathbf{v}_r]$ is also an eigenvector. This emphasizes the fact the eigenvectors are not unique in this case.
 
-更一般地，如果 $\mathbf{A}$ 是 $n \times n$ 矩阵，那么 (5) 有 $n$ 个解，即特征多项式有 $n$ 个根。因此，$\mathbf{A}$ 有 $n$ 个满足 (3) 的特征值；即
-$$
-\mathbf{A}\mathbf{x}_i = \lambda_i\mathbf{x}_i, \quad i = 1, \dots, n. \quad (7)
-$$
-如果特征值都是**互异的 (distinct)**，那么存在 $n$ 个相关的**线性无关的 (linearly-independent)** 特征向量，它们的方向是唯一的，并且张成一个 $n$ 维欧几里得空间。
-
-**重复特征值 (Repeated Eigenvalues):** 在有例如 $r$ 个重复特征值的情况下，只要矩阵 $(\mathbf{A} - \lambda\mathbf{I})$ 在 (5) 中的秩为 $n-r$，那么仍然存在一个由 $n$ 个线性无关的特征向量组成的集合。此时，与重复特征值相关的 $r$ 个特征向量的方向不是唯一的。
-
-事实上，考虑与 $r$ 个重复特征值相关的一组 $r$ 个线性无关的特征向量 $\mathbf{v}_1, \dots, \mathbf{v}_r$。可以证明，在 $\text{span}[\mathbf{v}_1, \dots, \mathbf{v}_r]$ 中的任何向量也是一个特征向量。这强调了在这种情况下特征向量不是唯一的事实。
-
-**示例 1：** 考虑矩阵
+**Example 1:** Consider the matrix given by
 $$
 \begin{bmatrix} 1 & 0 & 0 \\ 0 & 0 & 0 \\ 0 & 0 & 0 \end{bmatrix}
 $$
-可以很容易地验证，在 $\text{span}[\mathbf{e}_2, \mathbf{e}_3]$ 中的任何向量都是与零重复特征值相关联的特征向量。
+It may be easily verified that any vector in $\text{span}[\mathbf{e}_2, \mathbf{e}_3]$ is an eigenvector associated with the zero repeated eigenvalue.
 
-**示例 2：** 考虑 $n \times n$ 的单位矩阵。它有 $n$ 个等于 1 的重复特征值。在这种情况下，任何 $n$ 维向量都是一个特征向量，并且这些特征向量张成一个 $n$ 维空间。
+**Example 2:** Consider the $n \times n$ identity matrix. It has $n$ repeated eigenvalues equal to one. In this case, any $n$–dimensional vector is an eigenvector, and the eigenvectors span an $n$–dimensional space.
 
 ---
-式 (5) 为我们提供了如何计算特征值的线索。我们可以构建特征多项式并求解其根以得到 $\lambda_i$。一旦特征值可用，就可以通过计算量 $\mathbf{A} - \lambda_i\mathbf{I}$ 的零空间来计算相应的特征向量 $\mathbf{v}_i$，其中 $i=1, \dots, n$。这种方法对于小型系统是足够的，但对于规模可观的系统，该方法容易产生显著的数值误差。稍后，我们将考虑各种正交变换，这些变换可以引出更有效的寻找特征值的技术。
+Eq. (5) gives us a clue how to compute eigenvalues. We can formulate the characteristic polynomial and evaluate its roots to give the $\lambda_i$. Once the eigenvalues are available, it is possible to compute the corresponding eigenvectors $\mathbf{v}_i$ by evaluating the nullspace of the quantity $\mathbf{A} - \lambda_i\mathbf{I}$, for $i=1, \dots, n$. This approach is adequate for small systems, but for those of appreciable size, this method is prone to appreciable numerical error. Later, we consider various orthogonal transformations which lead to much more effective techniques for finding the eigenvalues.
 
-现在我们介绍特征值和特征向量的一些非常有趣的性质，以帮助我们理解。
+We now present some very interesting properties of eigenvalues and eigenvectors, to aid in our understanding.
 
-**性质 1** 如果一个（厄米特）[^6]对称矩阵的特征值是互异的，那么其特征向量是**正交的 (orthogonal)**。
+**Property 1** If the eigenvalues of a (Hermitian)[^chapter2-1] symmetric matrix are distinct, then the eigenvectors are orthogonal.
 
-**证明：** 令 $\{\mathbf{v}_i\}$ 和 $\{\lambda_i\}$, $i = 1, \dots, n$ 分别是 $\mathbf{A} \in \mathbb{R}^{n \times n}$ 的特征向量和对应的特征值。选择任意 $i, j \in [1, \dots, n], i \neq j$。
-那么
-$$
-\mathbf{A}\mathbf{v}_i = \lambda_i\mathbf{v}_i \quad (8)
-$$
-并且
-$$
-\mathbf{A}\mathbf{v}_j = \lambda_j\mathbf{v}_j. \quad (9)
-$$
-用 $\mathbf{v}_j^T$ 左乘 (8) 式，用 $\mathbf{v}_i^T$ 左乘 (9) 式：
-$$
-\mathbf{v}_j^T \mathbf{A}\mathbf{v}_i = \lambda_i\mathbf{v}_j^T \mathbf{v}_i \quad (10)
-$$
-$$
-\mathbf{v}_i^T \mathbf{A}\mathbf{v}_j = \lambda_j\mathbf{v}_i^T \mathbf{v}_j \quad (11)
-$$
-当 $\mathbf{A}$ 是对称矩阵时，左边的量是相等的。我们如下证明这一点。由于 (10) 的左边是一个标量，它的转置等于它自身。因此，我们得到 $\mathbf{v}_j^T \mathbf{A}\mathbf{v}_i = \mathbf{v}_i^T \mathbf{A}^T \mathbf{v}_j$。[^7]但是，由于 $\mathbf{A}$ 是对称的，$\mathbf{A}^T = \mathbf{A}$。因此，$\mathbf{v}_j^T \mathbf{A}\mathbf{v}_i = \mathbf{v}_i^T \mathbf{A}^T \mathbf{v}_j = \mathbf{v}_i^T \mathbf{A}\mathbf{x}_j$，证毕。
-
-从 (11) 中减去 (10)，我们得到
-$$
-(\lambda_i - \lambda_j)\mathbf{v}_j^T \mathbf{v}_i = 0 \quad (12)
-$$
-这里我们用到了 $\mathbf{v}_j^T \mathbf{v}_i = \mathbf{v}_i^T \mathbf{v}_j$。但根据假设，$\lambda_i - \lambda_j \neq 0$。因此，(12) 式只有在 $\mathbf{v}_j^T \mathbf{v}_i = 0$ 时才成立，这意味着向量是正交的。
+*Proof.* Let $\{\mathbf{v}_i\}$ and $\{\lambda_i\}, i=1, \dots, n$ be the eigenvectors and corresponding eigenvalues respectively of $\mathbf{A} \in \mathbb{R}^{n \times n}$. Choose any $i, j \in [1, \dots, n], i \ne j$. Then
+$$ \mathbf{A}\mathbf{v}_i = \lambda_i\mathbf{v}_i \tag{8} $$
+and
+$$ \mathbf{A}\mathbf{v}_j = \lambda_j\mathbf{v}_j. \tag{9} $$
+Premultiply (8) by $\mathbf{v}_j^T$ and (9) by $\mathbf{v}_i^T$:
+$$ \mathbf{v}_j^T \mathbf{A}\mathbf{v}_i = \lambda_i \mathbf{v}_j^T \mathbf{v}_i \tag{10} $$
+$$ \mathbf{v}_i^T \mathbf{A}\mathbf{v}_j = \lambda_j \mathbf{v}_i^T \mathbf{v}_j \tag{11} $$
+The quantities on the left are equal when $\mathbf{A}$ is symmetric. We show this as follows. Since the left-hand side of (10) is a scalar, its transpose is equal to itself. Therefore, we get $\mathbf{v}_j^T \mathbf{A}\mathbf{v}_i = \mathbf{v}_i^T \mathbf{A}^T \mathbf{v}_j$.[^chapter2-2] But, since $\mathbf{A}$ is symmetric, $\mathbf{A}^T = \mathbf{A}$. Thus, $\mathbf{v}_j^T \mathbf{A}\mathbf{v}_i = \mathbf{v}_i^T \mathbf{A}^T \mathbf{v}_j = \mathbf{v}_i^T \mathbf{A}\mathbf{x}_j$, which was to be shown.
+Subtracting (10) from (11), we have
+$$ (\lambda_i - \lambda_j)\mathbf{v}_j^T \mathbf{v}_i = 0 \tag{12} $$
+where we have used the fact $\mathbf{v}_j^T \mathbf{v}_i = \mathbf{v}_i^T \mathbf{v}_j$. But by hypothesis, $\lambda_i - \lambda_j \ne 0$. Therefore, (12) is satisfied only if $\mathbf{v}_j^T \mathbf{v}_i = 0$, which means the vectors are orthogonal.
 $\square$
 
-这里我们只考虑了特征值互异的情况。如果一个特征值 $\tilde{\lambda}$ 重复了 $r$ 次，并且 $\text{rank}(\mathbf{A} - \tilde{\lambda}\mathbf{I}) = n-r$，那么仍然可以找到一组由 $n$ 个相互正交的特征向量组成的集合。
+Here we have considered only the case where the eigenvalues are distinct. If an eigenvalue $\tilde{\lambda}$ is repeated $r$ times, and $\text{rank}(\mathbf{A} - \tilde{\lambda}\mathbf{I}) = n-r$, then a mutually orthogonal set of $n$ eigenvectors can still be found.
 
-对称矩阵特征值的另一个有用性质如下：
+Another useful property of eigenvalues of symmetric matrices is as follows:
 
-**性质 2** 一个（厄米特）对称矩阵的特征值是**实数 (real)**。
+**Property 2** The eigenvalues of a (Hermitian) symmetric matrix are real.
 
-**证明：**[^8] (通过反证法)：首先，我们考虑 $\mathbf{A}$ 是实数矩阵的情况。令 $\lambda$ 是对称矩阵 $\mathbf{A}$ 的一个非零复数特征值。那么，由于 $\mathbf{A}$ 的元素是实数，$\lambda^*$，即 $\lambda$ 的复共轭，也必须是 $\mathbf{A}$ 的一个特征值，因为特征多项式的根必须成共轭对出现。同样，如果 $\mathbf{v}$ 是对应于 $\lambda$ 的一个非零特征向量，那么对应于 $\lambda^*$ 的特征向量必须是 $\mathbf{v}^*$，即 $\mathbf{v}$ 的复共轭。但是性质 1 要求特征向量是正交的；因此，$\mathbf{v}^T \mathbf{v}^* = 0$。但是 $\mathbf{v}^T \mathbf{v}^* = (\mathbf{v}^H\mathbf{v})^*$，根据定义，它是向量 $\mathbf{v}$ 范数的复共轭。但向量的范数是一个纯实数；因此，$\mathbf{v}^T \mathbf{v}^*$ 必须大于零，因为根据假设 $\mathbf{v}$ 是非零的。因此我们得出了一个矛盾。由此可见，对称矩阵的特征值不能是复数；即，它们是实数。
+*Proof:*[^chapter2-3] (By contradiction): First, we consider the case where $\mathbf{A}$ is real. Let $\lambda$ be a non–zero complex eigenvalue of a symmetric matrix $\mathbf{A}$. Then, since the elements of $\mathbf{A}$ are real, $\lambda^*$, the complex–conjugate of $\lambda$, must also be an eigenvalue of $\mathbf{A}$, because the roots of the characteristic polynomial must occur in complex conjugate pairs. Also, if $\mathbf{v}$ is a nonzero eigenvector corresponding to $\lambda$, then an eigenvector corresponding $\lambda^*$ must be $\mathbf{v}^*$, the complex conjugate of $\mathbf{v}$. But **Property 1** requires that the eigenvectors be orthogonal; therefore, $\mathbf{v}^T \mathbf{v}^* = 0$. But $\mathbf{v}^T \mathbf{v}^* = (\mathbf{v}^H\mathbf{v})^*$, which is by definition the complex conjugate of the norm of $\mathbf{v}$. But the norm of a vector is a pure real number; hence, $\mathbf{v}^T \mathbf{v}^*$ must be greater than zero, since $\mathbf{v}$ is by hypothesis nonzero. We therefore have a contradiction. It follows that the eigenvalues of a symmetric matrix cannot be complex; i.e., they are *real*.
 
-虽然这个证明只考虑了实对称情况，但它很容易推广到 $\mathbf{A}$ 是厄米特对称的情况。
+While this proof considers only the real symmetric case, it is easily extended to the case where $\mathbf{A}$ is Hermitian symmetric.
 $\square$
 
-**性质 3** 设 $\mathbf{A}$ 是一个矩阵，其特征值为 $\lambda_i, i=1, \dots, n$，特征向量为 $\mathbf{v}_i$。那么矩阵 $\mathbf{A} + s\mathbf{I}$ 的特征值为 $\lambda_i + s$，对应的特征向量为 $\mathbf{v}_i$，其中 $s$ 是任意实数。
+**Property 3** Let $\mathbf{A}$ be a matrix with eigenvalues $\lambda_i, i=1, \dots, n$ and eigenvectors $\mathbf{v}_i$. Then the eigenvalues of the matrix $\mathbf{A} + s\mathbf{I}$ are $\lambda_i + s$, with corresponding eigenvectors $\mathbf{v}_i$, where $s$ is any real number.
 
-**证明：** 从特征向量的定义，我们有 $\mathbf{Av} = \lambda\mathbf{v}$。此外，我们有 $s\mathbf{Iv} = s\mathbf{v}$。相加得到 $(\mathbf{A} + s\mathbf{I})\mathbf{v} = (\lambda + s)\mathbf{v}$。这个关于矩阵 $(\mathbf{A} + s\mathbf{I})$ 的新特征向量关系表明，特征向量不变，而特征值移动了 $s$。
+*Proof:* From the definition of an eigenvector, we have $\mathbf{A}\mathbf{v} = \lambda\mathbf{v}$. Further, we have $s\mathbf{I}\mathbf{v} = s\mathbf{v}$. Adding, we have $(\mathbf{A} + s\mathbf{I})\mathbf{v} = (\lambda + s)\mathbf{v}$. This new eigenvector relation on the matrix $(\mathbf{A} + s\mathbf{I})$ shows the eigenvectors are unchanged, while the eigenvalues are displaced by $s$.
 $\square$
 
-**性质 4** 设 $\mathbf{A}$ 是一个 $n \times n$ 矩阵，其特征值为 $\lambda_i, i=1, \dots, n$。那么
-*   行列式 $\det(\mathbf{A}) = \prod_{i=1}^{n} \lambda_i$。
-*   迹[^9] $\text{tr}(\mathbf{A}) = \sum_{i=1}^{n} \lambda_i$。
+**Property 4** Let $\mathbf{A}$ be an $n \times n$ matrix with eigenvalues $\lambda_i, i=1, \dots, n$. Then
+- The determinant $\det(\mathbf{A}) = \prod_{i=1}^n \lambda_i$.
+- The trace[^chapter2-4] $\text{tr}(\mathbf{A}) = \sum_{i=1}^n \lambda_i$.
+The proof is straightforward, but because it is easier using concepts presented later in the course, it is not given here.
 
-证明是直接的，但使用后续课程中介绍的概念会更容易，因此这里不给出。
+**Property 5** If $\mathbf{v}$ is an eigenvector of a matrix $\mathbf{A}$, then $c\mathbf{v}$ is also an eigenvector, where $c$ is any real or complex constant.
+The proof follows directly by substituting $c\mathbf{v}$ for $\mathbf{v}$ in $\mathbf{A}\mathbf{v} = \lambda\mathbf{v}$. This means that only the direction of an eigenvector can be unique; its norm is not unique.
 
-**性质 5** 如果 $\mathbf{v}$ 是矩阵 $\mathbf{A}$ 的一个特征向量，那么 $c\mathbf{v}$ 也是一个特征向量，其中 $c$ 是任意实数或复数常量。
-
-证明通过将 $c\mathbf{v}$ 代替 $\mathbf{v}$ 到 $\mathbf{Av} = \lambda\mathbf{v}$ 中直接得出。这意味着特征向量的方向可以是唯一的，但其范数不是唯一的。
-
-#### **2.1.1 标准正交矩阵 (Orthonormal Matrices)**
-
-在进行矩阵的特征分解之前，我们必须建立**标准正交矩阵 (orthonormal matrix)** 的概念。这种形式的矩阵具有相互正交的列，且每一列的范数为单位1。这意味着
+### 2.1.1 Orthonormal Matrices
+Before proceeding with the eigendecomposition of a matrix, we must develop the concept of an *orthonormal matrix*. This form of matrix has mutually orthogonal columns, each of unit norm. This implies that
 $$
-\mathbf{q}_i^T \mathbf{q}_j = \delta_{ij}, \quad (13)
+\mathbf{q}_i^T \mathbf{q}_j = \delta_{ij}, \tag{13}
 $$
-其中 $\delta_{ij}$ 是克罗内克符号，$\mathbf{q}_i$ 和 $\mathbf{q}_j$ 是标准正交矩阵 $\mathbf{Q}$ 的列。记住 (13) 式，我们现在考虑乘积 $\mathbf{Q}^T\mathbf{Q}$。结果可以通过下图来形象化：
+where $\delta_{ij}$ is the Kronecker delta, and $\mathbf{q}_i$ and $\mathbf{q}_j$ are columns of the orthonormal matrix $\mathbf{Q}$. With (13) in mind, we now consider the product $\mathbf{Q}^T \mathbf{Q}$. The result may be visualized with the aid of the diagram below:
 $$
-\mathbf{Q}^T\mathbf{Q} = \begin{bmatrix} \mathbf{q}_1^T \rightarrow \\ \mathbf{q}_2^T \rightarrow \\ \vdots \\ \mathbf{q}_N^T \rightarrow \end{bmatrix} \begin{bmatrix} & & & \\ \mathbf{q}_1 & \mathbf{q}_2 & \cdots & \mathbf{q}_N \\ \downarrow & \downarrow & & \downarrow \end{bmatrix} = \mathbf{I}. \quad (14)
+\mathbf{Q}^T\mathbf{Q} = \begin{bmatrix} \leftarrow \mathbf{q}_1^T \rightarrow \\ \leftarrow \mathbf{q}_2^T \rightarrow \\ \vdots \\ \leftarrow \mathbf{q}_N^T \rightarrow \end{bmatrix} \begin{bmatrix} \uparrow & \uparrow & & \uparrow \\ \mathbf{q}_1 & \mathbf{q}_2 & \cdots & \mathbf{q}_N \\ \downarrow & \downarrow & & \downarrow \end{bmatrix} = \mathbf{I}. \tag{14}
 $$
-（当 $i=j$ 时，量 $\mathbf{q}_i^T\mathbf{q}_i$ 定义了 $\mathbf{q}_i$ 的 2-范数的平方，我们已定义其为 1。当 $i \neq j$ 时，由于 $\mathbf{q}_i$ 的正交性，$\mathbf{q}_i^T\mathbf{q}_j = 0$）。式 (14) 是标准正交矩阵的一个基本性质。
+(When $i=j$, the quantity $\mathbf{q}_i^T\mathbf{q}_i$ defines the squared 2 norm of $\mathbf{q}_i$, which has been defined as unity. When $i \ne j$, $\mathbf{q}_i^T\mathbf{q}_j = 0$, due to the orthogonality of the $\mathbf{q}_i$). Eq. (14) is a fundamental property of an orthonormal matrix.
 
-因此，对于一个标准正交矩阵，(14) 意味着其逆矩阵可以通过简单地取矩阵的转置来计算，这个操作几乎不需要计算量。
+Thus, for an orthonormal matrix, (14) implies the inverse may be computed simply by taking the transpose of the matrix, an operation which requires almost no computational effort.
 
-式 (14) 直接源于 $\mathbf{Q}$ 具有标准正交列的事实。但 $\mathbf{Q}\mathbf{Q}^T$ 是否也等于单位矩阵就不那么明显了。我们可以用以下方式解决这个问题。假设 $\mathbf{A}$ 和 $\mathbf{B}$ 是任意两个方阵可逆矩阵，使得 $\mathbf{AB} = \mathbf{I}$。那么，$\mathbf{BAB} = \mathbf{B}$。通过解析这个最后的表达式，我们有
+Eq. (14) follows directly from the fact $\mathbf{Q}$ has orthonormal columns. It is not so clear that the quantity $\mathbf{Q}\mathbf{Q}^T$ should also equal the identity. We can resolve this question in the following way. Suppose that $\mathbf{A}$ and $\mathbf{B}$ are any two *square invertible* matrices such that $\mathbf{A}\mathbf{B} = \mathbf{I}$. Then, $\mathbf{B}\mathbf{A}\mathbf{B} = \mathbf{B}$. By parsing this last expression, we have
 $$
-(\mathbf{BA}) \cdot \mathbf{B} = \mathbf{B}. \quad (15)
+(\mathbf{B}\mathbf{A}) \cdot \mathbf{B} = \mathbf{B}. \tag{15}
 $$
-显然，要使 (15) 成立，量 $\mathbf{BA}$ 必须是单位矩阵[^10]；因此，如果 $\mathbf{AB} = \mathbf{I}$，那么 $\mathbf{BA} = \mathbf{I}$。所以，如果 $\mathbf{Q}^T\mathbf{Q} = \mathbf{I}$，那么 $\mathbf{Q}\mathbf{Q}^T = \mathbf{I}$ 也成立。由此可见，如果一个矩阵有标准正交的列，那么它也必须有标准正交的行。我们现在阐述标准正交矩阵的另一个有用性质：
+Clearly, if (15) is to hold, then the quantity $\mathbf{B}\mathbf{A}$ must be the identity[^chapter2-5]; hence, if $\mathbf{A}\mathbf{B} = \mathbf{I}$, then $\mathbf{B}\mathbf{A} = \mathbf{I}$. Therefore, if $\mathbf{Q}^T\mathbf{Q} = \mathbf{I}$, then also $\mathbf{Q}\mathbf{Q}^T = \mathbf{I}$. From this fact, it follows that if a matrix has orthonormal columns, then it also must have orthonormal rows. We now develop a further useful property of orthonormal marices:
 
-**性质 6** 向量 2-范数在标准正交变换下是**不变的 (invariant)**。
-
-如果 $\mathbf{Q}$ 是标准正交的，那么
+**Property 6** The vector 2-norm is invariant under an orthonormal transformation.
+If $\mathbf{Q}$ is orthonormal, then
 $$
-||\mathbf{Qx}||_2^2 = \mathbf{x}^T \mathbf{Q}^T \mathbf{Qx} = \mathbf{x}^T \mathbf{x} = ||\mathbf{x}||_2^2.
+\|\mathbf{Q}\mathbf{x}\|_2^2 = \mathbf{x}^T\mathbf{Q}^T\mathbf{Q}\mathbf{x} = \mathbf{x}^T\mathbf{x} = \|\mathbf{x}\|_2^2.
 $$
-因此，因为范数不变，标准正交变换对向量执行的是**旋转 (rotation)** 操作。我们在后续研究最小二乘问题时会使用这个范数不变性。
+Thus, because the norm does not change, an orthonormal transformation performs a *rotation* operation on a vector. We use this norm–invariance property later in our study of the least–squares problem.
 
-假设我们有一个矩阵 $\mathbf{U} \in \mathbb{R}^{m \times n}$，其中 $m > n$，其列是标准正交的。我们看到在这种情况下 $\mathbf{U}$ 是一个高矩阵，可以通过从任意标准正交矩阵中仅提取前 $n$ 列来形成。（我们保留术语**标准正交矩阵**来指代一个完整的 $m \times m$ 矩阵）。因为 $\mathbf{U}$ 有标准正交的列，所以 $\mathbf{U}^T\mathbf{U} = \mathbf{I}_{n \times n}$。然而，重要的是要意识到，在这种情况下，量 $\mathbf{U}\mathbf{U}^T \neq \mathbf{I}_{m \times m}$，这与 $m=n$ 的情况形成对比。后一种关系源于这样一个事实，即 $\mathbf{U}^T$ 的 $m$ 个长度为 $n$ 的列向量，在 $n < m$ 的情况下，不可能全部相互正交。事实上，我们稍后会看到 $\mathbf{U}\mathbf{U}^T$ 是到子空间 $R(\mathbf{U})$ 上的一个**投影算子 (projector)**。
+Suppose we have a matrix $\mathbf{U} \in \mathbb{R}^{m \times n}$, where $m > n$, whose columns are orthonormal. We see in this case that $\mathbf{U}$ is a *tall* matrix, which can be formed by extracting only the first $n$ columns of an arbitrary orthonormal matrix. (We reserve the term *orthonormal matrix* to refer to a *complete* $m \times m$ matrix). Because $\mathbf{U}$ has orthonormal columns, it follows that the quantity $\mathbf{U}^T\mathbf{U} = \mathbf{I}_{n \times n}$. However, it is important to realize that the quantity $\mathbf{U}\mathbf{U}^T \ne \mathbf{I}_{m \times m}$ in this case, in contrast to the situation when $m=n$. The latter relation follows from the fact that the $m$ column vectors of $\mathbf{U}^T$ of length $n, n < m$, cannot all be mutually orthogonal. In fact, we see later that $\mathbf{U}\mathbf{U}^T$ is a *projector* onto the subspace $\mathcal{R}(\mathbf{U})$.
 
-假设我们有一个向量 $\mathbf{b} \in \mathbb{R}^m$。按照惯例，我们最容易用基 $[\mathbf{e}_1, \dots, \mathbf{e}_m]$ 来表示 $\mathbf{b}$，其中 $\mathbf{e}_i$ 是基本向量（在第 $i$ 个位置为 1，其余全为零）。然而，通常很方便地用由标准正交矩阵 $\mathbf{Q}$ 的列形成的基来表示 $\mathbf{b}$。在这种情况下，向量 $\mathbf{c} = \mathbf{Q}^T\mathbf{b}$ 的元素是 $\mathbf{b}$ 在基 $\mathbf{Q}$ 中的系数。标准正交基之所以方便，是因为我们可以通过计算 $\mathbf{b} = \mathbf{Qc}$ 简单地从 $\mathbf{c}$ 中恢复 $\mathbf{b}$。
+Suppose we have a vector $\mathbf{b} \in \mathbb{R}^m$. Because it is easiest, by convention we represent $\mathbf{b}$ using the basis $[\mathbf{e}_1, \dots, \mathbf{e}_m]$, where the $\mathbf{e}_i$ are the *elementary vectors* (all zeros except for a one in the $i$th position). However it is often convenient to represent $\mathbf{b}$ in a basis formed from the columns of an orthonormal matrix $\mathbf{Q}$. In this case, the elements of the vector $\mathbf{c} = \mathbf{Q}^T\mathbf{b}$ are the coefficients of $\mathbf{b}$ in the basis $\mathbf{Q}$. The orthonormal basis is convenient because we can restore $\mathbf{b}$ from $\mathbf{c}$ simply by taking $\mathbf{b} = \mathbf{Q}\mathbf{c}$.
 
-标准正交矩阵有时被称为**酉矩阵 (unitary matrix)**。这是因为标准正交矩阵的行列式是 $\pm 1$。
+An orthonormal matrix is sometimes referred to as a *unitary* matrix. This follows because the determinant of an orthonormal matrix is $\pm 1$.
 
-#### **2.1.2 方形对称矩阵的特征分解 (ED)**
+### 2.1.2 The Eigendecomposition (ED) of a Square Symmetric Matrix
+Almost all matrices on which ED’s are performed (at least in signal processing) are symmetric. A good example are *covariance matrices*, which are discussed in some detail in the next section.
 
-几乎所有执行 ED 的矩阵（至少在信号处理中）都是对称的。一个很好的例子是协方差矩阵，我们将在下一节详细讨论。
-
-令 $\mathbf{A} \in \mathbb{R}^{n \times n}$ 是对称的。那么，对于特征值 $\lambda_i$ 和特征向量 $\mathbf{v}_i$，我们有
+Let $\mathbf{A} \in \mathbb{R}^{n \times n}$ be symmetric. Then, for eigenvalues $\lambda_i$ and eigenvectors $\mathbf{v}_i$, we have
 $$
-\mathbf{A}\mathbf{v}_i = \lambda_i\mathbf{v}_i, \quad i = 1, \dots, n. \quad (16)
+\mathbf{A}\mathbf{v}_i = \lambda_i\mathbf{v}_i, \quad i = 1, \dots, n. \tag{16}
 $$
-设特征向量被归一化为单位 2-范数。那么这 $n$ 个方程可以被组合，或者并排堆叠在一起，并表示为以下紧凑形式：
+Let the eigenvectors be normalized to unit 2–norm. Then these $n$ equations can be combined, or stacked side–by–side together, and represented in the following compact form:
 $$
-\mathbf{AV} = \mathbf{V\Lambda} \quad (17)
+\mathbf{A}\mathbf{V} = \mathbf{V}\mathbf{\Lambda} \tag{17}
 $$
-其中 $\mathbf{V} = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n]$（即 $\mathbf{V}$ 的每一列都是一个特征向量），并且
+where $\mathbf{V} = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_n]$ (i.e., each column of $\mathbf{V}$ is an eigenvector), and
 $$
-\mathbf{\Lambda} = \begin{bmatrix} \lambda_1 & & & 0 \\ & \lambda_2 & & \\ & & \ddots & \\ 0 & & & \lambda_n \end{bmatrix} = \text{diag}(\lambda_1 \dots \lambda_n). \quad (18)
+\mathbf{\Lambda} = \begin{bmatrix} \lambda_1 & & & 0 \\ & \lambda_2 & & \\ & & \ddots & \\ 0 & & & \lambda_n \end{bmatrix} = \text{diag}(\lambda_1 \dots \lambda_n). \tag{18}
 $$
-(17) 式两边的对应列代表 (16) 式中索引 $i$ 的一个特定值。因为我们假设 $\mathbf{A}$ 是对称的，根据性质 1，$\mathbf{v}_i$ 是正交的。此外，由于我们假设 $||\mathbf{v}_i||_2 = 1$，$\mathbf{V}$ 是一个标准正交矩阵。因此，用 $\mathbf{V}^T$ 右乘 (17) 式的两边，并使用 $\mathbf{V}\mathbf{V}^T = \mathbf{I}$，我们得到
+Corresponding columns from each side of (17) represent one specific value of the index $i$ in (16). Because we have assumed $\mathbf{A}$ is symmetric, from Property 1, the $\mathbf{v}_i$ are orthogonal. Furthermore, since we have assumed $\|\mathbf{v}_i\|_2 = 1$, $\mathbf{V}$ is an orthonormal matrix. Thus, post-multiplying both sides of (17) by $\mathbf{V}^T$, and using $\mathbf{V}\mathbf{V}^T = \mathbf{I}$ we get
 $$
-\mathbf{A} = \mathbf{V\Lambda V}^T. \quad (19)
+\mathbf{A} = \mathbf{V}\mathbf{\Lambda}\mathbf{V}^T. \tag{19}
 $$
-式 (19) 被称为 $\mathbf{A}$ 的**特征分解 (eigendecomposition, ED)**。$\mathbf{V}$ 的列是 $\mathbf{A}$ 的特征向量，$\mathbf{\Lambda}$ 的对角元素是对应的特征值。任何对称矩阵都可以用这种方式分解。这种分解形式，其中 $\mathbf{\Lambda}$ 是对角矩阵，具有极大的意义和许多有趣的推论。正是这种分解直接引出了我们稍后讨论的卡尔胡宁-洛维展开。
+Eq. (19) is called the **eigendecomposition (ED)** of $\mathbf{A}$. The columns of $\mathbf{V}$ are eigenvectors of $\mathbf{A}$, and the diagonal elements of $\mathbf{\Lambda}$ are the corresponding eigenvalues. Any symmetric matrix may be decomposed in this way. This form of decomposition, with $\mathbf{\Lambda}$ being diagonal, is of extreme interest and has many interesting consequences. It is this decomposition which leads directly to the Karhunen-Loeve expansion which we discuss shortly.
 
-注意，从 (19) 式可知，$\mathbf{A}$ 的特征值和特征向量的知识足以完全确定 $\mathbf{A}$。还要注意，如果特征值是互异的，那么 ED 是**唯一的 (unique)**。只有一个标准正交矩阵 $\mathbf{V}$ 和一个对角矩阵 $\mathbf{\Lambda}$ 满足 (19)。
+Note that from (19), knowledge of the eigenvalues and eigenvectors of $\mathbf{A}$ is sufficient to completely specify $\mathbf{A}$. Note further that if the eigenvalues are distinct, then the ED is *unique*. There is only one orthonormal $\mathbf{V}$ and one diagonal $\mathbf{\Lambda}$ which satisfies (19).
 
-式 (19) 也可以写成
+Eq. (19) can also be written as
 $$
-\mathbf{V}^T\mathbf{AV} = \mathbf{\Lambda}. \quad (20)
+\mathbf{V}^T\mathbf{A}\mathbf{V} = \mathbf{\Lambda}. \tag{20}
 $$
-由于 $\mathbf{\Lambda}$ 是对角矩阵，我们说由特征向量组成的酉（标准正交）矩阵 $\mathbf{V}$ **对角化 (diagonalizes)** 了 $\mathbf{A}$。没有其他的标准正交矩阵可以对角化 $\mathbf{A}$。**只有 $\mathbf{V}$ 能够对角化 $\mathbf{A}$** 是特征向量的基本性质。如果你理解了对称矩阵的特征向量可以将其对角化，那么你就理解了特征值和特征向量背后的“神秘”。这就是全部内容。我们将在本讲后面研究 K-L 展开，以巩固这种解释，并展示一些从 K-L 思想中引出的非常重要的信号处理概念。但是 K-L 分析只是对称矩阵的特征向量能够将其对角化这一事实的直接结果。
-
-#### **2.1.3 关于特征值索引的常规表示法**
+Since $\mathbf{\Lambda}$ is diagonal, we say that the unitary (orthonormal) matrix $\mathbf{V}$ of eigenvectors **diagonalizes** $\mathbf{A}$. No other orthonormal matrix can diagonalize $\mathbf{A}$. The fact that *only* $\mathbf{V}$ diagonalizes $\mathbf{A}$ is *the* fundamental property of eigenvectors. If you understand that the eigenvectors of a symmetric matrix diagonalize it, then you understand the “mystery” behind eigenvalues and eigenvectors. Thats all there is to it. We look at the K–L expansion later in this lecture in order to solidify this interpretation, and to show some very important signal processing concepts which fall out of the K–L idea. But the K–L analysis is just a direct consequence of that fact that *only* the eigenvectors of a symmetric matrix diagonalize.
 
-令 $\mathbf{A} \in \mathbb{R}^{n \times n}$ 的秩为 $r \le n$。同时假设 $\mathbf{A}$ 是**半正定的 (positive semi-definite)**；即，其所有特征值都 $\ge 0$。这个假设限制不大，因为大多数与特征分解相关的矩阵都是半正定的。然后，我们在下一节看到我们有 $r$ 个非零特征值和 $n-r$ 个零特征值。通常的惯例是对特征值进行排序，使得
+### 2.1.3 Conventional Notation on Eigenvalue Indexing
+Let $\mathbf{A} \in \mathbb{R}^{n \times n}$ have rank $r \le n$. Also assume $\mathbf{A}$ is positive semi–definite; i.e., all its eigenvalues are $\ge 0$. This is a not too restrictive assumption because most of the matrices on which the eigendecomposition is relevant are positive semi–definite. Then, we see in the next section we have $r$ non-zero eigenvalues and $n-r$ zero eigenvalues. It is common convention to order the eigenvalues so that
 $$
-\underbrace{\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_r}_{r \text{ 个非零特征值}} > \underbrace{\lambda_{r+1} = \dots, \lambda_n}_{n-r \text{ 个零特征值}} = 0 \quad (21)
+\underbrace{\lambda_1 \ge \lambda_2 \ge \dots \ge \lambda_r}_{r \text{ nonzero eigenvalues}} > \underbrace{\lambda_{r+1} = \dots, \lambda_n}_{n-r \text{ zero eigenvalues}} = 0 \tag{21}
 $$
-即，我们对 (17) 式的列进行重新排序，使得 $\lambda_1$ 是最大的，其余非零特征值按降序排列，然后是 $n-r$ 个零特征值。注意，如果 $\mathbf{A}$ 是满秩的，那么 $r=n$，没有零特征值。量 $\lambda_n$ 是值最小的特征值。
+i.e., we order the columns of eq. (17) so that $\lambda_1$ is the largest, with the remaining nonzero eigenvalues arranged in descending order, followed by $n-r$ zero eigenvalues. Note that if $\mathbf{A}$ is full rank, then $r=n$ and there are no zero eigenvalues. The quantity $\lambda_n$ is the eigenvalue with the lowest value.
 
-特征向量被重新排序以对应于特征值的排序。为方便记法，我们称对应于最大特征值的特征向量为“最大特征向量”。“最小特征向量”则是对应于最小特征值的特征向量。
+The eigenvectors are reordered to correspond with the ordering of the eigenvalues. For notational convenience, we refer to the eigenvector corresponding to the largest eigenvalue as the “largest eigenvector”. The “smallest eigenvector” is then the eigenvector corresponding to the smallest eigenvalue.
 
-### **2.2 特征分解与基本矩阵子空间的关系**
+## 2.2 The Eigendecomposition in Relation to the Fundamental Matrix Subspaces
+In this section, we develop relationships between the eigendecomposition of a matrix and its range, null space and rank.
 
-在本节中，我们阐述矩阵的特征分解与其值域、零空间和秩之间的关系。
-
-在这里，我们考虑秩为 $r \le n$ 的方形对称半正定矩阵 $\mathbf{A} \in \mathbb{R}^{n \times n}$。让我们将 $\mathbf{A}$ 的特征分解划分为以下形式：
-$$
-\mathbf{A} = \mathbf{V\Lambda V}^T = \underset{r \ \ n-r}{\begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix}} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{\Lambda}_2 \end{bmatrix} \underset{r \ \ n-r}{\begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix}} \quad (22)
-$$
-其中
+Here, we consider square symmetric positive semi–definite matrices $\mathbf{A} \in \mathbb{R}^{n \times n}$, whose rank $r \le n$. Let us partition the eigendecomposition of $\mathbf{A}$ in the following form:
 $$
-\mathbf{V}_1 = [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_r] \in \mathbb{R}^{n \times r}
+\mathbf{A} = \mathbf{V}\mathbf{\Lambda}\mathbf{V}^T = \underset{r \quad n-r}{\begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix}} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{\Lambda}_2 \end{bmatrix} \underset{r \atop n-r}{\begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix}} \tag{22}
 $$
+where
 $$
-\mathbf{V}_2 = [\mathbf{v}_{r+1}, \dots, \mathbf{v}_n] \in \mathbb{R}^{n \times (n-r)}, \quad (23)
+\begin{aligned}
+\mathbf{V}_1 &= [\mathbf{v}_1, \mathbf{v}_2, \dots, \mathbf{v}_r] \in \mathbb{R}^{n \times r} \\
+\mathbf{V}_2 &= [\mathbf{v}_{r+1}, \dots, \mathbf{v}_n] \in \mathbb{R}^{n \times n-r},
+\end{aligned} \tag{23}
 $$
-$\mathbf{V}_1$ 的列是对应于 $\mathbf{A}$ 的前 $r$ 个特征值的特征向量，$\mathbf{V}_2$ 的列对应于 $n-r$ 个最小的特征值。
-
-我们还有
+The columns of $\mathbf{V}_1$ are eigenvectors corresponding to the first $r$ eigenvalues of $\mathbf{A}$, and the columns of $\mathbf{V}_2$ correspond to the $n-r$ smallest eigenvalues. We also have
 $$
-\mathbf{\Lambda}_1 = \text{diag}[\lambda_1, \dots, \lambda_r] = \begin{bmatrix} \lambda_1 & & \\ & \ddots & \\ & & \lambda_r \end{bmatrix} \in \mathbb{R}^{r \times r}, \quad (24)
+\mathbf{\Lambda}_1 = \text{diag}[\lambda_1, \dots, \lambda_r] = \begin{bmatrix} \lambda_1 & & \\ & \ddots & \\ & & \lambda_r \end{bmatrix} \in \mathbb{R}^{r \times r}, \tag{24}
 $$
-并且
+and
 $$
-\mathbf{\Lambda}_2 = \begin{bmatrix} \lambda_{r+1} & & \\ & \ddots & \\ & & \lambda_n \end{bmatrix} \in \mathbb{R}^{(n-r) \times (n-r)}. \quad (25)
+\mathbf{\Lambda}_2 = \begin{bmatrix} \lambda_{r+1} & & \\ & \ddots & \\ & & \lambda_n \end{bmatrix} \in \mathbb{R}^{(n-r) \times (n-r)}. \tag{25}
 $$
-在上述表示法中，非对角位置上明确缺少的矩阵元素意味着该元素为零。我们现在展示划分 (22) 揭示了关于 $\mathbf{A}$ 结构的大量信息。
-
-#### **2.2.1 零空间 (Nullspace)**
+In the notation used above, the explicit absence of a matrix element in an off-diagonal position implies that element is zero. We now show that the partition (22) reveals a great deal about the structure of $\mathbf{A}$.
 
-在本节中，我们探讨划分 (22) 与 $\mathbf{A}$ 的零空间之间的关系。回想一下，$\mathbf{A}$ 的零空间 $N(\mathbf{A})$ 定义为
+### 2.2.1 Nullspace
+In this section, we explore the relationship between the partition of (22) and the nullspace of $\mathbf{A}$. Recall that the nullspace $\mathcal{N}(\mathbf{A})$ of $\mathbf{A}$ is defined as
 $$
-N(\mathbf{A}) = \{ \mathbf{x} \in \mathbb{R}^n, \mathbf{x} \neq \mathbf{0} \ | \ \mathbf{Ax} = \mathbf{0} \}. \quad (26)
+\mathcal{N}(\mathbf{A}) = \{ \mathbf{x} \ne \mathbf{0} \in \mathbb{R}^n \mid \mathbf{A}\mathbf{x} = \mathbf{0} \}. \tag{26}
 $$
-从 (22) 式，我们有
+From (22), we have
 $$
-\mathbf{Ax} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{\Lambda}_2 \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}. \quad (27)
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{\Lambda}_2 \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}. \tag{27}
 $$
-我们现在选择 $\mathbf{x}$ 使得 $\mathbf{x} \in \text{span}(\mathbf{V}_2)$。那么 $\mathbf{x} = \mathbf{V}_2\mathbf{c}_2$，其中 $\mathbf{c}_2$ 是 $\mathbb{R}^{n-r}$ 中的任意向量。又因为 $\mathbf{V}_1 \perp \mathbf{V}_2$，我们有
+We now choose $\mathbf{x}$ so that $\mathbf{x} \in \text{span}(\mathbf{V}_2)$. Then $\mathbf{x} = \mathbf{V}_2\mathbf{c}_2$, where $\mathbf{c}_2$ is any vector in $\mathbb{R}^{n-r}$. Then since $\mathbf{V}_1 \perp \mathbf{V}_2$, we have
 $$
-\mathbf{Ax} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{\Lambda}_2 \end{bmatrix} \begin{bmatrix} \mathbf{0} \\ \mathbf{c}_2 \end{bmatrix} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{0} \\ \mathbf{\Lambda}_2\mathbf{c}_2 \end{bmatrix}. \quad (28)
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{\Lambda}_2 \end{bmatrix} \begin{bmatrix} \mathbf{0} \\ \mathbf{c}_2 \end{bmatrix} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{0} \\ \mathbf{\Lambda}_2\mathbf{c}_2 \end{bmatrix}. \tag{28}
 $$
-从 (28) 式可以清楚地看到，当且仅当 $\mathbf{\Lambda}_2 = \mathbf{0}$ 时，我们可以找到一个非平凡的 $\mathbf{x}$ 使得 $\mathbf{Ax} = \mathbf{0}$。因此，一个非空的零空间只有在 $\mathbf{\Lambda}_2 = \mathbf{0}$ 时才能存在。
+From (28), it is clear we can find a non–trivial $\mathbf{x}$ such that $\mathbf{A}\mathbf{x} = \mathbf{0}$ if and only if $\mathbf{\Lambda}_2 = \mathbf{0}$. Thus, a non–empty nullspace can exist if only if $\mathbf{\Lambda}_2 = \mathbf{0}$.
 
-由于 $\mathbf{\Lambda}_2 \in \mathbb{R}^{(n-r) \times (n-r)}$，一个秩为 $r \le n$ 的方形对称矩阵必须有 $n-r$ 个零特征值。
+Since $\mathbf{\Lambda}_2 \in \mathbb{R}^{(n-r) \times (n-r)}$, a square symmetric matrix of rank $r \le n$ must have $n-r$ zero eigenvalues.
 
-此外，从 (28) 我们看到，条件 $\mathbf{x} \in \text{span}\mathbf{V}_2$ 也是 $\mathbf{Ax} = \mathbf{0}$ 的必要条件。这意味着 $\mathbf{A}$ 的零空间的一个标准正交基是 $\mathbf{V}_2$。由于 $\mathbf{V}_2 \in \mathbb{R}^{n \times (n-r)}$，$\mathbf{A}$ 的**零度 (nullity)** 是 $n-r$，对应于零特征值的数量。
+Moreover from (28) we see that the condition $\mathbf{x} \in \text{span}\mathbf{V}_2$ is also necessary for $\mathbf{A}\mathbf{x} = \mathbf{0}$. This implies that an orthonormal basis for the nullspace of $\mathbf{A}$ is $\mathbf{V}_2$. Since $\mathbf{V}_2 \in \mathbb{R}^{n \times (n-r)}$, the nullity of $\mathbf{A}$ is $n-r$, corresponding to the number of zero eigenvalues.
 
-因此，我们有一个重要的结果：如果 $N(\mathbf{A})$ 的维度是 $d=n-r$，那么 $\mathbf{A}$ 必须有 $d$ 个零特征值。矩阵 $\mathbf{V}_2 \in \mathbb{R}^{n \times (n-r)}$ 是 $N(\mathbf{A})$ 的一个标准正交基。
+Thus, we have the important result that if the dimension of $\mathcal{N}(\mathbf{A})$ is $d=n-r$, then $\mathbf{A}$ must have $d$ zero eigenvalues. The matrix $\mathbf{V}_2 \in \mathbb{R}^{n \times (n-r)}$ is an orthonormal basis for $\mathcal{N}(\mathbf{A})$.
 
-#### **2.2.2 值域 (Range)**
-
-让我们结合分解 (22) 来考察 $R(\mathbf{A})$，我们已经看到如果 $\mathbf{A}$ 是秩亏的，那么 $\mathbf{\Lambda}_2 = \mathbf{0}$。$R(\mathbf{A})$ 的定义，为方便起见在此重复：
+### 2.2.2 Range
+Let us look at $\mathcal{R}(\mathbf{A})$ in the light of the decomposition of (22), where we have seen that $\mathbf{\Lambda}_2 = \mathbf{0}$ if $\mathbf{A}$ is rank deficient. The definition of $\mathcal{R}(\mathbf{A})$, repeated here for convenience, is
 $$
-R(\mathbf{A}) = \{ \mathbf{y} \ | \ \mathbf{y} = \mathbf{Ax}, \mathbf{x} \in \mathbb{R}^n \}. \quad (29)
+\mathcal{R}(\mathbf{A}) = \{ \mathbf{y} \mid \mathbf{y} = \mathbf{A}\mathbf{x}, \mathbf{x} \in \mathbb{R}^n \}. \tag{29}
 $$
-向量量 $\mathbf{Ax}$ 因此可以表示为
+The vector quantity $\mathbf{A}\mathbf{x}$ is therefore given as
 $$
-\mathbf{Ax} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}. \quad (30)
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}. \tag{30}
 $$
-在上面，可以理解的是，如果 $\mathbf{A}$ 是满秩的，那么 $\mathbf{\Lambda}$ 中右下角的零块消失，$\mathbf{\Lambda}$ 变为等价于 $\mathbf{\Lambda}_1$。
+In the above, it is understood that if $\mathbf{A}$ is full rank, then the lower right block of zeros in $\mathbf{\Lambda}$ vanishes and $\mathbf{\Lambda}$ becomes equivalent to $\mathbf{\Lambda}_1$.
 
-让我们定义 $\mathbf{c}$ 如下
-$$
-\mathbf{c} = \begin{bmatrix} \mathbf{c}_1 \\ \mathbf{c}_2 \end{bmatrix} = \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}, \quad (31)
+Let us define $\mathbf{c}$ as
 $$
-其中 $\mathbf{c}_1 \in \mathbb{R}^r$ 且 $\mathbf{c}_2 \in \mathbb{R}^{n-r}$。那么，
+\mathbf{c} = \begin{bmatrix} \mathbf{c}_1 \\ \mathbf{c}_2 \end{bmatrix} = \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}, \tag{31}
 $$
-\mathbf{y} = \mathbf{Ax} = \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{c}_1 \\ \mathbf{c}_2 \end{bmatrix}.
+where $\mathbf{c}_1 \in \mathbb{R}^r$ and $\mathbf{c}_2 \in \mathbb{R}^{n-r}$. Then,
 $$
+\begin{aligned}
+\mathbf{y} = \mathbf{A}\mathbf{x} &= \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{c}_1 \\ \mathbf{c}_2 \end{bmatrix} \\
+&= \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1\mathbf{c}_1 \\ \mathbf{0} \end{bmatrix} \\
+&= \mathbf{V}_1(\mathbf{\Lambda}_1\mathbf{c}_1).
+\end{aligned} \tag{32}
 $$
-= \begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix} \begin{bmatrix} \mathbf{\Lambda}_1\mathbf{c}_1 \\ \mathbf{0} \end{bmatrix}
-$$
-$$
-= \mathbf{V}_1 (\mathbf{\Lambda}_1\mathbf{c}_1). \quad (32)
-$$
-从 (31) 式，我们看到 $\text{span}(\mathbf{x}) = \text{span}(\mathbf{c})$，因此 $\text{span}(\mathbf{\Lambda}_1\mathbf{c}_1) = \mathbb{R}^r$。因此，(32) 式中的向量 $\mathbf{y}$ 由 $\mathbf{V}_1$ 的列的所有可能的线性组合构成，且 $R(\mathbf{A}) = R(\mathbf{V}_1)$。因此我们有了一个重要的结果，即 **$\mathbf{V}_1$ 是 $R(\mathbf{A})$ 的一个标准正交基**。
-
-[^6]: **对称矩阵 (symmetric matrix)** 指的是 $\mathbf{A} = \mathbf{A}^T$，其中上标 $T$ 表示转置，即对于对称矩阵，元素 $a_{ij} = a_{ji}$。**厄米特对称 (Hermitian symmetric)**（或简称**厄米特**）矩阵仅与复数情况相关，指的是 $\mathbf{A} = \mathbf{A}^H$，其中上标 $H$ 表示厄米特转置。这意味着矩阵先转置再复共轭。因此对于厄米特矩阵，元素 $a_{ij} = a_{ji}^*$。在本课程中，我们通常只考虑实数矩阵。然而，当考虑复数矩阵时，厄米特对称将替代对称的含义。
-
-[^7]: 在这里，我们使用了对于维度相容的矩阵或向量 $\mathbf{A}$ 和 $\mathbf{B}$，有 $(\mathbf{AB})^T = \mathbf{B}^T\mathbf{A}^T$ 的性质。
-
-[^8]: 来自 Lastman 和 Sinha 的《Microcomputer-based Numerical Methods for Science and Engineering》。
+From (31), we see that $\text{span}(\mathbf{x}) = \text{span}(\mathbf{c})$, and therefore $\text{span}(\mathbf{\Lambda}_1\mathbf{c}_1) = \mathbb{R}^r$. Thus, the vector $\mathbf{y}$ in (32) consists of all possible linear combinations of the columns of $\mathbf{V}_1$ and $\mathcal{R}(\mathbf{A}) = \mathcal{R}(\mathbf{V}_1)$. Therefore we have the important result that $\mathbf{V}_1$ is an orthonormal basis for $\mathcal{R}(\mathbf{A})$.
 
-[^9]: 方阵的**迹 (trace)**，记作 $\text{tr}(\cdot)$，是其主对角线（也称为“对角线”）上元素的总和。
+## 2.3 Matrix Norms
+Now that we have some understanding of eigenvectors and eigenvalues, we can now present the *matrix norm*. The matrix norm is related to the vector norm: it is a function which maps $\mathbb{R}^{m \times n}$ into $\mathbb{R}$. A matrix norm must obey the same properties as a vector norm. Since a norm is only strictly defined for a *vector* quantity, a matrix norm is defined by mapping a matrix into a vector. This is accomplished by post multiplying the matrix by a suitable vector. Some useful matrix norms are now presented:
 
-[^10]: 这仅在 $\mathbf{A}$ 和 $\mathbf{B}$ 是方阵可逆时成立。
-
-### **2.3 矩阵范数 (Matrix Norms)**
-
-现在我们对特征向量和特征值有了一定的理解，接下来可以介绍**矩阵范数 (matrix norm)**。矩阵范数与向量范数相关：它是一个将 $\mathbb{R}^{m \times n}$ 映射到 $\mathbb{R}$ 的函数。矩阵范数必须遵循与向量范数相同的性质。由于范数严格来说只为向量量定义，矩阵范数是通过将矩阵映射为向量来定义的。这是通过将矩阵与一个合适的向量进行后乘法实现的。下面介绍一些有用的矩阵范数：
-
-**矩阵 p-范数 (Matrix p-Norms):** 矩阵 p-范数是根据向量 p-范数定义的。任意矩阵 $\mathbf{A}$ 的矩阵 p-范数，记作 $||\mathbf{A}||_p$，定义为
+**Matrix p-Norms:** A matrix p-norm is defined in terms of a vector p-norm. The matrix p-norm of an arbitary matrix $\mathbf{A}$, denoted $\|\mathbf{A}\|_p$, is defined as
 $$
-||\mathbf{A}||_p = \sup_{\mathbf{x} \neq \mathbf{0}} \frac{||\mathbf{Ax}||_p}{||\mathbf{x}||_p} \quad (33)
+\|\mathbf{A}\|_p = \sup_{\mathbf{x} \ne \mathbf{0}} \frac{\|\mathbf{A}\mathbf{x}\|_p}{\|\mathbf{x}\|_p} \tag{33}
 $$
-其中，“sup”表示**上确界 (supremum)**；即，在所有 $\mathbf{x} \neq \mathbf{0}$ 的值上，参数的最大值。由于向量范数的一个性质是 $||c\mathbf{x}||_p = |c| ||\mathbf{x}||_p$ 对于任何标量 $c$ 都成立，我们可以在 (33) 中选择 $c$ 使得 $||\mathbf{x}||_p = 1$。那么，与 (33) 等价的表述是
+where “sup” means *supremum*; i.e., the largest value of the argument over all values of $\mathbf{x} \ne \mathbf{0}$. Since a property of a vector norm is $\|\mathbf{c}\mathbf{x}\|_p = |c| \|\mathbf{x}\|_p$ for any scalar $c$, we can choose $c$ in (33) so that $\|\mathbf{x}\|_p = 1$. Then, an equivalent statement to (33) is
 $$
-||\mathbf{A}||_p = \max_{||\mathbf{x}||_p=1} ||\mathbf{Ax}||_p. \quad (34)
+\|\mathbf{A}\|_p = \max_{\|\mathbf{x}\|_p=1} \|\mathbf{A}\mathbf{x}\|_p. \tag{34}
 $$
-我们现在为 $p=2$ 且 $\mathbf{A}$ 为方形对称矩阵的特定情况，根据 $\mathbf{A}$ 的特征分解，对上述定义进行一些解释。为了找到矩阵 2-范数，我们对 (34) 求导并令结果为零。直接对 $||\mathbf{Ax}||_2$ 求导是困难的。然而，我们注意到找到使 $||\mathbf{Ax}||_2$ 最大化的 $\mathbf{x}$ 等价于找到使 $||\mathbf{Ax}||_2^2$ 最大化的 $\mathbf{x}$，而后者的求导要容易得多。在这种情况下，我们有 $||\mathbf{Ax}||_2^2 = \mathbf{x}^T \mathbf{A}^T \mathbf{A} \mathbf{x}$。为了找到最大值，我们使用拉格朗日乘子法，因为 $\mathbf{x}$ 受到 (34) 的约束。
-
-因此，我们对量
+We now provide some interpretation for the above definition for the specific case where $p=2$ and for $\mathbf{A}$ square and symmetric, in terms of the eigendecomposition of $\mathbf{A}$. To find the matrix 2–norm, we differentiate (34) and set the result to zero. Differentiating $\|\mathbf{A}\mathbf{x}\|_2$ directly is difficult. However, we note that finding the $\mathbf{x}$ which maximizes $\|\mathbf{A}\mathbf{x}\|_2$ is equivalent to finding the $\mathbf{x}$ which maximizes $\|\mathbf{A}\mathbf{x}\|_2^2$ and the differentiation of the latter is much easier. In this case, we have $\|\mathbf{A}\mathbf{x}\|_2^2 = \mathbf{x}^T\mathbf{A}^T\mathbf{A}\mathbf{x}$. To find the maximum, we use the method of Lagrange multipliers, since $\mathbf{x}$ is constrained by (34). Therefore we differentiate the quantity
 $$
-\mathbf{x}^T \mathbf{A}^T \mathbf{A} \mathbf{x} + \gamma(1 - \mathbf{x}^T\mathbf{x}) \quad (35)
+\mathbf{x}^T\mathbf{A}^T\mathbf{A}\mathbf{x} + \gamma(1 - \mathbf{x}^T\mathbf{x}) \tag{35}
 $$
-求导，并令结果为零。上面的量 $\gamma$ 是拉格朗日乘子。此处的求导细节被省略，因为它们将在后续的讲座中涵盖。这个过程的有趣结果是 $\mathbf{x}$ 必须满足
+and set the result to zero. The quantity $\gamma$ above is the Lagrange multiplier. The details of the differentiation are omitted here, since they will be covered in a later lecture. The interesting result of this process is that $\mathbf{x}$ must satisfy
 $$
-\mathbf{A}^T \mathbf{A} \mathbf{x} = \gamma\mathbf{x}, \quad ||\mathbf{x}||_2 = 1. \quad (36)
+\mathbf{A}^T\mathbf{A}\mathbf{x} = \gamma\mathbf{x}, \quad \|\mathbf{x}\|_2=1. \tag{36}
 $$
-因此，(34) 的驻点是 $\mathbf{A}^T\mathbf{A}$ 的特征向量。当 $\mathbf{A}$ 是方形对称矩阵时，$\mathbf{A}^T\mathbf{A}$ 的特征向量等价于 $\mathbf{A}$ 的特征向量[^11]。因此，(34) 的驻点也是 $\mathbf{A}$ 的特征向量。通过将 $\mathbf{x} = \mathbf{v}_1$ 代入 (34)，我们发现 $||\mathbf{Ax}||_2 = \lambda_1$。
+Therefore the stationary points of (34) are the eigenvectors of $\mathbf{A}^T\mathbf{A}$. When $\mathbf{A}$ is square and symmetric, the eigenvectors of $\mathbf{A}^T\mathbf{A}$ are equivalent to those of $\mathbf{A}$[^chapter2-6]. Therefore the stationary points of (34) are also the eigenvectors of $\mathbf{A}$. By substituting $\mathbf{x} = \mathbf{v}_1$ into (34) we find that $\|\mathbf{A}\mathbf{x}\|_2 = \lambda_1$.
 
-由此可见，(34) 的解由对应于 $\mathbf{A}$ 最大特征值的特征向量给出，并且 $||\mathbf{Ax}||_2$ 等于 $\mathbf{A}$ 的最大特征值。
+It then follows that the solution to (34) is given by the eigenvector corresponding to the largest eigenvalue of $\mathbf{A}$, and $\|\mathbf{A}\mathbf{x}\|_2$ is equal to the largest eigenvalue of $\mathbf{A}$.
 
-更一般地，在下一讲中将显示，对于任意矩阵 $\mathbf{A}$，有
+More generally, it is shown in the next lecture for an *arbitrary* matrix $\mathbf{A}$ that
 $$
-||\mathbf{A}||_2 = \sigma_1 \quad (37)
+\|\mathbf{A}\|_2 = \sigma_1 \tag{37}
 $$
-其中 $\sigma_1$ 是 $\mathbf{A}$ 的最大**奇异值 (singular value)**。这个量源于将在下一讲讨论的奇异值分解。
+where $\sigma_1$ is the largest *singular value* of $\mathbf{A}$. This quantity results from the *singular value decomposition*, to be discussed next lecture.
 
-对于其他 $p$ 值的矩阵范数，对于任意 $\mathbf{A}$，由下式给出
+Matrix norms for other values of $p$, for arbitrary $\mathbf{A}$, are given as
 $$
-||\mathbf{A}||_1 = \max_{1 \le j \le n} \sum_{i=1}^{m} |a_{ij}| \quad (\text{最大列和}) \quad (38)
+\|\mathbf{A}\|_1 = \max_{1 \le j \le n} \sum_{i=1}^m |a_{ij}| \quad (\text{maximum column sum}) \tag{38}
 $$
-和
+and
 $$
-||\mathbf{A}||_\infty = \max_{1 \le i \le m} \sum_{j=1}^{n} |a_{ij}| \quad (\text{最大行和}). \quad (39)
+\|\mathbf{A}\|_\infty = \max_{1 \le i \le m} \sum_{j=1}^n |a_{ij}| \quad (\text{maximum row sum}). \tag{39}
 $$
 
-**弗罗贝尼乌斯范数 (Frobenius Norm):** 弗罗贝尼乌斯范数是由矩阵 $\mathbf{A}$ 的行（或列）的 2-范数组成的向量的 2-范数：
+**Frobenius Norm:** The Frobenius norm is the 2-norm of the vector consisting of the 2- norms of the rows (or columns) of the matrix $\mathbf{A}$:
 $$
-||\mathbf{A}||_F = \left[ \sum_{i=1}^{m} \sum_{j=1}^{n} |a_{ij}|^2 \right]^{1/2}
+\|\mathbf{A}\|_F = \left[ \sum_{i=1}^m \sum_{j=1}^n |a_{ij}|^2 \right]^{1/2}
 $$
-
-#### **2.3.1 矩阵范数的性质**
 
-1. 考虑矩阵 $\mathbf{A} \in \mathbb{R}^{m \times n}$ 和向量 $\mathbf{x} \in \mathbb{R}^n$。那么，
+### 2.3.1 Properties of Matrix Norms
+1. Consider the matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$ and the vector $\mathbf{x} \in \mathbb{R}^n$. Then,
 $$
-||\mathbf{Ax}||_p \le ||\mathbf{A}||_p ||\mathbf{x}||_p \quad (40)
+\|\mathbf{A}\mathbf{x}\|_p \le \|\mathbf{A}\|_p \|\mathbf{x}\|_p \tag{40}
 $$
-这个性质可以通过将上式两边除以 $||\mathbf{x}||_p$ 并应用 (33) 得出。
-2. 如果 $\mathbf{Q}$ 和 $\mathbf{Z}$ 是适当大小的标准正交矩阵，那么
+This property follows by dividing both sides of the above by $\|\mathbf{x}\|_p$, and applying (33).
+
+2. If $\mathbf{Q}$ and $\mathbf{Z}$ are orthonormal matrices of appropriate size, then
 $$
-||\mathbf{QAZ}||_2 = ||\mathbf{A}||_2 \quad (41)
+\|\mathbf{Q}\mathbf{A}\mathbf{Z}\|_2 = \|\mathbf{A}\|_2 \tag{41}
 $$
-和
+and
 $$
-||\mathbf{QAZ}||_F = ||\mathbf{A}||_F \quad (42)
+\|\mathbf{Q}\mathbf{A}\mathbf{Z}\|_F = \|\mathbf{A}\|_F \tag{42}
 $$
-因此，我们看到矩阵 2-范数和弗罗贝尼乌斯范数在通过标准正交矩阵进行左乘和右乘时是不变的。
-3. 此外，
+Thus, we see that the matrix 2–norm and Frobenius norm are invariant to pre– and post– multiplication by an orthonormal matrix.
+
+3. Further,
 $$
-||\mathbf{A}||_F^2 = \text{tr}(\mathbf{A}^T\mathbf{A}) \quad (43)
+\|\mathbf{A}\|_F^2 = \text{tr}(\mathbf{A}^T\mathbf{A}) \tag{43}
 $$
-其中 $\text{tr}(\cdot)$ 表示**矩阵的迹 (trace of a matrix)**，即其**对角元素 (diagonal elements)** 的和。
+where $\text{tr}(\cdot)$ denotes the *trace* of a matrix, which is the sum of its diagonal elements.
 
-### **2.4 协方差矩阵 (Covariance Matrices)**
+[^chapter2-1]: A symmetric matrix is one where $\mathbf{A} = \mathbf{A}^T$, where the superscript $T$ means transpose, i.e, for a symmetric matrix, an element $a_{ij} = a_{ji}$. A Hermitian symmetric (or just Hermitian) matrix is relevant only for the complex case, and is one where $\mathbf{A} = \mathbf{A}^H$, where superscript $H$ denotes the Hermitian transpose. This means the matrix is transposed and complex conjugated. Thus for a Hermitian matrix, an element $a_{ij} = a_{ji}^*$. In this course we will generally consider only real matrices. However, when complex matrices are considered, *Hermitian symmetric* is implied instead of *symmetric*.
+[^chapter2-2]: Here, we have used the property that for matrices or vectors $\mathbf{A}$ and $\mathbf{B}$ of conformable size, $(\mathbf{A}\mathbf{B})^T = \mathbf{B}^T\mathbf{A}^T$.
+[^chapter2-3]: From Lastman and Sinha, *Microcomputer–based Numerical Methods for Science and Engineering*.
+[^chapter2-4]: The trace denoted $\text{tr}(\cdot)$ of a square matrix is the sum of its elements on the main diagonal (also called the “diagonal” elements).
+[^chapter2-5]: This only holds if $\mathbf{A}$ and $\mathbf{B}$ are square invertible.
+[^chapter2-6]: This proof is left as an exercise.
 
-在这里，我们研究与平稳离散时间随机过程 $x[n]$ 对应的**协方差矩阵 (covariance matrix)** $\mathbf{R}_{xx}$ 的概念和性质。我们将无限序列 $x[n]$ 分解为长度为 $m$ 的窗口，如图 2 所示。这些窗口通常是重叠的；实际上，它们通常只相互错开一个样本。第 $i$ 个窗口内的样本构成一个长度为 $m$ 的向量 $\mathbf{x}_i, i=1, 2, 3, \dots$。因此，每个窗口对应的向量是来自随机过程 $x[n]$ 的一个**向量样本 (vector sample)**。以这种方式处理随机信号是处理实际信号的许多电子系统的基本第一步，例如过程辨识、控制，或任何形式的通信系统，包括电话、无线电、雷达、声纳等。
+## 2.4 Covariance Matrices
+Here, we investigate the concepts and properties of the covariance matrix $\mathbf{R}_{xx}$ corresponding to a stationary, discrete-time random process $x[n]$. We break the infinite sequence $x[n]$ into windows of length $m$, as shown in Fig. 2. The windows generally overlap; in fact, they are typically displaced from one another by only one sample. The samples within the $i$th window become an m-length vector $\mathbf{x}_i, i = 1, 2, 3, \dots$. Hence, the vector corresponding to each window is a *vector sample* from the random process $x[n]$. Processing random signals in this way is the fundamental first step in many forms of electronic system which deal with real signals, such as process identification, control, or any form of communication system including telephones, radio, radar, sonar, etc.
 
-上面使用的“**平稳 (stationary)**”一词意味着随机过程对应的联合 $m$ 维概率密度函数
+The word *stationary* as used above means the random process is one for which the corresponding joint m–dimensional probability density function describing the distribution of the vector sample $\mathbf{x}$ does not change with time. This means that all moments of the distribution (i.e., quantities such as the mean, the variance, and all cross–correlations, as well as all other higher–order statistical characterizations) are invariant with time. Here however, we deal with a weaker form of stationarity referred to as *wide–sense stationarily* (WSS). With these processes, only the first two moments (mean, variances and covariances) need be invariant with time. Strictly, the idea of a covariance matrix is only relevant for stationary or WSS processes, since expectations only have meaning if the underlying process is stationary.
 
-图 2：接收信号 $x[n]$ 被分解为长度为 $m$ 的窗口。第 $i$ 个窗口中的样本构成向量 $\mathbf{x}_i, i=1, 2, \dots$。
+<center><b>Figure 2:</b> The received signal x[n] is decomposed into windows of length m. The samples in the ith window comprise the vector $\mathbf{x}_i, i = 1, 2, \dots$.</center>
 
-描述向量样本 $\mathbf{x}$ 的分布不随时间改变。这意味着分布的所有矩（即，诸如均值、方差和所有互相关以及所有其他高阶统计特征）都是不随时间变化的。然而，在这里，我们处理一种较弱形式的平稳性，称为**宽义平稳 (wide-sense stationarity, WSS)**。对于这些过程，只需要前两个矩（均值、方差和协方差）不随时间变化。严格来说，协方差矩阵的概念只与平稳或 WSS 过程相关，因为只有当基础过程是平稳的时，期望才有意义。
-
-对应于平稳或 WSS 过程 $x[n]$ 的协方差矩阵 $\mathbf{R}_{xx} \in \mathbb{R}^{m \times m}$ 定义为
-$$
-\mathbf{R}_{xx} \triangleq E\left[ (\mathbf{x} - \boldsymbol{\mu})(\mathbf{x} - \boldsymbol{\mu})^T \right] \quad (44)
-$$
-其中 $\boldsymbol{\mu}$ 是过程的向量均值，而 $E(\cdot)$ 表示在图 2 中所有长度为 $m$ 的索引 $i$ 的可能窗口上的**期望算子 (expectation operator)**。通常我们处理零均值过程，在这种情况下我们有
+The covariance matrix $\mathbf{R}_{xx} \in \mathbb{R}^{m \times m}$ corresponding to a stationary or WSS process $x[n]$ is defined as
 $$
-\mathbf{R}_{xx} = E\left[ \mathbf{x}_i\mathbf{x}_i^T \right] = E \begin{bmatrix} \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_m \end{pmatrix} \begin{pmatrix} x_1 & x_2 & \cdots & x_m \end{pmatrix} \end{bmatrix}
+\mathbf{R}_{xx} \triangleq E[(\mathbf{x} - \mathbf{\mu})(\mathbf{x} - \mathbf{\mu})^T] \tag{44}
 $$
+where $\mathbf{\mu}$ is the vector mean of the process and $E(\cdot)$ denotes the expectation operator over all possible windows of index $i$ of length $m$ in Fig. 2. Often we deal with zero-mean processes, in which case we have
 $$
-= E \begin{bmatrix} x_1x_1 & x_1x_2 & \cdots & x_1x_m \\ x_2x_1 & x_2x_2 & \cdots & x_2x_m \\ \vdots & \vdots & \ddots & \vdots \\ x_mx_1 & x_mx_2 & \cdots & x_mx_m \end{bmatrix}, \quad (45)
+\mathbf{R}_{xx} = E[\mathbf{x}_i \mathbf{x}_i^T] = E \left[ \begin{pmatrix} x_1 \\ x_2 \\ \vdots \\ x_m \end{pmatrix} \begin{pmatrix} x_1 & x_2 & \cdots & x_m \end{pmatrix} \right] = E \begin{bmatrix} x_1x_1 & x_1x_2 & \cdots & x_1x_m \\ x_2x_1 & x_2x_2 & \cdots & x_2x_m \\ \vdots & \vdots & \ddots & \vdots \\ x_mx_1 & x_mx_2 & \cdots & x_mx_m \end{bmatrix}, \tag{45}
 $$
-其中 $(x_1, x_2, \dots, x_m)^T = \mathbf{x}_i$。对所有窗口取期望，式 (45) 告诉我们 $\mathbf{R}_{xx}$ 的元素 $r(1, 1)$ 根据定义是 $E(x_1^2)$，这是过程的所有可能向量样本 $\mathbf{x}_i$ 的第一个元素 $x_1$ 的均方值（首选术语是**方差 (variance)**，其符号是 $\sigma^2$）。但由于平稳性，$r(1, 1) = r(2, 2) = \dots, = r(m, m)$，它们都等于 $\sigma^2$。因此，**$\mathbf{R}_{xx}$ 的所有主对角线元素都等于过程的方差**。元素 $r(1, 2) = E(x_1x_2)$ 是 $\mathbf{x}_i$ 的第一个元素和第二个元素之间的**互相关 (cross-correlation)**。在所有可能的窗口上取值，我们看到这个量是过程与其自身延迟一个样本的互相关。由于平稳性，$r(1, 2) = r(2, 3) = \dots = r(m-1, m)$，因此第一上对角线上的所有元素都等于一个样本时滞的互相关。由于乘法是可交换的，$r(2, 1) = r(1, 2)$，因此第一下对角线上的所有元素也都等于这个相同的互相关值。使用类似的推理，第 $j$ 个上对角线或下对角线上的所有元素都等于过程在 $j$ 个样本时滞下的互相关值。因此我们看到矩阵 $\mathbf{R}_{xx}$ 是高度结构化的。
+where $(x_1, x_2, \dots, x_m)^T = \mathbf{x}_i$. Taking the expectation over all windows, eq. (45) tells us that the element $r(1,1)$ of $\mathbf{R}_{xx}$ is by definition $E(x_1^2)$, which is the mean-square value (the preferred term is *variance*, whose symbol is $\sigma^2$) of the first element $x_1$ of all possible vector samples $\mathbf{x}_i$ of the process. But because of stationarity, $r(1,1) = r(2,2) = \dots, = r(m,m)$ which are all equal to $\sigma^2$. Thus all main diagonal elements of $\mathbf{R}_{xx}$ are equal to the variance of the process. The element $r(1,2) = E(x_1x_2)$ is the cross–correlation between the first element of $\mathbf{x}_i$ and the second element. Taken over all possible windows, we see this quantity is the cross–correlation of the process and itself delayed by one sample. Because of stationarity, $r(1,2) = r(2,3) = \dots = r(m-1, m)$ and hence all elements on the first upper diagonal are equal to the cross-correlation for a time-lag of one sample. Since multiplication is commutative, $r(2,1) = r(1,2)$, and therefore all elements on the first lower diagonal are also all equal to this same cross-correlation value. Using similar reasoning, all elements on the $j$th upper or lower diagonal are all equal to the cross-correlation value of the process for a time lag of $j$ samples. Thus we see that the matrix $\mathbf{R}_{xx}$ is highly structured.
 
-让我们将图 2 中所示的过程与图 3 中所示的过程进行比较。在前一种情况下，我们看到过程变化相对缓慢。因为我们假设 $x[n]$ 是零均值的，图 2 中过程的相邻样本在大多数时候会具有相同的符号，因此 $E(x_ix_{i+1})$ 将是一个正数，接近于 $E(x_i^2)$ 的值。对于 $E(x_ix_{i+2})$ 也是如此，只是它不那么接近 $E(x_i^2)$。因此，我们看到对于图 2 的过程，对角线上的值会随着远离主对角线而相当缓慢地衰减。
+Let us compare the process shown in Fig. 2 with that shown in Fig. 3. In the former case, we see that the process is relatively slowly varying. Because we have assumed $x[n]$ to be zero mean, adjacent samples of the process in Fig. 2 will have the same sign most of the time, and hence $E(x_i x_{i+1})$ will be a positive number, coming close to the value $E(x_i^2)$. The same can be said for $E(x_i x_{i+2})$, except it is not so close to $E(x_i^2)$. Thus, we see that for the process of Fig. 2, the diagonals decay fairly slowly away from the main diagonal value.
 
-然而，对于图 3 所示的过程，相邻样本彼此不相关。这意味着相邻样本具有相反符号的可能性与具有相同符号的可能性一样大。平均而言，具有正值的项与具有负值的项具有相同的幅度。因此，当取期望 $E(x_ix_{i+1}), E(x_ix_{i+2}), \dots$ 时，得到的平均值接近于零。在这种情况下，我们看到协方差矩阵集中在主对角线周围，并变为等于 $\sigma^2\mathbf{I}$。我们注意到**$\mathbf{R}_{xx}$ 的所有特征值都等于值 $\sigma^2$**。由于这个特性，这样的过程被称为“**白 (white)**”，类比于白光，其光谱分量都具有相等的幅度。
+However, for the process shown in Fig. 3, adjacent samples are uncorrelated with each other. This means that adjacent samples are just as likely to have opposite signs as they are to have the same signs. On average, the terms with positive values have the same magnitude as those with negative values. Thus, when the expectations $E(x_i x_{i+1}), E(x_i x_{i+2}), \dots$ are taken, the resulting averages approach zero. In this case then, we see the covariance matrix concentrates around the main diagonal, and becomes equal to $\sigma^2\mathbf{I}$. We note that *all* the eigenvalues of $\mathbf{R}_{xx}$ are equal to the value $\sigma^2$. Because of this property, such processes are referred to as “white”, in analogy to white light, whose spectral components are all of equal magnitude.
 
-序列 $\{r(1, 1), r(1, 2), \dots, r(1, m)\}$ 等价于过程在 0 到 $m-1$ 时滞下的**自相关函数 (autocorrelation function)**。过程的自相关函数以其方差和过程随时间变化的快慢来表征该随机过程。事实上，可以证明[^12]自相关函数的傅里叶变换是过程的**功率谱密度 (power spectral density)**。关于随机过程这方面的进一步讨论超出了本处理的范围；感兴趣的读者可以参考相关文献。
+The sequence $\{r(1,1), r(1,2), \dots, r(1,m)\}$ is equivalent to the autocorrelation function of the process, for lags 0 to $m-1$. The autocorrelation function of the process characterizes the random process $x[n]$ in terms of its variance, and how quickly the process varies over time. In fact, it may be shown[^chapter2-7] that the Fourier transform of the autocorrelation function is the *power spectral density* of the process. Further discussion on this aspect of random processes is beyond the scope of this treatment; the interested reader is referred to the reference.
 
-在实践中，使用如 (44) 中的期望来评估协方差矩阵 $\mathbf{R}_{xx}$ 是不可能的。期望在实践中无法评估——它们需要无限量的数据，而这是永远无法获得的，此外，数据必须在观测区间内是平稳的，而这种情况很少发生。在实践中，我们基于对过程 $x[n]$ 的有限长度 $N$ 的观测，通过用在 $N$ 个可用数据点上的有限时间平均来代替系综平均（期望），来评估 $\mathbf{R}_{xx}$ 的一个**估计 (estimate)** $\mathbf{\hat{R}}_{xx}$，如下所示[^13]：
+<center><b>Figure 3:</b> An uncorrelated discrete–time process.</center>
+
+In practice, it is impossible to evaluate the covariance matrix $\mathbf{R}_{xx}$ using expectations as in (44). Expectations cannot be evaluated in practice– they require an infinite amount of data which is never available, and furthermore, the data must be stationary over the observation interval, which is rarely the case. In practice, we evaluate an *estimate* $\hat{\mathbf{R}}_{xx}$ of $\mathbf{R}_{xx}$, based on an observation of finite length $N$ of the process $x[n]$, by replacing the ensemble average (expectation) with a finite temporal average over the $N$ available data points as follows[^chapter2-8]:
 $$
-\mathbf{\hat{R}}_{xx} = \frac{1}{N - m + 1} \sum_{i=1}^{N-m+1} \mathbf{x}_i\mathbf{x}_i^T. \quad (46)
+\hat{\mathbf{R}}_{xx} = \frac{1}{N-m+1} \sum_{i=1}^{N-m+1} \mathbf{x}_i \mathbf{x}_i^T. \tag{46}
 $$
-如果使用 (46) 来评估 $\mathbf{\hat{R}}$，那么该过程只需要在观测长度上是平稳的。因此，通过使用 (46) 给出的协方差估计，我们可以跟踪过程的真实协方差矩阵随时间的缓慢变化，只要过程在观测区间 $N$ 内的变化很小。Haykin[^14]给出了协方差矩阵的进一步性质和讨论。
+If (46) is used to evaluate $\hat{\mathbf{R}}$, then the process need only be stationary over the observation length. Thus, by using the covariance estimate given by (46), we can track slow changes in the true covariance matrix of the process with time, provided the change in the process is small over the observation interval $N$. Further properties and discussion covariance matrices are given in Haykin.[^chapter2-9]
 
-有趣的是，$\mathbf{\hat{R}}_{xx}$ 也可以通过另一种方式由 (46) 形成。令 $\mathbf{X} \in \mathbb{R}^{m \times (N-m+1)}$ 是一个矩阵，其第 $i$ 列是 $x[n]$ 的向量样本 $\mathbf{x}_i, i=1, \dots, N-m+1$。那么 $\mathbf{\hat{R}}_{xx}$ 也由下式给出
+It is interesting to note that $\hat{\mathbf{R}}_{xx}$ can be formed in an alternate way from (46). Let $\mathbf{X} \in \mathbb{R}^{m \times (N-m+1)}$ be a matrix whose $i$th column is the vector sample $\mathbf{x}_i, i=1, \dots, N-m+1$ of $x[n]$. Then $\hat{\mathbf{R}}_{xx}$ is also given as
 $$
-\mathbf{\hat{R}}_{xx} = \frac{1}{N - m + 1} \mathbf{XX}^T. \quad (47)
+\hat{\mathbf{R}}_{xx} = \frac{1}{N-m+1} \mathbf{X}\mathbf{X}^T. \tag{47}
 $$
-**该陈述的证明留作练习。**
-
-图 3：一个不相关的离散时间过程
-
-$\mathbf{R}_{xx}$ 的一些性质：
-1.  $\mathbf{R}_{xx}$ 是（厄米特）对称的，即 $r_{ij} = r_{ji}^*$，其中 $*$ 表示复共轭。
-2.  如果过程 $x[n]$ 是平稳或宽义平稳的，那么 $\mathbf{R}_{xx}$ 是**托普利兹 (Toeplitz)** 矩阵。这意味着矩阵的任何给定对角线上的所有元素都相等。如果你理解了这个性质，那么你就对协方差矩阵的性质有了很好的理解。
-3.  如果 $\mathbf{R}_{xx}$ 是对角的，那么 $\mathbf{x}$ 的元素是不相关的。如果 $\mathbf{R}_{xx}$ 的非对角元素相对于主对角线上的元素的大小是显著的，那么该过程被称为**高度相关 (highly correlated)**。
-4.  $\mathbf{R}$ 是**半正定的 (positive semi-definite)**。这意味着所有的特征值都大于或等于零。我们将在后面讨论正定性和半正定性。
-5.  如果平稳或 WSS 随机过程 $\mathbf{x}$ 具有高斯概率分布，那么向量均值和协方差矩阵 $\mathbf{R}_{xx}$ 就足以完全指定该过程的统计特性。
+The proof of this statement is left as an exercise.
 
-### **2.5 随机过程的卡尔胡宁-洛维展开**
+**Some Properties of $\mathbf{R}_{xx}$:**
+1. $\mathbf{R}_{xx}$ is (Hermitian) symmetric i.e. $r_{ij} = r_{ji}^*$, where $*$ denotes complex conjugation.
+2. If the process $x[n]$ is stationary or wide-sense stationary, then $\mathbf{R}_{xx}$ is Toeplitz. This means that all the elements on a given diagonal of the matrix are equal. If you understand this property, then you have a good understanding of the nature of covariance matrices.
+3. If $\mathbf{R}_{xx}$ is diagonal, then the elements of $\mathbf{x}$ are uncorrelated. If the magnitudes of the off-diagonal elements of $\mathbf{R}_{xx}$ are significant with respect to those on the main diagonal, the process is said to be *highly correlated*.
+4. $\mathbf{R}$ is *positive semi–definite*. This implies that all the eigenvalues are greater than or equal to zero. We will discuss positive definiteness and positive semi–definiteness later.
+5. If the stationary or WSS random process $\mathbf{x}$ has a Gaussian probability distribution, then the vector mean and the covariance matrix $\mathbf{R}_{xx}$ are enough to completely specify the statistical characteristics of the process.
 
-在本节中，我们将我们所学的关于特征值和特征向量以及协方差矩阵的知识，结合到随机过程的 **K-L 正交展开 (K-L orthonormal expansion)** 中。K-L 展开在图像和语音信号的**压缩 (compression)** 中非常有用。
+## 2.5 The Karhunen-Loeve Expansion of a Random Process
+In this section we combine what we have learned about eigenvalues and eigenvectors, and covariance matrices, into the K-L orthonormal expansion of a random process. The KL expansion is extremely useful in compression of images and speech signals.
 
-向量 $\mathbf{x} \in \mathbb{R}^m$ 的正交展开涉及将 $\mathbf{x}$ 表示为正交基向量或函数的线性组合，如下所示：
+An orthonormal expansion of a vector $\mathbf{x} \in \mathbb{R}^m$ involves expressing $\mathbf{x}$ as a linear combination of orthonormal basis vectors or functions as follows:
 $$
-\mathbf{x} = \mathbf{Qa} \quad (48)
+\mathbf{x} = \mathbf{Q}\mathbf{a} \tag{48}
 $$
-其中 $\mathbf{a} = [a_1, \dots, a_m]$ 包含展开的系数或权重，而 $\mathbf{Q} = [\mathbf{q}_1 \dots \mathbf{q}_m]$ 是一个 $m \times m$ 的正交矩阵。[^15] 因为 $\mathbf{Q}$ 是**正交的 (orthonormal)**，我们可以写出
+where $\mathbf{a} = [a_1, \dots, a_m]$ contains the coefficients or weights of the expansion, and $\mathbf{Q} = [\mathbf{q}_1, \dots, \mathbf{q}_m]$ is an $m \times m$ orthonormal matrix.[^chapter2-10] Because $\mathbf{Q}$ is orthonormal, we can write
 $$
-\mathbf{a} = \mathbf{Q}^T\mathbf{x}. \quad (49)
+\mathbf{a} = \mathbf{Q}^T\mathbf{x}. \tag{49}
 $$
-系数 $\mathbf{a}$ 在一个坐标系中表示 $\mathbf{x}$，该坐标系的轴是基 $[\mathbf{q}_1 \dots \mathbf{q}_m]$，而不是传统的基 $[\mathbf{e}_1, \dots, \mathbf{e}_m]$。通过使用不同的基函数 $\mathbf{Q}$，我们可以生成具有不同性质的系数集。例如，我们可以将离散傅里叶变换 (DFT) 表示为 (49) 的形式，其中 $\mathbf{Q}$ 的列是谐波相关的旋转指数。使用这个基，系数 $\mathbf{a}$ 告诉我们 $\mathbf{x}$ 中包含了多少对应于 $\mathbf{q}_i$ 的频率。
+The coefficients $\mathbf{a}$ represent $\mathbf{x}$ in a coordinate system whose axes are the basis $[\mathbf{q}_1, \dots, \mathbf{q}_m]$, instead of the conventional basis $[\mathbf{e}_1, \dots, \mathbf{e}_m]$. By using different basis functions $\mathbf{Q}$, we can generate sets of coefficients with different properties. For example, we can express the discrete Fourier transform (DFT) in the form of (49), where the columns of $\mathbf{Q}$ are harmonically–related rotating exponentials. With this basis, the coefficients $\mathbf{a}$ tell us how much of the frequency corresponding to $\mathbf{q}_i$ is contained in $\mathbf{x}$.
 
-对于每个向量观测 $\mathbf{x}_i$，矩阵 $\mathbf{Q}$ 保持不变，但会生成一个新的系数向量 $\mathbf{a}_i$。为了强调这一点，我们将 (48) 重写为
+For each vector observation $\mathbf{x}_i$, the matrix $\mathbf{Q}$ remains constant but a new vector $\mathbf{a}_i$ of coefficients is generated. To emphasize this point, we re-write (48) as
 $$
-\mathbf{x}_i = \mathbf{Qa}_i, \quad i=1, \dots, N \quad (50)
+\mathbf{x}_i = \mathbf{Q}\mathbf{a}_i, \quad i=1, \dots, N \tag{50}
 $$
-其中 $i$ 是**向量样本索引 (vector sample index)**（对应于图 2 中的窗口位置），$N$ 是向量观测的数量。
-
-[^11]: 这个证明留作练习。
-
-[^12]: A. Papoulis，《概率、随机变量和随机过程》，McGraw Hill，第 3 版。
-
-[^13]: 具有此性质的过程被称为**遍历 (ergodic)** 过程。
-
-[^14]: Haykin，《自适应滤波器理论》，Prentice Hall，第 3 版。
-
-[^15]: $\mathbf{x}$ 的展开通常只需要基向量是线性无关的——不一定是标准正交的。但标准正交基向量最常用，因为它们可以用 (49) 的非常简单的形式进行求逆。
-
-#### **2.5.1 K-L展开的推导**
-
-图 4 展示了与图 2 所示类型的**缓慢变化随机过程 (slowly-varying random process)** 对应的散点图。散点图是点的集合，其中第 $i$ 个点是对应于向量 $\mathbf{x}_i$ 在 $m$ 维平面上的点。由于绘图的明显限制，我们在这里限制 $m=2$。因为我们选择的过程在这种情况下是缓慢变化的，所以 $\mathbf{x}_i$ 的元素是**高度相关的 (highly correlated)**；也就是说，知道一个元素就意味着对另一个元素的值有很大的了解。这迫使散点图呈椭圆形状（在更高维度上是椭球体），集中在 $x_1-x_2$ 平面的主对角线方向。设量 $a_1, a_2, \dots, a_m$ 是散点图椭圆的 $m$ 个主轴的长度。对于高度相关的过程，我们发现 $a_1 > a_2 > \dots > a_m$。通常我们发现在更高维系统中，当过程高度相关时，$a_i$ 的值随着 $i$ 的增加而迅速减小。
+where $i$ is the vector sample index (corresponding to the window position in Fig. 2) and $N$ is the number of vector observations.
 
-为了对比，图 5 展示了一个类似的散点图，但其基础随机过程是白噪声。这里，过程的相邻样本之间没有相关性，因此在这种情况下，散点图没有对角线集中。这个散点图是一个 $m$ 维的球体。
+### 2.5.1 Development of the K–L Expansion
+<center><b>Figure 4:</b> A scatterplot of vectors $\mathbf{x}_i \in \mathbb{R}^2$, corresponding to a highly correlated (in this case, slowly varying) random process similar to that shown in Figure 2. Each dot represents a separate vector sample, where its first element $x_1$ is plotted against the second element $x_2$.</center>
+<center><b>Figure 5:</b> Similar to Figure 4, except the underlying random process is *white*.</center>
 
-图 4：向量 $\mathbf{x}_i \in \mathbb{R}^2$ 的散点图，对应于与图 2 所示高度相关（在此情况下为缓慢变化）的随机过程。每个点代表一个单独的向量样本，其中其第一个元素 $x_1$ 相对于第二个元素 $x_2$ 绘制。
+Figure 4 shows a scatterplot corresponding to a slowly–varying random process, of the type shown in Figure 2. A scatterplot is a collection of dots, where the $i$th dot is the point on the $m$–dimensional plane corresponding to the vector $\mathbf{x}_i$. Because of obvious restrictions in drawing, we are limited here to the value $m=2$. Because the process we have chosen in this case is slowly varying, the elements of each $\mathbf{x}_i$ are highly correlated; i.e., knowledge of one element implies a great deal about the value of the other. This forces the scatterplot to be elliptical in shape (ellipsoidal in higher dimensions), concentrating along the principal diagonal in the $x_1 – x_2$ plane. Let the quantities $a_1, a_2, \dots, a_m$ be the lengths of the $m$ principal axes of the scatterplot ellipse. With highly correlated processes we find that $a_1 > a_2 > \dots > a_m$. Typically we find that the values $a_i$ diminish quickly with increasing $i$ in larger dimensional systems, when the process is highly correlated.
 
-图 5：与图 4 类似，但基础随机过程是白噪声。
+For the sake of contrast, Figure 5 shows a similar scatterplot, except the underlying random process is white. Here there is no correlation between adjacent samples of the process, so there is no diagonal concentration of the scatterplot in this case. This scatterplot is an $m$–dimensional spheriod.
 
-正如我们稍后在本节中看到的，如果我们希望存储或传输这样的随机过程，当过程高度相关时，使用传统的坐标系 $[\mathbf{e}_1, \mathbf{e}_2, \dots, \mathbf{e}_m]$ 是浪费的。（使用传统坐标系传输等同于按顺序传输 $\mathbf{x}_i$ 的元素 $x_1, x_2, \dots, x_m$）。这种低效率是由于这样一个事实，即给定样本 $x_j$ 中包含的大部分信息必须在相邻和后续样本中重新传输。在本节中，我们寻求一个在这方面更有效的**变换坐标系 (transformed coordinate system)**。其动机将在本节末尾变得更加清晰。
+As we see later in this section, if we wish to store or transmit such a random process, it is wasteful to do so using the conventional coordinate system $[\mathbf{e}_1, \mathbf{e}_2, \dots, \mathbf{e}_m]$ when the process is highly correlated. (Transmission using the conventional coordinate system is equivalent to transmitting the elements $x_1, x_2, \dots, x_m$ of $\mathbf{x}_i$ in sequence.) The inefficiency is a result of the fact that most of the information contained in a given sample $x_j$ of $\mathbf{x}$ must be re–transmitted in adjacent and subsequent samples. In this section, we seek a transformed coordinate system which is more efficient in this respect. The motivation will become clearer towards the end of the section.
 
-寻找一个最优坐标系来表示我们的随机过程的建议方法是，找到一个基向量 $\mathbf{q}_1 \in \mathbb{R}^m$，使得对应的系数 $a_1 = \mathbf{q}_1^T\mathbf{x}$ 具有最大可能的**均方值 (mean-squared value)**（方差）。然后，我们找到第二个基向量 $\mathbf{q}_2$，它被约束为与 $\mathbf{q}_1$ **正交 (orthogonal)**，使得系数 $a_2 = \mathbf{q}_2^T\mathbf{x}$ 的方差最大。我们以这种方式继续，直到我们获得一个完整的**正交基 (orthonormal basis)** $\mathbf{Q} = [\mathbf{q}_1, \dots, \mathbf{q}_m]$。从直观上看，我们从图 8 中看到，所期望的基是散点图椭圆的**主轴 (principal axes)** 集合。当我们应用这项技术来压缩随机过程时，这个过程的好处将变得更加清晰。
+The proposed method of finding an optimum coordinate system in which to represent our random process is to find a basis vector $\mathbf{q}_1 \in \mathbb{R}^m$ such that the corresponding coefficient $a_1 = \mathbf{q}_1^T\mathbf{x}$ has the maximum possible mean–squared value (variance). Then, we find a second basis vector $\mathbf{q}_2$ which is constrained to be orthogonal to $\mathbf{q}_1$, such that the variance of the coefficient $a_2 = \mathbf{q}_2^T\mathbf{x}$ is maximum. We continue in this way until we obtain a complete orthonormal basis $\mathbf{Q} = [\mathbf{q}_1, \dots, \mathbf{q}_m]$. Heuristically, we see from Figure 8 that the desired basis is the set of principal axes of the scatterplot ellipse. The benefits of this procedure will become clearer when we apply this technique to the compression of random processes.
 
-确定 $\mathbf{q}_i$ 的过程是直接的。基向量 $\mathbf{q}_1$ 由以下问题的解给出：
+The procedure to determine the $\mathbf{q}_i$ is straightforward. The basis vector $\mathbf{q}_1$ is given as the solution to the following problem:
 $$
-\mathbf{q}_1 = \arg \max_{||\mathbf{q}||_2=1} E\left[ |\mathbf{q}^T\mathbf{x}_i|^2 \right] \quad (51)
+\mathbf{q}_1 = \arg \max_{\|\mathbf{q}\|_2=1} E[|\mathbf{q}^T\mathbf{x}_i|^2] \tag{51}
 $$
-其中期望是在 $i$ 的所有值上取的。对 $\mathbf{q}$ 的 2-范数的约束是为了防止解趋于无穷大。式 (51) 可以写成
+where the expectation is over all values of $i$. The constraint on the 2–norm of $\mathbf{q}$ is to prevent the solution from going to infinity. Eq. (51) can be written as
 $$
-\mathbf{q}_1 = \arg \max_{||\mathbf{q}||_2=1} E\left[ \mathbf{q}^T\mathbf{xx}^T\mathbf{q} \right]
+\begin{aligned}
+\mathbf{q}_1 &= \arg \max_{\|\mathbf{q}\|_2=1} E[\mathbf{q}^T\mathbf{x}\mathbf{x}^T\mathbf{q}] \\
+&= \arg \max_{\|\mathbf{q}\|_2=1} \mathbf{q}^T E[\mathbf{x}\mathbf{x}^T] \mathbf{q} \\
+&= \arg \max_{\|\mathbf{q}\|_2=1} \mathbf{q}^T\mathbf{R}_{xx}\mathbf{q}.
+\end{aligned} \tag{52}
 $$
-$$
-= \arg \max_{||\mathbf{q}||_2=1} \mathbf{q}^T E\left[ \mathbf{xx}^T \right] \mathbf{q}
-$$
-$$
-= \arg \max_{||\mathbf{q}||_2=1} \mathbf{q}^T\mathbf{R}_{xx}\mathbf{q}. \quad (52)
-$$
-这里我们假设了一个零均值过程。上面的优化问题与 2.3 节中矩阵范数的问题完全相同，其中显示了 (52) 中参数的**驻点 (stationary points)** 是 $\mathbf{R}_{xx}$ 的特征向量。因此，(52) 的解是 $\mathbf{q}_1 = \mathbf{v}_1$，即 $\mathbf{R}_{xx}$ 的最大特征向量。类似地，$\mathbf{q}_2, \dots, \mathbf{q}_m$ 是 $\mathbf{R}_{xx}$ 的其余依次递减的特征向量。因此，所期望的正交矩阵是对应于随机过程协方差矩阵的特征向量矩阵 $\mathbf{V}$。以这种方式分解向量 $\mathbf{x}$ 被称为**卡尔胡宁-洛维 (Karhunen Loeve, KL) 展开**。
+where we have assumed a zero–mean process. The optimization problem above is precisely the same as that for the matrix norm of section 2.3, where it is shown that the stationary points of the argument in (52) are the eigenvectors of $\mathbf{R}_{xx}$. Therefore, the solution to (52) is $\mathbf{q}_1 = \mathbf{v}_1$, the largest eigenvector of $\mathbf{R}_{xx}$. Similarly, $\mathbf{q}_2, \dots, \mathbf{q}_m$ are the remaining successively decreasing eigenvectors of $\mathbf{R}_{xx}$. Thus, the desired orthonormal matrix is the eigenvector matrix $\mathbf{V}$ corresponding to the covariance matrix of the random process. The decomposition of the vector $\mathbf{x}$ in this way is called the **Karhunen Loeve (KL) expansion** of a random process.
 
-在下文中，K-L 展开使用以下表示法：
+In the sequel, the KL expansion is written using the following notation:
 $$
-\mathbf{x}_i = \mathbf{V\theta}_i \quad (53)
+\mathbf{x}_i = \mathbf{V}\mathbf{\theta}_i \tag{53}
 $$
-和
+and
 $$
-\boldsymbol{\theta}_i = \mathbf{V}^T\mathbf{x}_i, \quad (54)
+\mathbf{\theta}_i = \mathbf{V}^T\mathbf{x}_i, \tag{54}
 $$
-其中 $\mathbf{V} \in \mathbb{R}^{m \times m}$ 是特征向量的正交矩阵，它是 K-L 展开的基，而 $\boldsymbol{\theta}_i \in \mathbb{R}^m$ 是 K-L 系数的向量。
+where $\mathbf{V} \in \mathbb{R}^{m \times m}$ is the orthonormal matrix of eigenvectors, which is the basis of the KL expansion, and $\mathbf{\theta}_i \in \mathbb{R}^m$ is the vector of KL coefficients.
 
-因此，$\boldsymbol{\theta}$ 中的系数 $\theta_1$ 平均包含 $\boldsymbol{\theta}$ 中所有系数中最大的能量（方差）；$\theta_2$ 是包含次高方差的系数，依此类推。系数 $\theta_m$ 包含最小的方差。这与传统坐标系形成对比，在传统坐标系中，所有轴都具有相等的方差。
+Thus, the coefficient $\theta_1$ of $\mathbf{\theta}$ on average contains the most energy (variance) of all the coefficients in $\mathbf{\theta}$; $\theta_2$ is the coefficient which contains the next–highest variance, etc. The coefficient $\theta_m$ contains the least variance. This is in contrast to the conventional coordinate system, in which all axes have equal variances.
 
-到第四讲，我们将有足够的知识来证明特征向量沿着图 4 的散点图椭球体的主轴对齐。在高度相关的系统中，由于散点图椭圆的主轴具有递减的幅度（如图 4 所示），最小系数的方差通常远小于较大系数的方差。
+By lecture 4, we will have sufficient knowledge to prove that the eigenvectors align themselves along the principal axes of the scatterplot ellipsoid of Figure 4. In highly correlated systems, due to the fact that the principal axes of the scatterplot ellipse have decreasing magnitudes (as shown in Figure 4) the variance of the smallest coefficients is typically much smaller than that of the larger coefficients.
 
-**问题：** 假设过程 $\mathbf{x}$ 是白噪声，因此 $\mathbf{R}_{xx} = E(\mathbf{xx}^T)$ 已经是具有相等对角元素的对角矩阵；即，$\mathbf{R}_{xx} = \sigma^2\mathbf{I}$，如图 5 所示。这种情况下的 K-L 基是什么？
+**Question:** Suppose the process $\mathbf{x}$ is white, so that $\mathbf{R}_{xx} = E(\mathbf{x}\mathbf{x}^T)$ is already diagonal, with equal diagonal elements; i.e., $\mathbf{R}_{xx} = \sigma^2\mathbf{I}$, as in Figure 5. What is the K-L basis in this case?
 
-要回答这个问题，我们看到 $\mathbf{R}_{xx}$ 的所有特征值都是重复的。因此，特征向量基不是唯一的。事实上，在这种情况下，$\mathbb{R}^m$ 中的**任何 (any)** 向量都是矩阵 $\sigma^2\mathbf{I}$ 的特征向量（特征值为 $\sigma^2$）。因此，任何正交基都是白噪声过程的 K-L 基。这个概念从图 5 的圆形散点图中可以明显看出。
+To answer this, we see that all the eigenvalues of $\mathbf{R}_{xx}$ are repeated. Therefore, the eigenvector basis is not unique. In fact, in this case, *any* vector in $\mathbb{R}^m$ is an eigenvector of the matrix $\sigma^2\mathbf{I}$ (the eigenvalue is $\sigma^2$). Therefore, *any* orthonormal basis is a K-L basis for a white process. This concept is evident from the circular scatterplot of figure 5.
 
-#### **2.5.2 K-L 展开的性质**
+### 2.5.2 Properties of the KL Expansion
+**Property 7** *The coefficients $\mathbf{\theta}$ of the KL expansion are uncorrelated.*
 
-**性质 7** K-L 展开的系数 $\boldsymbol{\theta}$ 是**不相关的 (uncorrelated)**。
-
-为了证明这一点，我们使用定义 (54) 来评估 $\boldsymbol{\theta}$ 的协方差矩阵 $\mathbf{R}_{\theta\theta}$，如下所示：
-$$
-\mathbf{R}_{\theta\theta} = E\left[ \boldsymbol{\theta}\boldsymbol{\theta}^T \right]
+To prove this, we evaluate the covariance matrix $\mathbf{R}_{\theta\theta}$ of $\mathbf{\theta}$, using the definition (54) as follows:
 $$
+\begin{aligned}
+\mathbf{R}_{\theta\theta} &= E[\mathbf{\theta}\mathbf{\theta}^T] \\
+&= E[\mathbf{V}^T\mathbf{x}\mathbf{x}^T\mathbf{V}] \\
+&= \mathbf{V}^T\mathbf{R}_{xx}\mathbf{V} \\
+&= \mathbf{\Lambda}.
+\end{aligned} \tag{55}
 $$
-= E\left[ \mathbf{V}^T\mathbf{xx}^T\mathbf{V} \right]
-$$
-$$
-= \mathbf{V}^T\mathbf{R}_{xx}\mathbf{V}
-$$
-$$
-= \mathbf{\Lambda}. \quad (55)
-$$
-由于 $\mathbf{R}_{\theta\theta}$ 等于 $\mathbf{R}_{xx}$ 的对角特征值矩阵 $\mathbf{\Lambda}$，K-L 系数是不相关的。
+Since $\mathbf{R}_{\theta\theta}$ is equal to the diagonal eigenvalue matrix $\mathbf{\Lambda}$ of $\mathbf{R}_{xx}$, the KL coefficients are uncorrelated.
 
-**性质 8** 第 $i$ 个 K-L 系数 $\theta_i$ 的方差等于 $\mathbf{R}_{xx}$ 的第 $i$ 个特征值 $\lambda_i$。
-这个证明直接从 (55) 得出；$\mathbf{R}_{\theta\theta} = \mathbf{\Lambda}$。
+**Property 8** *The variance of the $i$th K–L coefficient $\theta_i$ is equal to the $i$th eigenvalue $\lambda_i$ of $\mathbf{R}_{xx}$.*
 
-**性质 9** 高度相关随机过程 $\mathbf{x}$ 的方差集中在前几个 K-L 系数中。
+The proof follows directly from (55); $\mathbf{R}_{\theta\theta} = \mathbf{\Lambda}$.
 
-这个性质可以从图 4 的散点图中直观地证明，因为第一主轴的长度大于第二主轴的长度。（这种效应在更高维度上变得更加明显。）然而，在这里我们希望正式地证明这个性质。
+**Property 9** *The variance of a highly correlated random process $\mathbf{x}$ concentrates in the first few KL coefficients.*
 
-我们用 $\mathbf{R}_2$ 表示图 2 所示过程的协方差矩阵，用 $\mathbf{R}_3$ 表示图 3 所示过程的协方差矩阵。我们假设两个过程都是平稳的且具有相等的功率。令 $\alpha_i$ 为 $\mathbf{R}_2$ 的特征值，$\beta_i$ 为 $\mathbf{R}_3$ 的特征值。因为 $\mathbf{R}_3$ 是对角矩阵且具有相等的对角元素，所有的 $\beta_i$ 都相等。我们的假设意味着 $\mathbf{R}_2$ 的主对角线元素等于 $\mathbf{R}_3$ 的主对角线元素，因此根据性质 4，每个协方差矩阵的迹和特征值总和是相等的。
+This property may be justified intuitively from the scatterplot of Figure 4, due to the fact that the length of the first principal axis is greater than that of the second. (This effect becomes more pronounced in higher dimensions.) However here we wish to formally prove this property.
 
-为了进一步深入了解这两组特征值的行为，我们考虑**哈达玛不等式 (Hadamard's inequality)**[^16]，它可以表述为：
-> 考虑一个方阵 $\mathbf{A} \in \mathbb{R}^{m \times m}$。那么，$\det \mathbf{A} \le \prod_{i=1}^{m} a_{ii}$，
-> 等号成立当且仅当 $\mathbf{A}$ 是对角矩阵。
+Let us denote the covariance matrix of the process shown in Fig. 2 as $\mathbf{R}_2$, and that shown in Fig. 3 as $\mathbf{R}_3$. We assume both processes are stationary with equal powers. Let $\alpha_i$ be the eigenvalues of $\mathbf{R}_2$ and $\beta_i$ be the eigenvalues of $\mathbf{R}_3$. Because $\mathbf{R}_3$ is diagonal with equal diagonal elements, all the $\beta_i$ are equal. Our assumptions imply that the main diagonal elements of $\mathbf{R}_2$ are equal to the main diagonal elements of $\mathbf{R}_3$, and hence from Property 4, the trace and the eigenvalue sum of each covariance matrix are equal.
 
-根据哈达玛不等式，$\det \mathbf{R}_2 < \det \mathbf{R}_3$，因此也根据性质 4，$\prod_{i=1}^{n} \alpha_i < \prod_{i=1}^{n} \beta_i$。在约束 $\sum \alpha_i = \sum \beta_i$ 下，可以得出 $\alpha_1 > \alpha_n$；即 $\mathbf{R}_2$ 的特征值不相等。（我们说特征值变得**离散 (disparate)**）。因此，相关过程的前几个 K-L 系数的方差大于后几个 K-L 系数的方差。通常在一个高度相关的系统中，只有前几个系数具有显著的方差。
+To obtain further insight into the behavior of the two sets of eigenvalues, we consider Hadamard’s inequality[^chapter2-11] which may be stated as:
+> Consider a square matrix $\mathbf{A} \in \mathbb{R}^{m \times m}$. Then, $\det \mathbf{A} \le \prod_{i=1}^m a_{ii}$, with equality if and only if $\mathbf{A}$ is diagonal.
 
-为了进一步说明这种现象，考虑一个极端情况，即过程变得如此相关，以至于其协方差矩阵的所有元素都趋于相同的值。（如果过程 $x[n]$ 不随时间变化，就会发生这种情况）。那么，协方差矩阵的所有列都相等，这种情况下 $\mathbf{R}_{xx}$ 的秩变为 1，因此只有一个非零特征值。那么过程的所有能量都集中在第一个 K-L 系数中。相比之下，当过程是白噪声且平稳时，$\mathbf{R}_{xx}$ 的所有特征值都相等，过程的方差在所有 K-L 系数中均匀分布。这个讨论的要点是指出随机过程的一个普遍行为，即随着它们变得越来越相关，K-L 系数的方差集中在前几个元素中。剩余系数的方差变得可以忽略不计。
+From Hadamard’s inequality, $\det \mathbf{R}_2 < \det \mathbf{R}_3$, and so also from Property 4, $\prod_{i=1}^n \alpha_i < \prod_{i=1}^n \beta_i$. Under the constraint $\sum \alpha_i = \sum \beta_i$, it follows that $\alpha_1 > \alpha_n$; i.e., the eigenvalues of $\mathbf{R}_2$ are not equal. (We say the eigenvalues become *disparate*). Thus, the variance in the first K-L coefficients of a correlated process is larger than that in the later K-L coefficients. Typically in a highly correlated system, only the first few coefficients have significant variance.
 
-#### **2.5.3 K-L 展开的应用**
+To illustrate this phenomenon further, consider the extreme case where the process becomes so correlated that all elements of its covariance matrix approach the same value. (This will happen if the process $x[n]$ does not vary with time). Then, all columns of the covariance matrix are equal, and the rank of $\mathbf{R}_{xx}$ in this case becomes equal to one, and therefore only one eigenvalue is nonzero. Then *all* the energy of the process is concentrated into only the first K-L coefficient. In contrast, when the process is white and stationary, all the eigenvalues are of $\mathbf{R}_{xx}$ are equal, and the variance of the process is equally distributed amongst all the K–L coefficients. The point of this discussion is to indicate a general behavior of random processes, which is that as they become more highly correlated, the variance in the K-L coefficients concentrates in the first few elements. The variance in the remaining coefficients becomes negligible.
 
-假设一个通信系统传输一个平稳、零均值、高度相关的序列 $\mathbf{x}$。这意味着要直接传输 $\mathbf{x}$ 的元素，需要用足够多的比特来发送 $\mathbf{x}$ 的特定元素 $x_i$，以传达所需保真度的信息。然而，在发送下一个元素 $x_{i+1}$ 时，几乎所有的相同信息都被再次发送，因为 $x_{i+1}$ 与 $x_i$ 及其前几个样本高度相关。也就是说，$x_{i+1}$ 相对于 $x_i$ 包含的新信息非常少。因此可以看出，如果 $\mathbf{x}$ 是高度相关的，直接传输样本（即，使用传统坐标系）在所需传输比特数方面是非常浪费的。
+### 2.5.3 Applications of the K-L Expansion
+Suppose a communications system transmits a stationary, zero–mean highly–correlated sequence $\mathbf{x}$. This means that to transmit the elements of $\mathbf{x}$ directly, one sends a particular element $x_i$ of $\mathbf{x}$ using as many bits as is necessary to convey the information with the required fidelity. However, in sending the next element $x_{i+1}$, almost all of the same information is sent over again, due to the fact that $x_{i+1}$ is highly correlated with $x_i$ and its previous few samples. That is, $x_{i+1}$ contains very little new information relative to $x_i$. It is therefore seen that if $\mathbf{x}$ is highly correlated, transmitting the samples directly (i.e., using the conventional coordinate system) is very wasteful in terms of the number of required bits to transmit.
 
-但是如果 $\mathbf{x}$ 是平稳的并且 $\mathbf{R}_{xx}$ 在接收端是已知的[^17]，那么发射端和接收端都可以“知道” $\mathbf{R}_{xx}$ 的特征向量，即基集。如果过程足够高度相关，那么由于 K-L 变换的集中特性，前几个系数 $\boldsymbol{\theta}$ 的方差将主导其余系数的方差。后几个系数平均而言通常具有很小的方差，不需要精确地表示信号。
+But if $\mathbf{x}$ is stationary and $\mathbf{R}_{xx}$ is known at the receiver[^chapter2-12], then it is possible for both the transmitter and receiver to “know” the eigenvectors of $\mathbf{R}_{xx}$, the basis set. If the process is sufficiently highly correlated, then, because of the concentration properties of the K–L transform, the variance of the first few coefficients $\mathbf{\theta}$ dominates that of the remaining ones. The later coefficients on average typically have a small variance and are not required to accurately represent the signal.
 
-为了实现这种形式的信号压缩，假设我们通过只保留前 $j$ 个重要系数来获得可接受的失真水平。我们以类似于 (54) 的方式形成一个截断的 K-L 系数向量 $\boldsymbol{\hat{\theta}}$：
+To implement this form of signal compression, let us say that an acceptable level of distortion is obtained by retaining only the first $j$ significant coefficients. We form a truncated K-L coefficient vector $\hat{\mathbf{\theta}}$ in a similar manner to (54) as
 $$
-\boldsymbol{\hat{\theta}} = \begin{bmatrix} \theta_1 \\ \vdots \\ \theta_j \\ 0 \\ \vdots \\ 0 \end{bmatrix} = \begin{bmatrix} \mathbf{v}_1^T \\ \vdots \\ \mathbf{v}_j^T \\ \mathbf{0}^T \\ \vdots \\ \mathbf{0}^T \end{bmatrix} \mathbf{x}. \quad (56)
+\hat{\mathbf{\theta}} = \begin{bmatrix} \theta_1 \\ \vdots \\ \theta_j \\ 0 \\ \vdots \\ 0 \end{bmatrix} = \begin{bmatrix} \mathbf{v}_1^T \\ \vdots \\ \mathbf{v}_j^T \\ \mathbf{0}^T \\ \vdots \\ \mathbf{0}^T \end{bmatrix} \mathbf{x}. \tag{56}
 $$
-其中系数 $\theta_{j+1}, \dots, \theta_m$ 被设为零，因此不需要传输。这意味着我们可以更紧凑地表示 $\mathbf{x}_i$ 而不会牺牲显著的质量损失；即，我们实现了信号压缩。
+where coefficients $\theta_{j+1}, \dots, \theta_m$ are set to zero and therefore need not be transmitted. This means we can represent $\mathbf{x}_i$ more compactly without sacrificing significant loss of quality; i.e., we have achieved signal compression.
 
-原始信号的近似 $\mathbf{\hat{x}}$ 可以通过以下方式重构：
+An approximation $\hat{\mathbf{x}}$ to the original signal can be reconstructed by:
 $$
-\mathbf{\hat{x}} = \mathbf{V}\boldsymbol{\hat{\theta}}. \quad (57)
+\hat{\mathbf{x}} = \mathbf{V}\hat{\mathbf{\theta}}. \tag{57}
 $$
-根据性质 8，K-L 重构 $\mathbf{\hat{x}}$ 中的**均方误差 (mean-squared error)** $\epsilon_j$ 由下式给出
+From Property 8, the mean–squared error $\epsilon_j^2$ in the KL reconstruction $\hat{\mathbf{x}}$ is given as
 $$
-\epsilon_j = \sum_{i=j+1}^{m} \lambda_i, \quad (58)
+\epsilon_j^2 = \sum_{i=j+1}^m \lambda_i, \tag{58}
 $$
-它对应于被截断的（最小的）特征值的总和。很容易证明没有其他基能产生更小的误差。使用任何基 $[\mathbf{q}_1, \dots, \mathbf{q}_m]$ 重构的 $\mathbf{\hat{x}}$ 中的误差 $\epsilon_j$ 由下式给出
+which corresponds to the sum of the truncated (smallest) eigenvalues. It is easy to prove that no other basis results in a smaller error. The error $\epsilon_j^2$ in the reconstructed $\hat{\mathbf{x}}$ using any basis $[\mathbf{q}_1, \dots, \mathbf{q}_m]$ is given by
 $$
-\epsilon_j = \sum_{i=j+1}^{m} E|\mathbf{q}_i^T\mathbf{x}|_2^2 = \sum_{i=j+1}^{m} \mathbf{q}_i^T\mathbf{R}_{xx}\mathbf{q}_i. \quad (59)
+\epsilon_j^2 = \sum_{i=j+1}^m E|\mathbf{q}_i^T\mathbf{x}|_2^2 = \sum_{i=j+1}^m \mathbf{q}_i^T\mathbf{R}_{xx}\mathbf{q}_i. \tag{59}
 $$
-其中最后一行使用了 (51) 和 (52)。我们之前已经看到特征向量是上面和中每一项的驻点。由于和中的每一项都是半正定的，通过最小化每一项可以使 $\epsilon_j$ 最小化。因此，当 $\mathbf{q}_i$ 被分配为 $m-j$ 个最小的特征向量时，(59) 的最小值就获得了。由于当 $||\mathbf{v}||_2=1$ 时 $\mathbf{v}_i^T\mathbf{R}_{xx}\mathbf{v}_i = \lambda_i$，只有当 $\mathbf{q}_i = \mathbf{v}_i$ 时 $\epsilon_j = \epsilon'_j$。这就完成了证明。
-
-例如，在语音应用中，只需要不到十分之一的系数就可以实现几乎无法察觉的降级重构。注意，由于 $\mathbf{\hat{R}}_{xx}$ 是半正定的，所有特征值都是非负的。因此，能量度量 (58) 对于任何 $j$ 值都是非负的。这种类型的信号压缩是被称为**变换编码 (transform coding)** 的一种编码的最终形式。
-
-[^16]: 证明请参考 Cover 和 Thomas 的《信息论基础》。
+where the last line uses (51) and (52). We have seen previously that the eigenvectors are the stationary points of each term in the sum above. Since each term in the sum is positive semi–definite definite, $\epsilon_j^2$ is minimized by minimizing each term individually. Therefore, the minimum of (59) is obtained when the $\mathbf{q}_i$ are assigned the $m-j$ smallest eigenvectors. Since $\mathbf{v}_i^T\mathbf{R}_{xx}\mathbf{v}_i = \lambda_i$ when $\|\mathbf{v}\|_2=1$, $\epsilon_j^2 = \epsilon_j^2$ only when $\mathbf{q}_i = \mathbf{v}_i$. This completes the proof.
 
-[^17]: 这不一定是一个有效的假设。我们将在本节后面进一步讨论这一点。
+In speech applications for example, fewer than one tenth of the coefficients are needed for reconstruction with imperceptible degradation. Note that since $\hat{\mathbf{R}}_{xx}$ is positive semi–definite, all eigenvalues are non–negative. Hence, the energy measure (58) is always non–negative for any value of $j$. This type of signal compression is the ultimate form of a type of coding known as *transform coding*.
 
-现在通过一个例子来说明变换编码。一个过程 $x[n]$ 是通过将一个单位方差、零均值的白噪声序列 $w(n)$ 通过一个三阶低通数字巴特沃斯滤波器生成的，该滤波器具有相对较低的归一化截止频率（0.1 Hz），如图 6 所示。向量样本 $\mathbf{x}_i$ 从序列 $x[n]$ 中提取，如图 2 所示。该滤波器从输入中移除了高频分量，因此产生的输出过程 $x[n]$ 必须随时间缓慢变化。因此，K-L 展开预计只需要少数几个主要特征向量分量，并且可以实现显著的压缩增益。
+<center><b>Figure 6:</b> Generation of a highly correlated process $x[n]$</center>
 
-图 6：生成高度相关过程 x[n]
+Transform coding is now illustrated by an example. A process $x[n]$ was generated by passing a unit-variance zero–mean white noise sequence $w(n)$ through a 3rd-order lowpass digital lowpass Butterworth filter with a relatively low normalized cutoff frequency (0.1 Hz), as shown in Fig. 6. Vector samples $\mathbf{x}_i$ are extracted from the sequence $x[n]$ as shown in Fig. 2. The filter removes the high-frequency components from the input and so the resulting output process $x[n]$ must therefore vary slowly in time. Thus, the K–L expansion is expected to require only a few principal eigenvector components, and significant compression gains can be achieved.
 
-我们以 $m=10$ 为例进行展示。下面列出了由低通滤波器输出生成的 $\mathbf{x}$ 的协方差矩阵 $\mathbf{\hat{R}}_{xx}$ 对应的 10 个特征值：
+We show this example for $m=10$. Listed below are the 10 eigenvalues corresponding to $\hat{\mathbf{R}}_{xx}$, the covariance matrix of $\mathbf{x}$, generated from the output of the lowpass filter:
 
-**特征值：**
-```
+**Eigenvalues:**
 0.5468
 0.1975
-0.1243 × 10⁻¹
-0.5112 × 10⁻³
-0.2617 × 10⁻⁴
-0.1077 × 10⁻⁵
-0.6437 × 10⁻⁷
-0.3895 × 10⁻⁸
-0.2069 × 10⁻⁹
-0.5761 × 10⁻¹¹
-```
+0.1243 $\times 10^{-1}$
+0.5112 $\times 10^{-3}$
+0.2617 $\times 10^{-4}$
+0.1077 $\times 10^{-5}$
+0.6437 $\times 10^{-7}$
+0.3895 $\times 10^{-8}$
+0.2069 $\times 10^{-9}$
+0.5761 $\times 10^{-11}$
 
-图 7：巴特沃斯低通滤波噪声示例中，前两个特征向量分量作为时间的函数。
+<center><b>Figure 7:</b> First two eigenvector components as functions of time, for Butterworth lowpass filtered noise example.</center>
 
-因此，对于 $j=2$ 的误差 $\epsilon'_j$ 从上述数据计算为 0.0130，这可以与总特征值和 0.7573 进行比较。归一化误差为 $\frac{0.0130}{0.7573} = 0.0171$。因为这个误差可以被认为是足够小的值，所以只有前 $j=2$ 个 K-L 分量可以被认为是显著的。在这种情况下，我们的压缩增益为 $10/2 = 5$；即，K-L 展开只需要相对于直接表示信号的五分之一的比特。
+The error $\epsilon_j^2$ for $j=2$ is thus evaluated from the above data as 0.0130, which may be compared to the value 0.7573, which is the total eigenvalue sum. The normalized error is $\frac{0.0130}{0.7573} = 0.0171$. Because this error may be considered a low enough value, only the first $j=2$ K-L components may be considered significant. In this case, we have a compression gain of $10/2=5$; i.e., the KL expansion requires only one fifth of the bits relative to representing the signal directly.
 
-对应的两个**主要特征向量 (principal eigenvectors)** 绘制在图 7 中。这些图显示了特征向量的第 $k$ 个元素 $v_k$ 的值，相对于其索引 $k$（$k=1, \dots, m$）进行绘制。这些波形可以解释为时间的函数。
+The corresponding two principal eigenvectors are plotted in Fig. 7. These plots show the value of the $k$th element $v_k$ of the eigenvector, plotted against its index $k$ for $k=1, \dots, m$. These waveforms may be interpreted as functions of time.
 
-在这种情况下，我们期望任何观测值 $\mathbf{x}_i$ 都可以精确地表示为图 7 所示的前两个特征向量波形的线性组合，其系数 $\boldsymbol{\hat{\theta}}$ 由 (56) 给出。在图 8 中，我们展示了作为时间波形的真实观测值 $\mathbf{x}$ 的样本，与仅使用前 $j=2$ 个特征向量由 (57) 形成的重构 $\mathbf{\hat{x}}_i$ 进行比较。可以看出，真实和重构的向量样本之间的差异很小，正如预期的那样。
+In this case, we would expect that any observation $\mathbf{x}_i$ can be expressed accurately as a linear combination of only the first two eigenvector waveforms shown in Fig. 7, whose coefficients $\hat{\mathbf{\theta}}$ are given by (56). In Fig. 8 we show samples of the true observation $\mathbf{x}$ shown as a waveform in time, compared with the reconstruction $\hat{\mathbf{x}}_i$ formed from (57) using only the first $j=2$ eigenvectors. It is seen that the difference between the true and reconstructed vector samples is small, as expected.
 
-图 8：原始向量样本 $\mathbf{x}$ 作为时间的函数（实线），与其仅使用前两个特征向量分量（点线）的重构进行比较。图中显示了三个向量样本。
+<center><b>Figure 8:</b> Original vector samples of x as functions of time (solid), compared with their reconstruction using only the first two eigenvector components (dotted). Three vector samples are shown.</center>
 
-在编码中使用 K-L 展开的一个实际困难是，在实际情况下，当观测信号是轻度或严重非平稳时（例如语音或视频信号），特征向量集 $\mathbf{V}$ 通常在接收端是未知的。在这种情况下，协方差矩阵估计 $\mathbf{\hat{R}}_{xx}$ 会随时间变化；因此特征向量也会变化。将特征向量集传输到接收端在信息方面是昂贵的，因此是不可取的。这一事实限制了 K-L 展开在编码中的明确使用。然而，已经证明[^18]，**离散余弦变换 (discrete cosine transform, DCT)**，这是另一种形式的正交展开，其基由余弦相关函数组成，对于某一大类信号，可以很好地近似特征向量基。DCT 使用固定的、与信号无关的基，因此在接收端总是已知的。使用 DCT 的变换编码得到了广泛的实际应用，并且是所谓的 JEPEG 和 MPEG 国际图像和视频编码标准背后的基本思想。寻找其他基，特别是小波函数，来替代特征向量基是一个正在进行的研究课题。因此，即使 K-L 展开本身没有太多的实际价值，其背后的理论思想也具有重要的价值。
+One of the practical difficulties in using the K–L expansion for coding is that the eigenvector set $\mathbf{V}$ is not usually known at the receiver in practical cases when the observed signal is mildly or severely nonstationary (e.g. speech or video signals). In this case, the covariance matrix estimate $\hat{\mathbf{R}}_{xx}$ is changing with time; hence so are the eigenvectors. Transmission of the eigenvector set to the receiver is expensive in terms of information and so is undesirable. This fact limits the explicit use of the K–L expansion for coding. However, it has been shown[^chapter2-13] that the discrete cosine transform (DCT), which is another form of orthonormal expansion whose basis consists of cosine–related functions, closely approximates the eigenvector basis for a certain wide class of signals. The DCT uses a fixed basis, independent of the signal, and hence is always known at the receiver. Transform coding using the DCT enjoys widespread practical use and is the fundamental idea behind the so–called JEPEG and MPEG international standards for image and video coding. The search for other bases, including particularly wavelet functions, to replace the eigenvector basis is a subject of ongoing research. Thus, even though the K–L expansion by itself is not of much practical value, the theoretical ideas behind it are of significant worth.
 
-### **2.6 示例：阵列处理**
+## 2.6 Example: Array Processing
+Here, we present a further example of the concepts we have developed so far. This example is concerned with *direction of arrival estimation* using arrays of sensors.
 
-在这里，我们提供了我们迄今为止所发展的概念的进一步示例。这个例子关注的是使用传感器阵列进行**到达方向 (direction of arrival)** 估计。
+<center><b>Figure 9:</b> Physical description of incident signals onto an array of sensors.</center>
 
-考虑一个由 $M$ 个传感器（例如天线）组成的阵列，如图 9 所示。假设有 $K < M$ 个平面波入射到该阵列上。假设入射波的幅度在波穿越阵列所需的时间内不发生变化。同时暂时假设第一个入射波在第一个传感器处的幅度为 1。那么，根据图 9 所示的物理原理，仅由第一个入射波，通过同时采样阵列的每个元素接收到的信号向量 $\mathbf{x}$，可以用向量格式描述为 $\mathbf{x} = [1, e^{j\phi}, e^{j2\phi}, \dots, e^{j(M-1)\phi}]^T$，其中 $\phi$ 是由于第一个入射波，阵列相邻元素之间的电相移。[^19] 当有 $K$ 个入射信号，具有相应的幅度 $a_k, k=1, \dots, K$ 时，$K$ 个入射信号的效应各自线性相加，每个信号都由相应的幅度 $a_k$ 加权，形成接收信号向量 $\mathbf{x}$。由此产生的接收信号向量，包括噪声，可以写成如下形式
+Consider an array of $M$ sensors (e.g., antennas) as shown in Fig. 9. Let there be $K < M$ plane waves incident onto the array as shown. Assume the amplitudes of the incident waves do not change during the time taken for the wave to traverse the array. Also assume for the moment that the amplitude of the first incident wave at the first sensor is unity. Then, from the physics shown in Fig. 9, the signal vector $\mathbf{x}$ received by sampling each element of the array simultaneously, from the first incident wave alone, may be described in vector format by $\mathbf{x} = [1, e^{j\phi}, e^{j2\phi}, \dots, e^{j(M-1)\phi}]^T$, where $\phi$ is the electrical phase–shift between adjacent elements of the array, due to the first incident wave.[^chapter2-14] When there are $K$ incident signals, with corresponding amplitudes $a_k, k = 1, \dots, K$, the effects of the $K$ incident signals each add linearly together, each weighted by the corresponding amplitude $a_k$, to form the received signal vector $\mathbf{x}$. The resulting received signal vector, including the noise can then be written in the form
 $$
-\mathbf{x}_n = \mathbf{S}\mathbf{a}_n + \mathbf{w}_n, \quad n=1, \dots, N, \quad (60) \\
-(M \times 1) \quad (M \times K)(K \times 1) \quad (M \times 1)
+\underset{(M \times 1)}{\mathbf{x}_n} = \underset{(M \times K)}{\mathbf{S}} \underset{(K \times 1)}{\mathbf{a}_n} + \underset{(M \times 1)}{\mathbf{w}_n}, \quad n=1, \dots, N, \tag{60}
 $$
-其中
-$\mathbf{w}_n = $ 在时间 $n$ 的 $M$ 长度噪声向量，其元素是零均值和方差 $\sigma^2$ 的独立随机变量，即 $E(w_i^2) = \sigma^2$。向量 $\mathbf{w}$ 假设与信号不相关。
-$\mathbf{S} = [\mathbf{s}_1 \dots \mathbf{s}_K]$
-$\mathbf{s}_k = [1, e^{j\phi_k}, e^{j2\phi_k}, \dots, e^{j(M-1)\phi_k}]^T$ 被称为**导向向量 (steering vectors)**。
-$\phi_k, k=1, \dots, K$ 是对应于入射信号的电相移角。$\phi_k$ 假设是互异的。
-$\mathbf{a}_n = [a_1 \dots a_K]_n^T$ 是一个独立随机变量的向量，描述了在时间 $n$ 每个入射信号的幅度。
+where
+$\mathbf{w}_n =$ M-length noise vector at time $n$ whose elements are independent random variables with zero mean and variance $\sigma^2$, i.e., $E(w_i^2) = \sigma^2$. The vector $\mathbf{w}$ is assumed uncorrelated with the signal.
+$\mathbf{S} = [\mathbf{s}_1, \dots, \mathbf{s}_K]$
+$\mathbf{s}_k = [1, e^{j\phi_k}, e^{j2\phi_k}, \dots, e^{j(M-1)\phi_k}]^T$ are referred to as *steering vectors*.
+$\phi_k, k=1, \dots, K$ are the electrical phase–shift angles corresponding to the incident signals. The $\phi_k$ are assumed to be distinct.
+$\mathbf{a}_n = [a_1, \dots, a_K]_n^T$ is a vector of independent random variables, describing the amplitudes of each of the incident signals at time $n$.
 
-在 (60) 中，我们通过在 $N$ 个不同的时间点同时采样所有阵列元素，获得了 $N$ 个向量样本 $\mathbf{x}_n \in \mathbb{R}^{M \times 1}, n=1, \dots, N$。我们的目标是通过仅观察接收到的信号，来估计平面波相对于阵列的到达方向 $\phi_k$。
+In (60) we obtain $N$ vector samples $\mathbf{x}_n \in \mathbb{C}^{M \times 1}$, $n=1, \dots, N$ by simultaneously sampling all array elements at $N$ distinct points in time. Our objective is to estimate the directions of arrival $\phi_k$ of the plane waves relative to the array, by observing only the received signal.
 
-注意 $K < M$。让我们形成接收信号 $\mathbf{x}$ 的协方差矩阵 $\mathbf{R}$：
+Note $K < M$. Let us form the covariance matrix $\mathbf{R}$ of the received signal $\mathbf{x}$:
 $$
-\mathbf{R} = E(\mathbf{xx}^H) = E\left[ (\mathbf{Sa} + \mathbf{w})(\mathbf{a}^H\mathbf{S}^H + \mathbf{w}^H) \right]
+\begin{aligned}
+\mathbf{R} = E(\mathbf{x}\mathbf{x}^H) &= E[(\mathbf{S}\mathbf{a} + \mathbf{w})(\mathbf{a}^H\mathbf{S}^H + \mathbf{w}^H)] \\
+&= \mathbf{S}E(\mathbf{a}\mathbf{a}^H)\mathbf{S}^H + \sigma^2\mathbf{I}
+\end{aligned} \tag{61}
 $$
-$$
-= \mathbf{S}E(\mathbf{aa}^H)\mathbf{S}^H + \sigma^2\mathbf{I} \quad (61)
-$$
-最后一行是因为噪声与信号不相关，从而迫使交叉项为零。在 (61) 的最后一行，我们还利用了噪声贡献（第二项）的协方差矩阵是 $\sigma^2\mathbf{I}$ 的事实。这是因为噪声向量 $\mathbf{w}$ 的元素是具有相等功率的独立的。我们称 (61) 的第一项为 $\mathbf{R}_o$，这是仅由信号引起的协方差矩阵的贡献。
+The last line follows because the noise is uncorrelated with the signal, thus forcing the cross–terms to zero. In the last line of (61) we have also used that fact that the covariance matrix of the noise contribution (second term) is $\sigma^2\mathbf{I}$. This follows because the elements of the noise vector $\mathbf{w}$ are independent with equal power. The first term of (61) we call $\mathbf{R}_o$, which is the contribution to the covariance matrix due only to the *signal*.
 
-让我们看看 $\mathbf{R}_o$ 的结构：
+Lets look at the structure of $\mathbf{R}_o$:
 $$
-\mathbf{R}_o = \begin{bmatrix} & & K & & \\ & S & E(\mathbf{aa}^H) & S^H & \\ & & \uparrow \text{非奇异} & & \end{bmatrix}_M^K
+\mathbf{R}_o = \mathbf{S} \underbrace{E(\mathbf{a}\mathbf{a}^H)}_{\text{non-singular}} \mathbf{S}^H
 $$
-从这个结构中，我们可以得出结论，$\mathbf{R}_o$ 的秩为 $K$。这可以如下看出。我们定义 $\mathbf{A} \triangleq E(\mathbf{aa}^H)$ 和 $\mathbf{B} \triangleq \mathbf{AS}^H$。因为 $\phi_k$ 是互异的，$\mathbf{S}$ 是满秩（秩为 $K$），并且因为 $a_k$ 是独立的，$\mathbf{A}$ 是满秩（$K$）。因此矩阵 $\mathbf{B} \in \mathbb{R}^{K \times M}$ 是满秩 $K$。那么，$\mathbf{R}_o = \mathbf{SB}$。从这个最后的关系，我们可以看到 $\mathbf{R}_o$ 的第 $i$ 列，$i=1, \dots, M$ 是 $\mathbf{S}$ 的 $K$ 列的线性组合，其系数是 $\mathbf{B}$ 的第 $i$ 列。因为 $\mathbf{B}$ 是满秩的，所以使用了 $\mathbf{S}$ 的 $K$ 个线性无关的线性组合来形成 $\mathbf{R}_o$。因此 $\mathbf{R}_o$ 的秩为 $K$。因为 $K < M$，$\mathbf{R}_o$ 是秩亏的。
+From this structure, we may conclude that $\mathbf{R}_o$ is rank $K$. This may be seen as follows. Let us define $\mathbf{A} \triangleq E(\mathbf{a}\mathbf{a}^H)$ and $\mathbf{B} \triangleq \mathbf{A}\mathbf{S}^H$. Because the $\phi_k$ are distinct, $\mathbf{S}$ is full rank (rank $K$), and because the $a_k$ are independent, $\mathbf{A}$ is full rank ($K$). Therefore the matrix $\mathbf{B} \in \mathbb{C}^{K \times M}$ is of full rank $K$. Then, $\mathbf{R}_o = \mathbf{S}\mathbf{B}$. From this last relation, we can see that the $i$th, $i=1, \dots, M$ column of $\mathbf{R}_o$ is a linear combination of the $K$ columns of $\mathbf{S}$, whose coefficients are the $i$th column of $\mathbf{B}$. Because $\mathbf{B}$ is full rank, $K$ linearly independent linear combinations of the $K$ columns of $\mathbf{S}$ are used to form $\mathbf{R}_o$. Thus $\mathbf{R}_o$ is rank $K$. Because $K < M$, $\mathbf{R}_o$ is rank deficient.
 
-现在让我们研究 $\mathbf{R}_o$ 的特征分解，其中 $\lambda_k$ 是 $\mathbf{R}_o$ 的特征值：
+Let us now investigate the eigendecomposition on $\mathbf{R}_o$, where $\lambda_k$ are the eigenvalues of $\mathbf{R}_o$:
 $$
-\mathbf{R}_o = \mathbf{V\Lambda V}^H \quad (62)
+\mathbf{R}_o = \mathbf{V}\mathbf{\Lambda}\mathbf{V}^H \tag{62}
 $$
-或
+or
 $$
-\mathbf{R}_o = \begin{bmatrix} \\ \\ \\ \end{bmatrix} \begin{bmatrix} \lambda_1 & & & & \\ & \ddots & & & \\ & & \lambda_K & & \\ & & & 0 & \\ & & & & \ddots & \\ & & & & & 0 \end{bmatrix} \begin{bmatrix} \\ \\ \\ \end{bmatrix}. \quad (63)
+\mathbf{R}_o = [\dots] \begin{bmatrix} \lambda_1 & & & & \\ & \ddots & & & \\ & & \lambda_K & & \\ & & & 0 & \\ & & & & \ddots \\ & & & & & 0 \end{bmatrix} [\dots]. \tag{63}
 $$
-因为 $\mathbf{R}_o \in \mathbb{R}^{M \times M}$ 的秩为 $K$，它有 $K$ 个非零特征值和 $M-K$ 个零特征值。我们将与最大 $K$ 个特征值相关的特征向量枚举为 $\mathbf{v}_1, \dots, \mathbf{v}_K$，并将与零特征值相关的特征向量枚举为 $\mathbf{v}_{K+1}, \dots, \mathbf{v}_M$。[^20] [^21]
+Because $\mathbf{R}_o \in \mathbb{C}^{M \times M}$ is rank $K$, it has $K$ non-zero eigenvalues and $M-K$ zero eigenvalues. We enumerate the eigenvectors $\mathbf{v}_1, \dots, \mathbf{v}_K$ as those associated with the largest $K$ eigenvalues, and $\mathbf{v}_{K+1}, \dots, \mathbf{v}_M$ as those associated with the zero eigenvectors.[^chapter2-15] [^chapter2-16]
 
-从特征向量的定义，我们有
+From the definition of an eigenvector, we have
+$$ \mathbf{R}_o\mathbf{v}_i = \mathbf{0} \tag{68} $$
+or
+$$ \mathbf{S}\mathbf{A}\mathbf{S}^H\mathbf{v}_i = \mathbf{0}, \quad i = K+1, \dots, M. \tag{69} $$
+Since $\mathbf{A} = E(\mathbf{a}\mathbf{a}^H)$ and $\mathbf{S}$ are full rank, the only way (69) can be satisfied is if the $\mathbf{v}_i, i = K+1, \dots, M$ are orthogonal to all columns of $\mathbf{S} = [\mathbf{s}(\phi_1), \dots, \mathbf{s}(\phi_K)]$. Therefore we have
 $$
-\mathbf{R}_o\mathbf{v}_i = \mathbf{0} \quad (68)
+\mathbf{s}_k^H \mathbf{v}_i = 0, \quad k=1, \dots, K, \quad i = K+1, \dots, M, \tag{70}
 $$
-或
+We define the matrix $\mathbf{V}_N \triangleq [\mathbf{v}_{K+1}, \dots, \mathbf{v}_M]$. Therefore (70) may be written as
 $$
-\mathbf{SA}\mathbf{S}^H\mathbf{v}_i = \mathbf{0}, \quad i=K+1, \dots, M. \quad (69)
+\mathbf{S}^H\mathbf{V}_N = \mathbf{0}. \tag{71}
 $$
-由于 $\mathbf{A} = E(\mathbf{aa}^H)$ 和 $\mathbf{S}$ 都是满秩的，(69) 能够满足的唯一方式是如果 $\mathbf{v}_i, i=K+1, \dots, M$ 与 $\mathbf{S} = [\mathbf{s}(\phi_1), \dots, \mathbf{s}(\phi_K)]$ 的所有列都正交。因此我们有
+We also have
 $$
-\mathbf{s}_k^H\mathbf{v}_i = 0, \quad k=1, \dots, K, \quad (70)
+[1, e^{j\phi_k}, e^{j2\phi_k}, \dots, e^{j(M-1)\phi_k}]^H \mathbf{V}_N = \mathbf{0}. \tag{72}
 $$
-$$
-i=K+1, \dots, M,
-$$
-我们定义矩阵 $\mathbf{V}_N \triangleq [\mathbf{v}_{K+1}, \dots, \mathbf{v}_M]$。因此 (70) 可以写成
-$$
-\mathbf{S}^H\mathbf{V}_N = \mathbf{0}. \quad (71)
-$$
-我们还有
-$$
-[1, e^{j\phi_k}, e^{j2\phi_k}, \dots, e^{j(M-1)\phi_k}]^H \mathbf{V}_N = \mathbf{0}. \quad (72)
-$$
-到目前为止，我们只考虑了无噪声的情况。当噪声分量 $\sigma^2\mathbf{I}$ 被加到 $\mathbf{R}_o$ 上得到 (61) 中的 $\mathbf{R}_{xx}$ 时会发生什么？根据第一讲的性质 3，我们看到如果 $\mathbf{R}_o$ 的特征值是 $\lambda_i$，那么 $\mathbf{R}_{xx}$ 的特征值是 $\lambda_i + \sigma^2$。特征向量在有噪声贡献的情况下保持不变，并且 (70) 在有噪声存在时仍然成立。注意这些性质只适用于使用期望形成的真实协方差矩阵，而不是使用时间平均形成的估计协方差矩阵。
+Up to now, we have considered only the noise–free case. What happens when the noise component $\sigma^2\mathbf{I}$ is added to $\mathbf{R}_o$ to give $\mathbf{R}_{xx}$ in (61)? From **Property 3**, Lecture 1, we see that if the eigenvalues of $\mathbf{R}_o$ are $\lambda_i$, then those of $\mathbf{R}_{xx}$ are $\lambda_i + \sigma^2$. The eigenvectors remain unchanged with the noise contribution, and (70) still holds when noise is present. Note these properties only apply to the *true* covariance matrix formed using expectations, rather than the estimated covariance matrix formed using time averages.
 
-有了这些背景知识，我们现在可以讨论 **MUSIC**[^22] 算法，用于估计入射到传感器阵列上的平面波的到达方向。
+With this background in place we can now discuss the MUSIC[^chapter2-17] algorithm for estimating directions of arrival of plane waves incident onto arrays of sensors.
 
-#### **2.6.1 MUSIC 算法[^23]**
-
-我们希望估计构成 $\mathbf{S} = [\mathbf{s}(\phi_1), \dots, \mathbf{s}(\phi_K)]$ 的未知值 $[\phi_1, \dots, \phi_K]$。MUSIC 算法假设量 $K$ 是已知的。在实际情况下，期望无法评估，因为它们需要无限的数据，我们基于有限数量的 $N$ 个观测值形成 $\mathbf{R}$ 的一个估计 $\mathbf{\hat{R}}$，如下所示：
+### 2.6.1 The MUSIC Algorithm[^chapter2-18]
+We wish to estimate the unknown values $[\phi_1, \dots, \phi_K]$ which comprise $\mathbf{S} = [\mathbf{s}(\phi_1), \dots, \mathbf{s}(\phi_K)]$. The MUSIC algorithm assumes the quantity $K$ is known. In the practical case, where expectations cannot be evaluted because they require infinite data, we form an estimate $\hat{\mathbf{R}}$ of $\mathbf{R}$ based on a finite number $N$ observations as follows:
 $$
-\mathbf{\hat{R}} = \frac{1}{N} \sum_{n=1}^{N} \mathbf{x}_n\mathbf{x}_n^H.
+\hat{\mathbf{R}} = \frac{1}{N} \sum_{n=1}^N \mathbf{x}_n \mathbf{x}_n^H.
 $$
-只有当 $N \to \infty$ 时，$\mathbf{\hat{R}} \to \mathbf{R}$。
+Only if $N \to \infty$ does $\hat{\mathbf{R}} \to \mathbf{R}$.
 
-$\mathbf{V}_N$ 的一个估计 $\mathbf{\hat{V}}_N$ 可以由与 $\mathbf{\hat{R}}$ 的最小 $M-K$ 个特征值相关的特征向量形成。由于有限的 $N$ 和噪声的存在，(72) 只有在用 $\mathbf{\hat{V}}_N$ 代替 $\mathbf{V}_N$ 时才近似成立。因此，所需到达方向的合理估计可以通过找到变量 $\phi$ 的值来获得，使得 (72) 的左边表达式很小而不是完全为零。因此，我们确定 $K$ 个估计值 $\hat{\phi}$，它们局部满足
+An estimate $\hat{\mathbf{V}}_N$ of $\mathbf{V}_N$ may be formed from the eigenvectors associated with the smallest $M-K$ eigenvalues of $\hat{\mathbf{R}}$. Because of the finite $N$ and the presence of noise, (72) only holds approximately when $\hat{\mathbf{V}}_N$ is used in place of $\mathbf{V}_N$. Thus, a reasonable estimate of the desired directions of arrival may be obtained by finding values of the variable $\phi$ for which the expression on the left of (72) is small instead of exactly zero. Thus, we determine $K$ estimates $\hat{\phi}$ which locally satisy
 $$
-\hat{\phi} = \arg \min_\phi || \mathbf{s}^H(\phi)\mathbf{\hat{V}}_N || \quad (73)
+\hat{\phi} = \arg \min_\phi \|\mathbf{s}^H(\phi)\hat{\mathbf{V}}_N\| \tag{73}
 $$
-按照惯例，希望将 (73) 表示为类似谱的函数，其中峰值而不是零点代表所需的信号。使用平方范数而不是范数本身也很方便。因此，MUSIC “谱” $P(\phi)$ 定义为：
+By convention, it is desirable to express (73) as a spectrum–like function, where a peak instead of a null represents a desired signal. It is also convenient to use the squared-norm instead of the norm itself. Thus, the MUSIC “spectrum” $P(\phi)$ is defined as:
 $$
-P(\phi) = \frac{1}{\mathbf{s}(\phi)^H\mathbf{\hat{V}}_N\mathbf{\hat{V}}_N^H\mathbf{s}(\phi)}
+P(\phi) = \frac{1}{\mathbf{s}(\phi)^H\hat{\mathbf{V}}_N\hat{\mathbf{V}}_N^H\mathbf{s}(\phi)}
 $$
-当 $K=2$ 个入射信号时，它将看起来像图 10 中所示的样子。
+It will look something like what is shown in Fig. 10, when $K=2$ incident signals.
 
-图 10：K=2个信号时MUSIC谱P(φ)
+<center><b>Figure 10:</b> MUSIC spectrum $P(\phi)$ for the case $K=2$ signals.</center>
 
-### **2.7 总结**
+## 2.7 TO SUMMARIZE
+- An eigenvector $\mathbf{x}$ of a matrix $\mathbf{A}$ is such that $\mathbf{A}\mathbf{x}$ points in the same direction as $\mathbf{x}$.
+- The covariance matrix $\mathbf{R}_{xx}$ of a random process $\mathbf{x}$ is defined as $E(\mathbf{x}\mathbf{x}^H)$. For stationary processes, $\mathbf{R}_{xx}$ completely characterizes the process, and is closely related to its covariance function. In practice, the expectation operation is replaced by a time-average.
+- the eigenvectors of $\mathbf{R}_{xx}$ form a natural basis to represent $\mathbf{x}$, since it is only the eigenvectors which diagonalize $\mathbf{R}_{xx}$. This leads to the coefficients $\mathbf{a}$ of the corresponding expansion $\mathbf{x}=\mathbf{V}\mathbf{a}$ being uncorrelated. This has significant application in speech/video encoding.
+- The expection of the square of the coefficients above are the eigenvalues of $\mathbf{R}_{xx}$. This gives an idea of the relative power present along each eigenvector.
+- If the variables $\mathbf{x}$ are Gaussian, then the K-L coefficients are independent. This greatly simplifies receiver design and analysis.
 
-*   矩阵 $\mathbf{A}$ 的一个特征向量 $\mathbf{x}$ 使得 $\mathbf{Ax}$ 指向与 $\mathbf{x}$ 相同的方向。
-*   随机过程 $\mathbf{x}$ 的协方差矩阵 $\mathbf{R}_{xx}$ 定义为 $E(\mathbf{x}\mathbf{x}^H)$。对于平稳过程，$\mathbf{R}_{xx}$ 完全表征了该过程，并与其协方差函数密切相关。在实践中，期望操作被时间平均所取代。
-*   $\mathbf{R}_{xx}$ 的特征向量形成了一个表示 $\mathbf{x}$ 的自然基，因为只有特征向量才能对角化 $\mathbf{R}_{xx}$。这导致了相应展开 $\mathbf{x} = \mathbf{Va}$ 的系数 $\mathbf{a}$ 是不相关的。这在语音/视频编码中有重要应用。
-*   上述系数平方的期望是 $\mathbf{R}_{xx}$ 的特征值。这给出了沿每个特征向量存在的相对功率的概念。
-*   如果变量 $\mathbf{x}$ 是高斯的，那么 K-L 系数是独立的。这大大简化了接收机的设计和分析。
+Many of these points are a direct consequence of the fact that it is only the eigenvectors which can diagonalize a matrix. That is basically the only reason why eigenvalues/eigenvectors are so useful. I hope this serves to demystify this subject. Once you see that it is only the eigenvectors which diagonalize, the property that they are a natural basis for the process $\mathbf{x}$ becomes easy to understand.
 
-这些要点中许多都是只有特征向量才能对角化矩阵这一事实的直接结果。这基本上是特征值/特征向量如此有用的唯一原因。我希望这有助于揭开这个主题的神秘面纱。一旦你看到只有特征向量才能对角化，那么它们是过程 $\mathbf{x}$ 的自然基这一性质就变得容易理解了。
+An interpretation of an eigenvalue is that it represents the average energy in each coefficient of the K–L expansion.
 
-特征值的一个解释是，它代表了 K-L 展开中每个系数的平均能量。
+[^chapter2-7]: A. Papoulis, *Probability, Random Variables, and Stochastic Processes*, McGraw Hill, 3rd Ed.
+[^chapter2-8]: Process with this property are referred to as *ergodic processes*.
+[^chapter2-9]: Haykin, “Adaptive Filter Theory”, Prentice Hall, 3rd. ed.
+[^chapter2-10]: An expansion of $\mathbf{x}$ usually requires the basis vectors to be only linearly independent–not necessarily orthonormal. But orthonormal basis vectors are most commonly used because they can be inverted using the very simple form of (49).
+[^chapter2-11]: For a proof, refer to Cover and Thomas, *Elements of Information Theory*
+[^chapter2-12]: This is not necessarily a valid assumption. We discuss this point further, later in the section.
+[^chapter2-13]: K.R. Rao and P. Yip, “Discrete Cosine Transform– Algorithms, Advantages, Applications”.
+[^chapter2-14]: It may be shown that if $d \le \lambda/2$, then there is a one–to–one relationship between the electrical angle $\phi$ and the corresponding physical angle $\theta$. In fact, $\phi = \frac{2\pi d}{\lambda}\sin\theta$. We can only observe the electrical angle $\phi$, not the desired physical angle $\theta$. Thus, we deduce the desired physical angle from the observed electrical angle from this mathematical relationship.
+[^chapter2-15]: Note that the eigenvalue zero has multiplicity $M-K$. Therefore, the eigenvectors $\mathbf{v}_{K+1}, \dots, \mathbf{v}_M$ are *not unique*. However, a set of orthonormal eigenvectors which are orthogonal to the remaining eigenvectors exist. Thus we can treat the zero eigenvectors as if they were distinct.
+[^chapter2-16]: Let us define the so–called signal subspace $S_S$ as $S_S = \text{span}[\mathbf{v}_1, \dots, \mathbf{v}_K]$ (64) and the noise subspace $S_N$ as $S_N = \text{span}[\mathbf{v}_{K+1}, \dots, \mathbf{v}_M]$. (65) We now digress briefly to discuss these two subspaces further. From our discussion above, all columns of $\mathbf{R}_o$ are linear combinations of the columns of $\mathbf{S}$. Therefore $\text{span}[\mathbf{R}_o] = \text{span}[\mathbf{S}]$. (66) But it is also easy to verify that $\text{span}[\mathbf{R}_o] \in S_S$ (67) Comparing (66) and (67), we see that $\mathbf{S} \in S_S$. From (60) we see that any received signal vector $\mathbf{x}$, in the absence of noise, is a linear combination of the columns of $\mathbf{S}$. Thus, any noise–free signal resides completely in $S_S$. This is the origin of the term “signal subspace”. Further, any component of the received signal residing in $S_N$ must be entirely due to the noise. This is the origin of the term “noise subspace”. We note that the signal and noise subspaces are orthogonal complement subspaces of each other.
+[^chapter2-17]: This word is an acronym for **MU**ltiple **SI**gnal **C**lassification.
+[^chapter2-18]: R.O. Schmidt, “Multiple emitter location and parameter estimation”, IEEE Trans. Antennas and Propag., vol AP-34, Mar. 1986, pp 276-280.
 
-[^18]: K.R. Rao and P. Yip, "Discrete Cosine Transform– Algorithms, Advantages, Applications".
+# 3 The Singular Value Decomposition (SVD)
+In this lecture we learn about one of the most fundamental and important matrix decompositions of linear algebra: the SVD. It bears some similarity with the eigendecomposition (ED), but is more general. Usually, the ED is of interest only on symmetric square matrices, but the SVD may be applied to *any* matrix. The SVD gives us important information about the rank, the column and row spaces of the matrix, and leads to very useful solutions and interpretations of least squares problems. We also discuss the concept of *matrix projectors*, and their relationship with the SVD.
 
-[^19]: 可以证明，如果 $d \le \lambda/2$，那么电角度 $\phi$ 和对应的物理角度 $\theta$ 之间存在一对一的关系。事实上，$\phi = \frac{2\pi d}{\lambda}\sin\theta$。我们只能观察到电角度 $\phi$，而不是期望的物理角度 $\theta$。因此，我们从这个数学关系中，从观察到的电角度推断出期望的物理角度。
+## 3.1 The Singular Value Decomposition (SVD)
+We have found so far that the eigendecomposition is a useful analytic tool. However, it is only applicable on *square symmetric* matrices. We now consider the SVD, which may be considered a generalization of the ED to arbitrary matrices. Thus, with the SVD, all the analytical uses of the ED which before were restricted to symmetric matrices may now be applied to any form of matrix, regardless of size, whether it is symmetric or nonsymmetric, rank deficient, etc.
 
-[^20]: 注意，特征值零具有 $M-K$ 的多重性。因此，特征向量 $\mathbf{v}_{K+1}, \dots, \mathbf{v}_M$ 不是唯一的。然而，存在一组与其余特征向量正交的标准正交特征向量。因此我们可以像对待互异的特征向量一样对待零特征向量。
+**Theorem 1** Let $\mathbf{A} \in \mathbb{R}^{m \times n}$. Then $\mathbf{A}$ can be decomposed according to the *singular value decomposition* as
+$$
+\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T \tag{1}
+$$
+where $\mathbf{U}$ and $\mathbf{V}$ are orthonormal and
+$$
+\mathbf{U} \in \mathbb{R}^{m \times m}, \quad \mathbf{V} \in \mathbb{R}^{n \times n}
+$$
+and
+$$
+\mathbf{\Sigma} = \text{diag}(\sigma_1, \sigma_2, \dots, \sigma_p) \in \mathbb{R}^{m \times n} \quad p = \min(m, n)
+$$
+where
+$$
+\sigma_1 \ge \sigma_2 \ge \sigma_3 \dots \ge \sigma_p \ge 0.
+$$
+The matrix $\mathbf{\Sigma}$ must be of dimension $\mathbb{R}^{m \times n}$ (i.e., the same size as $\mathbf{A}$), to maintain dimensional consistency of the product in (1). It is therefore padded with zeros either on the bottom or to the right of the diagonal block, depending on whether $m>n$ or $m<n$, respectively. We denote the square $p \times p$ diagonal matrix as $\tilde{\mathbf{\Sigma}}$; the $m \times n$ diagonal matrix containing the zero blocks is denoted as $\mathbf{\Sigma}$.
 
-[^21]: 我们定义所谓的信号子空间 $S_S$ 为 $S_S = \text{span}[\mathbf{v}_1, \dots, \mathbf{v}_K]$ (64)，以及噪声子空间 $S_N$ 为 $S_N = \text{span}[\mathbf{v}_{K+1}, \dots, \mathbf{v}_M]$ (65)。我们现在简要讨论这两个子空间。根据我们上面的讨论，$\mathbf{R}_o$ 的所有列都是 $\mathbf{S}$ 的列的线性组合。因此，$\text{span}[\mathbf{R}_o] = \text{span}[\mathbf{S}]$ (66)。但也很容易验证 $\text{span}[\mathbf{R}_o] \in S_S$ (67)。比较 (66) 和 (67)，我们看到 $\mathbf{S} \in S_S$。从 (60) 我们看到，在没有噪声的情况下，任何接收到的信号向量 $\mathbf{x}$ 都是 $\mathbf{S}$ 的列的线性组合。因此，任何无噪声信号完全驻留在 $S_S$ 中。这就是“信号子空间”这个术语的来源。此外，接收信号的任何驻留在 $S_N$ 中的分量必须完全是由于噪声。这就是“噪声子空间”这个术语的来源。我们注意到信号和噪声子空间是彼此的正交补子空间。
+Since $\mathbf{U}$ and $\mathbf{V}$ are orthonormal, we may also write (1) in the form:
+$$
+\underset{m \times m}{\mathbf{U}^T} \underset{m \times n}{\mathbf{A}} \underset{n \times n}{\mathbf{V}} = \underset{m \times n}{\mathbf{\Sigma}} \tag{2}
+$$
+where $\mathbf{\Sigma}$ is a diagonal matrix. The values $\sigma_i$ which are defined to be positive, are referred to as the **singular values** of $\mathbf{A}$. The columns $\mathbf{u}_i$ and $\mathbf{v}_i$ of $\mathbf{U}$ and $\mathbf{V}$ are respectively called the **left** and **right singular vectors** of $\mathbf{A}$.
 
-[^22]: 这个词是**MUltiple SIgnal Classification**的首字母缩写。
+The SVD corresponding to (1) may be shown diagramatically in the following way:
+$$
+\mathbf{A} = \underset{m \times m}{\begin{bmatrix} | & & | \\ \mathbf{u}_1 & \cdots & \mathbf{u}_m \\ | & & | \end{bmatrix}} \underset{m \times n}{\begin{bmatrix} \sigma_1 & & & \\ & \ddots & & \mathbf{0} \\ & & \sigma_p & \\ & \mathbf{0} & & \mathbf{0} \end{bmatrix}} \underset{n \times n}{\begin{bmatrix} — & \mathbf{v}_1^T & — \\ & \vdots & \\ — & \mathbf{v}_n^T & — \end{bmatrix}} \tag{3}
+$$
+Each line above represents a column of either $\mathbf{U}$ or $\mathbf{V}$.
 
-[^23]: R.O. Schmidt, "Multiple emitter location and parameter estimation", IEEE Trans. Antennas and Propag., vol AP-34, Mar. 1986, pp 276-280.
+## 3.2 Existence Proof of the SVD
+Consider two vectors $\mathbf{x}$ and $\mathbf{y}$ where $\|\mathbf{x}\|_2 = \|\mathbf{y}\|_2 = 1$, s.t. $\mathbf{A}\mathbf{x} = \sigma\mathbf{y}$, where $\sigma = \|\mathbf{A}\|_2$. The fact that such vectors $\mathbf{x}$ and $\mathbf{y}$ can exist follows from the definition of the matrix 2-norm. We define orthonormal matrices $\mathbf{U}$ and $\mathbf{V}$ so that $\mathbf{x}$ and $\mathbf{y}$ form their first columns, as follows:
+$$
+\mathbf{U} = [\mathbf{y}, \mathbf{U}_1], \quad \mathbf{V} = [\mathbf{x}, \mathbf{V}_1]
+$$
+That is, $\mathbf{U}_1$ consists of a set of non–unique orthonormal columns which are mutually orthogonal to themselves and to $\mathbf{y}$; similarly for $\mathbf{V}_1$.
+
+We then define a matrix $\mathbf{A}_1$ as
+$$
+\mathbf{U}^T\mathbf{A}\mathbf{V} = \mathbf{A}_1 = \begin{bmatrix} \mathbf{y}^T \\ \mathbf{U}_1^T \end{bmatrix} \mathbf{A} [\mathbf{x}, \mathbf{V}_1] \tag{4}
+$$
+The matrix $\mathbf{A}_1$ has the following structure:
+$$
+\underset{\text{orthonormal}}{\begin{bmatrix} \mathbf{y}^T \\ \mathbf{U}_1^T \end{bmatrix}} \mathbf{A} \underset{\text{orthonormal}}{\begin{bmatrix} \mathbf{x} & \mathbf{V}_1 \end{bmatrix}} = \begin{bmatrix} \mathbf{y}^T \\ \mathbf{U}_1^T \end{bmatrix} [\sigma\mathbf{y} \ \mathbf{A}\mathbf{V}_1] = \underset{m-1}{\overset{1}{\begin{bmatrix} \sigma\mathbf{y}^T\mathbf{y} & \mathbf{y}^T\mathbf{A}\mathbf{V}_1 \\ \sigma\mathbf{U}_1^T\mathbf{y} & \mathbf{U}_1^T\mathbf{A}\mathbf{V}_1 \end{bmatrix}}} \begin{matrix} 1 \\ n-1 \end{matrix} = \begin{bmatrix} \sigma & \mathbf{w}^T \\ \mathbf{0} & \mathbf{B} \end{bmatrix} \triangleq \mathbf{A}_1. \tag{5}
+$$
+where $\mathbf{B} \triangleq \mathbf{U}_1^T\mathbf{A}\mathbf{V}_1$. The $\mathbf{0}$ in the (2,1) block above follows from the fact that $\mathbf{U}_1 \perp \mathbf{y}$, because $\mathbf{U}$ is orthonormal.
+
+Now, we post-multiply both sides of (5) by the vector $\begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix}$ and take 2-norms:
+$$
+\left\| \mathbf{A}_1 \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 = \left\| \begin{bmatrix} \sigma & \mathbf{w}^T \\ \mathbf{0} & \mathbf{B} \end{bmatrix} \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 \ge (\sigma^2 + \mathbf{w}^T\mathbf{w})^2. \tag{6}
+$$
+This follows because the term on the extreme right is only the first element of the vector product of the middle term. But, as we have seen, matrix p-norms obey the following property:
+$$
+\|\mathbf{A}\mathbf{x}\|_2 \le \|\mathbf{A}\|_2\|\mathbf{x}\|_2. \tag{7}
+$$
+Therefore using (6) and (7), we have
+$$
+\|\mathbf{A}_1\|_2^2 \left\| \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 \ge \left\| \mathbf{A}_1 \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 \ge (\sigma^2 + \mathbf{w}^T\mathbf{w})^2. \tag{8}
+$$
+Note that $\left\| \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 = \sigma^2 + \mathbf{w}^T\mathbf{w}$. Dividing (8) by this quantity, we obtain
+$$
+\|\mathbf{A}_1\|_2^2 \ge \sigma^2 + \mathbf{w}^T\mathbf{w}. \tag{9}
+$$
+But, we defined $\sigma = \|\mathbf{A}\|_2$. Therefore, the following must hold:
+$$
+\sigma = \|\mathbf{A}\|_2 = \|\mathbf{U}^T\mathbf{A}\mathbf{V}\|_2 = \|\mathbf{A}_1\|_2 \tag{10}
+$$
+where the equality on the right follows because the matrix 2-norm is invariant to matrix pre- and post-multiplication by an orthonormal matrix. By comparing (9) and (10), we have the result $\mathbf{w} = \mathbf{0}$. Substituting this result back into (5), we now have
+$$
+\mathbf{A}_1 = \begin{bmatrix} \sigma & \mathbf{0} \\ \mathbf{0} & \mathbf{B} \end{bmatrix}. \tag{11}
+$$
+The whole process repeats using only the component $\mathbf{B}$, until $\mathbf{A}_n$ becomes diagonal.
+$\square$
+
+It is instructive to consider an alternative proof for the SVD. The following is useful because it is a constructive proof, which shows us how to form the components of the SVD.
+
+**Theorem 2** Let $\mathbf{A} \in \mathbb{R}^{m \times n}$ be a rank $r$ matrix ($r \le p = \min(m,n)$). Then there exist orthonormal matrices $\mathbf{U}$ and $\mathbf{V}$ such that
+$$
+\mathbf{U}^T\mathbf{A}\mathbf{V} = \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \tag{12}
+$$
+where
+$$
+\tilde{\mathbf{\Sigma}} = \text{diag}(\sigma_1, \dots, \sigma_r), \quad \sigma_i > 0. \tag{13}
+$$
+*Proof:* Consider the square symmetric positive semi–definite matrix $\mathbf{A}^T\mathbf{A}$[^chapter3-1]. Let the eigenvalues greater than zero be $\sigma_1^2, \sigma_2^2, \dots, \sigma_r^2$. Then, from our knowledge of the eigendecomposition, there exists an orthonormal matrix $\mathbf{V} \in \mathbb{R}^{n \times n}$ such that
+$$
+\mathbf{V}^T\mathbf{A}^T\mathbf{A}\mathbf{V} = \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix}. \tag{14}
+$$
+where $\tilde{\mathbf{\Sigma}}^2 = \text{diag}[\sigma_1^2, \dots, \sigma_r^2]$. We now partition $\mathbf{V}$ as $[\mathbf{V}_1 \ \mathbf{V}_2]$, where $\mathbf{V}_1 \in \mathbb{R}^{n \times r}$. Then (14) has the form
+$$
+\underset{n}{\begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix}} \mathbf{A}^T\mathbf{A} \underset{r \quad n-r}{\begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix}} = \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix}. \tag{15}
+$$
+Then by equating corresponding blocks in (15) we have
+$$
+\begin{aligned}
+\mathbf{V}_1^T\mathbf{A}^T\mathbf{A}\mathbf{V}_1 &= \tilde{\mathbf{\Sigma}}^2 && (r \times r) \tag{16} \\
+\mathbf{V}_2^T\mathbf{A}^T\mathbf{A}\mathbf{V}_2 &= \mathbf{0}. && (n-r) \times (n-r) \tag{17}
+\end{aligned}
+$$
+From (16), we can write
+$$
+\tilde{\mathbf{\Sigma}}^{-1}\mathbf{V}_1^T\mathbf{A}^T\mathbf{A}\mathbf{V}_1\tilde{\mathbf{\Sigma}}^{-1} = \mathbf{I}. \tag{18}
+$$
+Then, we define the matrix $\mathbf{U}_1 \in \mathbb{R}^{m \times r}$ from (18) as
+$$
+\mathbf{U}_1 = \mathbf{A}\mathbf{V}_1\tilde{\mathbf{\Sigma}}^{-1}. \tag{19}
+$$
+Then from (18) we have $\mathbf{U}_1^T\mathbf{U}_1 = \mathbf{I}$ and it follows that
+$$
+\mathbf{U}_1^T\mathbf{A}\mathbf{V}_1 = \tilde{\mathbf{\Sigma}}. \tag{20}
+$$
+From (17) we also have
+$$
+\mathbf{A}\mathbf{V}_2 = \mathbf{0}. \tag{21}
+$$
+We now choose a matrix $\mathbf{U}_2$ so that $\mathbf{U} = [\mathbf{U}_1 \ \mathbf{U}_2]$, where $\mathbf{U}_2 \in \mathbb{R}^{m \times (m-r)}$, is orthonormal. Then from (19) and because $\mathbf{U}_1 \perp \mathbf{U}_2$, we have
+$$
+\mathbf{U}_2^T\mathbf{U}_1 = \mathbf{U}_2^T\mathbf{A}\mathbf{V}_1\tilde{\mathbf{\Sigma}}^{-1} = \mathbf{0}. \tag{22}
+$$
+Therefore
+$$
+\mathbf{U}_2^T\mathbf{A}\mathbf{V}_1 = \mathbf{0}. \tag{23}
+$$
+Combining (20), (21) and (23), we have
+$$
+\mathbf{U}^T\mathbf{A}\mathbf{V} = \begin{bmatrix} \mathbf{U}_1^T\mathbf{A}\mathbf{V}_1 & \mathbf{U}_1^T\mathbf{A}\mathbf{V}_2 \\ \mathbf{U}_2^T\mathbf{A}\mathbf{V}_1 & \mathbf{U}_2^T\mathbf{A}\mathbf{V}_2 \end{bmatrix} = \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \tag{24}
+$$
+$\square$
+
+The proof can be repeated using an eigendecomposition on the matrix $\mathbf{A}\mathbf{A}^T \in \mathbb{R}^{m \times m}$ instead of on $\mathbf{A}^T\mathbf{A}$. In this case, the roles of the orthonormal matrices $\mathbf{V}$ and $\mathbf{U}$ are interchanged.
+
+The above proof is useful for several reasons:
+- It is short and elegant.
+- We can also identify which part of the SVD is not unique. Here, we assume that $\mathbf{A}^T\mathbf{A}$ has no repeated non–zero eigenvalues. Because $\mathbf{V}_2$ are the eigenvectors corresponding to the zero eigenvalues of $\mathbf{A}^T\mathbf{A}$, $\mathbf{V}_2$ is not unique when there are repeated zero eigenvalues. This happens when $m < n+1$, (i.e., $\mathbf{A}$ is sufficiently short) or when the nullity of $\mathbf{A} \ge 2$, or a combination of these conditions.
+- By its construction, the matrix $\mathbf{U}_2 \in \mathbb{R}^{m \times m-r}$ is not unique whenever it consists of two or more columns. This happens when $m-2 \ge r$.
+- It is left as an exercise to show that similar conclusions on the uniqueness of $\mathbf{U}$ and $\mathbf{V}$ can be made when the proof is developed using the matrix $\mathbf{A}\mathbf{A}^T$.
+
+## 3.3 Partitioning the SVD
+Here we assume that $\mathbf{A}$ has $r \le p$ non-zero singular values (and $p-r$ zero singular values). Later, we see that $r=\text{rank}(\mathbf{A})$. For convenience of notation, we arrange the singular values as:
+$$
+\underbrace{\sigma_1}_{\text{max}} \ge \dots \ge \underbrace{\sigma_r}_{\substack{\text{min} \\ \text{non-zero} \\ \text{s.v.}}} > \underbrace{\sigma_{r+1} = \dots = \sigma_p = 0}_{p-r \text{ zero s.v.'s}}
+$$
+In the remainder of this lecture, we use the SVD partitioned in both $\mathbf{U}$ and $\mathbf{V}$. We can write the SVD of $\mathbf{A}$ in the form
+$$
+\mathbf{A} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \tag{25}
+$$
+where where $\tilde{\mathbf{\Sigma}} \in \mathbb{R}^{r \times r} = \text{diag}(\sigma_1, \dots, \sigma_r)$, and $\mathbf{U}$ is partitioned as
+$$
+\mathbf{U} = \underset{r \quad m-r}{\begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix}} \quad m \tag{26}
+$$
+The columns of $\mathbf{U}_1$ are the left singular vectors associated with the $r$ nonzero singular values, and the columns of $\mathbf{U}_2$ are the left singular vectors associated with the zero singular values. $\mathbf{V}$ is partitioned in an analogous manner:
+$$
+\mathbf{V} = \underset{r \quad n-r}{\begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix}} \quad n \tag{27}
+$$
+
+## 3.4 Interesting Properties and Interpretations of the SVD
+The above partition reveals many interesting properties of the SVD:
+
+### 3.4.1 $\text{rank}(\mathbf{A}) = r$
+Using (25), we can write $\mathbf{A}$ as
+$$
+\mathbf{A} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}}\mathbf{V}_1^T \\ \mathbf{0} \end{bmatrix} = \mathbf{U}_1\tilde{\mathbf{\Sigma}}\mathbf{V}_1^T = \mathbf{U}_1\mathbf{B} \tag{28}
+$$
+where $\mathbf{B} \in \mathbb{R}^{r \times n} \triangleq \tilde{\mathbf{\Sigma}}\mathbf{V}_1^T$. From (28) it is clear that the $i$th, $i=1, \dots, r$ column of $\mathbf{A}$ is a linear combination of the columns of $\mathbf{U}_1$, whose coefficients are given by the $i$th column of $\mathbf{B}$. But since there are $r \le n$ columns in $\mathbf{U}_1$, there can only be $r$ linearly independent columns in $\mathbf{A}$. It follows from the definition of rank that $\text{rank}(\mathbf{A}) = r$.
+
+This point is analogous to the case previously considered in Lecture 2, where we saw rank is equal to the number of non-zero eigenvalues, when $\mathbf{A}$ is a square symmetric matrix. In this case however, the result applies to any matrix. This is another example of how the SVD is a generalization of the eigendecomposition.
+
+Determination of rank when $\sigma_1, \dots, \sigma_r$ are distinctly greater than zero, and when $\sigma_{r+1}, \dots, \sigma_p$ are exactly zero is easy. But often in practice, due to finite precision arithmetic and fuzzy data, $\sigma_r$ may be very small, and $\sigma_{r+1}$ may be not quite zero. Hence, in practice, determination of rank is not so easy. A common method is to declare $\text{rank}\ \mathbf{A} = r$ if $\sigma_{r+1} \le \epsilon$, where $\epsilon$ is a small number specific to the problem considered.
+
+### 3.4.2 $\mathcal{N}(\mathbf{A}) = \mathcal{R}(\mathbf{V}_2)$
+Recall the nullspace $\mathcal{N}(\mathbf{A}) = \{ \mathbf{x} \ne \mathbf{0} \mid \mathbf{A}\mathbf{x} = \mathbf{0}\}$. So, we investigate the set $\{\mathbf{x}\}$ such that $\mathbf{A}\mathbf{x} = \mathbf{0}$. Let $\mathbf{x} \in \text{span}(\mathbf{V}_2)$; i.e., $\mathbf{x} = \mathbf{V}_2\mathbf{c}$, where $\mathbf{c} \in \mathbb{R}^{n-r}$. By substituting (25) for $\mathbf{A}$, by noting that $\mathbf{V}_1 \perp \mathbf{V}_2$ and that $\mathbf{V}_1^T\mathbf{V}_1 = \mathbf{I}$, we have
+$$
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{0} \\ \mathbf{c} \end{bmatrix} = \mathbf{0}. \tag{29}
+$$
+Thus, $\text{span}(\mathbf{V}_2)$ is at least a subspace of $\mathcal{N}(\mathbf{A})$. However, if $\mathbf{x}$ contains any components of $\mathbf{V}_1$, then (29) will not be zero. But since $\mathbf{V} = [\mathbf{V}_1 \mathbf{V}_2]$ is a complete basis in $\mathbb{R}^n$, we see that $\mathbf{V}_2$ alone is a basis for the nullspace of $\mathbf{A}$.
+
+### 3.4.3 $\mathcal{R}(\mathbf{A}) = \mathcal{R}(\mathbf{U}_1)$
+Recall that the definition of range $\mathcal{R}(\mathbf{A})$ is $\{\mathbf{y} \mid \mathbf{y} = \mathbf{A}\mathbf{x}, \mathbf{x} \in \mathbb{R}^n\}$. From (25),
+$$
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{d}_1 \\ \mathbf{d}_2 \end{bmatrix} \tag{30}
+$$
+where
+$$
+\underset{r \atop n-r}{\begin{bmatrix} \mathbf{d}_1 \\ \mathbf{d}_2 \end{bmatrix}} = \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}. \tag{31}
+$$
+From the above we have
+$$
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}}\mathbf{d}_1 \\ \mathbf{0} \end{bmatrix} = \mathbf{U}_1(\tilde{\mathbf{\Sigma}}\mathbf{d}_1) \tag{32}
+$$
+We see that as $\mathbf{x}$ moves throughout $\mathbb{R}^n$, the quantity $\tilde{\mathbf{\Sigma}}\mathbf{d}_1$ moves throughout $\mathbb{R}^r$. Thus, the quantity $\mathbf{y} = \mathbf{A}\mathbf{x}$ in this context consists of all linear combinations of the columns of $\mathbf{U}_1$. Thus, an orthonormal basis for $\mathcal{R}(\mathbf{A})$ is $\mathbf{U}_1$.
+
+### 3.4.4 $\mathcal{R}(\mathbf{A}^T) = \mathcal{R}(\mathbf{V}_1)$
+Recall that $\mathcal{R}(\mathbf{A}^T)$ is the set of all linear combinations of rows of $\mathbf{A}$. Our property can be seen using a transposed version of the argument in Section 3.4.3 above. Thus, $\mathbf{V}_1$ is an orthonormal basis for the rows of $\mathbf{A}$.
+
+### 3.4.5 $\mathcal{R}(\mathbf{A})_\perp = \mathcal{R}(\mathbf{U}_2)$
+From Sect. 3.4.3, we see that $\mathcal{R}(\mathbf{A}) = \mathcal{R}(\mathbf{U}_1)$. Since from (25), $\mathbf{U}_1 \perp \mathbf{U}_2$, then $\mathbf{U}_2$ is a basis for the orthogonal complement of $\mathcal{R}(\mathbf{A})$. Hence the result.
+
+### 3.4.6 $\|\mathbf{A}\|_2 = \sigma_1 = \sigma_{\max}$
+This is easy to see from the definition of the 2-norm and the ellipsoid example of section 3.6.
+
+### 3.4.7 Inverse of $\mathbf{A}$
+If the svd of a square matrix $\mathbf{A}$ is given, it is easy to find the inverse. Of course, we must assume $\mathbf{A}$ is full rank, (which means $\sigma_i > 0$) for the inverse to exist. The inverse of $\mathbf{A}$ is given from the svd, using the familiar rules, as
+$$
+\mathbf{A}^{-1} = \mathbf{V}\mathbf{\Sigma}^{-1}\mathbf{U}^T. \tag{33}
+$$
+The evaluation of $\mathbf{\Sigma}^{-1}$ is easy because $\mathbf{\Sigma}$ is square and diagonal. Note that this treatment indicates that the singular values of $\mathbf{A}^{-1}$ are $[\sigma_n^{-1}, \sigma_{n-1}^{-1}, \dots, \sigma_1^{-1}]$.
+
+### 3.4.8 The SVD diagonalizes any system of equations
+Consider the system of equations $\mathbf{A}\mathbf{x} = \mathbf{b}$, for an arbitrary matrix $\mathbf{A}$. Using the SVD of $\mathbf{A}$, we have
+$$
+\mathbf{U}\mathbf{\Sigma}\mathbf{V}^T\mathbf{x} = \mathbf{b}. \tag{34}
+$$
+Let us now represent $\mathbf{b}$ in the basis $\mathbf{U}$, and $\mathbf{x}$ in the basis $\mathbf{V}$, in the same way as in Sect. 3.6. We therefore have
+$$
+\mathbf{c} = \underset{r \atop m-r}{\begin{bmatrix} \mathbf{c}_1 \\ \mathbf{c}_2 \end{bmatrix}} = \begin{bmatrix} \mathbf{U}_1^T \\ \mathbf{U}_2^T \end{bmatrix} \mathbf{b} \tag{35}
+$$
+and
+$$
+\mathbf{d} = \underset{r \atop n-r}{\begin{bmatrix} \mathbf{d}_1 \\ \mathbf{d}_2 \end{bmatrix}} = \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x} \tag{36}
+$$
+Substituting the above into (34), the system of equations becomes
+$$
+\mathbf{\Sigma}\mathbf{d} = \mathbf{c}. \tag{37}
+$$
+This shows that as long as we choose the correct bases, *any* system of equations can become diagonal. This property represents the power of the SVD; it allows us to transform arbitrary algebraic structures into their simplest forms.
+
+If $m>n$ or if $\text{rank}\ r < \min(m,n)$, then the system of equations $\mathbf{A}\mathbf{x}=\mathbf{b}$ can only be satisfied if $\mathbf{b} \in \mathcal{R}(\mathbf{U}_1)$. To see this, $\mathbf{\Sigma}$ above has an $(m-r) \times n$ block of zeros below the diagonal block of nonzero singular values. Thus, the lower $m-r$ elements of left-hand side of (37) are all zero. Then if the equality of (37) is to be satisfied, $\mathbf{c}_2$ must also be zero. This means that $\mathbf{U}_2^T\mathbf{b} = \mathbf{0}$, or that $\mathbf{b} \in \mathcal{R}(\mathbf{U}_1)$.
+
+Further, if $n>m$, or if $r < \min(m,n)$, then, if $\mathbf{x}_o$ is a solution to $\mathbf{A}\mathbf{x} = \mathbf{b}$, $\mathbf{x}_o + \mathbf{V}_2\mathbf{z}$ is also a solution, where $\mathbf{z} \in \mathbb{R}^{n-r}$. This follows because, as we have seen, $\mathbf{V}_2$ is a basis for $\mathcal{N}(\mathbf{A})$; thus, the component $\mathbf{A}\mathbf{V}_2\mathbf{z} = \mathbf{0}$, and $\mathbf{A}\mathbf{x}_o + \mathbf{A}\mathbf{V}_2\mathbf{z} = \mathbf{A}\mathbf{x}_o = \mathbf{b}$.
+
+### 3.4.9 The “rotation” interpretation of the SVD
+From the SVD relation $\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T$, we have
+$$
+\mathbf{A}\mathbf{V} = \mathbf{U}\mathbf{\Sigma}. \tag{38}
+$$
+Note that since $\mathbf{\Sigma}$ is diagonal, the matrix $\mathbf{U}\mathbf{\Sigma}$ on the right has orthogonal columns, whose 2–norm’s are equal to the corresponding singular value. We can therefore interpret the matrix $\mathbf{V}$ as an orthonormal matrix which rotates the rows of $\mathbf{A}$ so that the result is a matrix with orthogonal columns. Likewise, we have
+$$
+\mathbf{U}^T\mathbf{A} = \mathbf{\Sigma}\mathbf{V}^T. \tag{39}
+$$
+The matrix $\mathbf{\Sigma}\mathbf{V}^T$ on the right has orthogonal rows with 2–norm equal to the corresponding singular value. Thus, the orthonormal matrix $\mathbf{U}^T$ operates (rotates) the columns of $\mathbf{A}$ to produce a matrix with orthogonal rows.
+
+In the case where $m>n$, ($\mathbf{A}$ is tall), then the matrix $\mathbf{\Sigma}$ is also tall, with zeros in the bottom $m-n$ rows. Then, only the first $n$ columns of $\mathbf{U}$ are relevant in (38), and only the first $n$ rows of $\mathbf{U}^T$ are relevant in (39). When $m<n$, a corresponding transposed statement replacing $\mathbf{U}$ with $\mathbf{V}$ can be made.
+
+## 3.5 Relationship between SVD and ED
+It is clear that the eigendecomposition and the singular value decomposition share many properties in common. The price we pay for being able to perform a diagonal decomposition on an *arbitray* matrix is that we need two orthonormal matrices instead of just one, as is the case for square symmetric matrices. In this section, we explore further relationships between the ED and the SVD.
+
+Using (25), we can write
+$$
+\mathbf{A}^T\mathbf{A} = \mathbf{V}\begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix}^T \mathbf{U}^T\mathbf{U} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{V}^T = \mathbf{V} \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{V}^T. \tag{40}
+$$
+Thus it is apparent, that the eigenvectors $\mathbf{V}$ of the matrix $\mathbf{A}^T\mathbf{A}$ are the right singular vectors of $\mathbf{A}$, and that the singular values of $\mathbf{A}$ squared are the corresponding nonzero eigenvalues. Note that if $\mathbf{A}$ is short ($m<n$) and full rank, the matrix $\mathbf{A}^T\mathbf{A}$ will contain $n-m$ additional zero eigenvalues that are not included as singular values of $\mathbf{A}$. This follows because the rank of the matrix $\mathbf{A}^T\mathbf{A}$ is $m$ when $\mathbf{A}$ is full rank, yet the size of $\mathbf{A}^T\mathbf{A}$ is $n \times n$.
+
+As discussed in *Golub and van Loan*, the SVD is numerically more stable to compute than the ED. However, in the case where $n \gg m$, the matrix $\mathbf{V}$ of the SVD of $\mathbf{A}$ becomes large, which means the SVD on $\mathbf{A}$ becomes more costly to compute, relative to the eigendecomposition of $\mathbf{A}^T\mathbf{A}$.
+
+Further, we can also say, using the form $\mathbf{A}\mathbf{A}^T$, that
+$$
+\mathbf{A}\mathbf{A}^T = \mathbf{U}\begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{V}^T\mathbf{V} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix}^T \mathbf{U}^T = \mathbf{U} \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{U}^T \tag{41}
+$$
+which indicates that the eigenvectors of $\mathbf{A}\mathbf{A}^T$ are the left singular vectors $\mathbf{U}$ of $\mathbf{A}$, and the singular values of $\mathbf{A}$ squared are the nonzero eigenvalues of $\mathbf{A}\mathbf{A}^T$. Notice that in this case, if $\mathbf{A}$ is tall and full rank, the matrix $\mathbf{A}\mathbf{A}^T$ will contain $m-n$ additional zero eigenvalues that are not included as singular values of $\mathbf{A}$.
+
+We now compare the fundamental defining relationships for the ED and the SVD:
+For the ED, if $\mathbf{A}$ is symmetric, we have:
+$$
+\mathbf{A} = \mathbf{Q}\mathbf{\Lambda}\mathbf{Q}^T \rightarrow \mathbf{A}\mathbf{Q} = \mathbf{Q}\mathbf{\Lambda},
+$$
+where $\mathbf{Q}$ is the matrix of eigenvectors, and $\mathbf{\Lambda}$ is the diagonal matrix of eigenvalues. Writing this relation column-by-column, we have the familiar eigenvector/eigenvalue relationship:
+$$
+\mathbf{A}\mathbf{q}_i = \lambda_i\mathbf{q}_i \quad i = 1, \dots, n. * \tag{42}
+$$
+For the SVD, we have
+$$
+\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T \rightarrow \mathbf{A}\mathbf{V} = \mathbf{U}\mathbf{\Sigma}
+$$
+or
+$$
+\mathbf{A}\mathbf{v}_i = \sigma_i\mathbf{u}_i \quad i=1, \dots, p, \quad * \tag{43}
+$$
+where $p = \min(m, n)$. Also, since $\mathbf{A}^T = \mathbf{V}\mathbf{\Sigma}^T\mathbf{U}^T \rightarrow \mathbf{A}^T\mathbf{U} = \mathbf{V}\mathbf{\Sigma}$, we have
+$$
+\mathbf{A}^T\mathbf{u}_i = \sigma_i\mathbf{v}_i \quad i=1, \dots, p. \quad * \tag{44}
+$$
+Thus, by comparing (42), (43), and (44), we see the singular vectors and singular values obey a relation which is similar to that which defines the eigenvectors and eigenvalues. However, we note that in the SVD case, the fundamental relationship expresses left singular values in terms of right singular values, and vice-versa, whereas the eigenvectors are expressed in terms of themselves.
+
+**Exercise:** compare the ED and the SVD on a square symmetric matrix, when i) $\mathbf{A}$ is positive definite, and ii) when $\mathbf{A}$ has some positive and some negative eigenvalues.
+
+## 3.6 Ellipsoidal Interpretation of the SVD
+The singular values of $\mathbf{A}$, where $\mathbf{A} \in \mathbb{R}^{m \times n}$ are the lengths of the semi-axes of the hyperellipsoid $E$ given by:
+$$
+E = \{ \mathbf{y} \mid \mathbf{y} = \mathbf{A}\mathbf{x}, \|\mathbf{x}\|_2=1 \}.
+$$
+That is, $E$ is the set of points mapped out as $\mathbf{x}$ takes on all possible values such that $\|\mathbf{x}\|_2=1$, as shown in Fig. 1. To appreciate this point, let us look at the set of $\mathbf{y}$ corresponding to $\{\mathbf{x} \mid \|\mathbf{x}\|_2=1\}$. We take
+$$
+\mathbf{y} = \mathbf{A}\mathbf{x} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T\mathbf{x}. \tag{45}
+$$
+Let us change bases for both $\mathbf{x}$ and $\mathbf{y}$. Define
+$$
+\begin{aligned}
+\mathbf{c} &= \mathbf{U}^T\mathbf{y} \\
+\mathbf{d} &= \mathbf{V}^T\mathbf{x}.
+\end{aligned} \tag{46}
+$$
+Then (45) becomes
+$$
+\mathbf{c} = \mathbf{\Sigma}\mathbf{d}. \tag{47}
+$$
+<center><b>Figure 1:</b> The ellipsoidal interpretation of the SVD. The locus of points $E = \{\mathbf{y} \mid \mathbf{y} = \mathbf{A}\mathbf{x}, \|\mathbf{x}\|_2 = 1\}$ defines an ellipse. The principal axes of the ellipse are aligned along the left singular vectors $\mathbf{u}_i$, with lengths equal to the corresponding singular value.</center>
+We note that $\|\mathbf{d}\|_2=1$ if $\|\mathbf{x}\|_2=1$. Thus, our problem is transformed into observing the set $\{\mathbf{c}\}$ corresponding to the set $\{\mathbf{d} \mid \|\mathbf{d}\|_2=1\}$. The set $\{\mathbf{c}\}$ can be determined by evaluating 2-norms on each side of (47):
+$$
+\sum_{i=1}^p \left( \frac{c_i}{\sigma_i} \right)^2 = \sum_{i=1}^p (d_i)^2 = 1. \tag{48}
+$$
+We see that the set $\{\mathbf{c}\}$ defined by (48) is indeed the canonical form of an ellipse in the basis $\mathbf{U}$. Thus, the principal axes of the ellipse are aligned along the columns $\mathbf{u}_i$ of $\mathbf{U}$, with lengths equal to the corresponding singular value $\sigma_i$. This interpretation of the SVD is useful later in our study of *condition numbers*.
+
+## 3.7 An Interesting Theorem
+First, we realize that the SVD of $\mathbf{A}$ provides a “sum of outer-products” representation:
+$$
+\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T = \sum_{i=1}^p \sigma_i\mathbf{u}_i\mathbf{v}_i^T, \quad p = \min(m, n). \tag{49}
+$$
+Given $\mathbf{A} \in \mathbb{R}^{m \times n}$ with rank $r$, then what is the matrix $\mathbf{B} \in \mathbb{R}^{m \times n}$ with rank $k < r$ closest to $\mathbf{A}$ in 2-norm? What is this 2-norm distance? This question is answered in the following theorem:
+
+**Theorem 3** Define
+$$
+\mathbf{A}_k = \sum_{i=1}^k \sigma_i\mathbf{u}_i\mathbf{v}_i^T, \quad k \le r, \tag{50}
+$$
+then
+$$
+\min_{\text{rank}(\mathbf{B})=k} \|\mathbf{A} - \mathbf{B}\|_2 = \|\mathbf{A} - \mathbf{A}_k\|_2 = \sigma_{k+1}.
+$$
+In words, this says the closest rank $k < r$ matrix $\mathbf{B}$ matrix to $\mathbf{A}$ in the 2–norm sense is given by $\mathbf{A}_k$. $\mathbf{A}_k$ is formed from $\mathbf{A}$ by excluding contributions in (49) associated with the smallest singular values.
+
+*Proof:*
+Since $\mathbf{U}^T\mathbf{A}_k\mathbf{V} = \text{diag}(\sigma_1, \dots, \sigma_k, 0, \dots, 0)$ it follows that $\text{rank}(\mathbf{A}_k)=k$, and that
+$$
+\|\mathbf{A} - \mathbf{A}_k\|_2 = \|\mathbf{U}^T(\mathbf{A} - \mathbf{A}_k)\mathbf{V}\|_2 = \|\text{diag}(0, \dots, 0, \sigma_{k+1}, \dots, \sigma_r, 0, \dots, 0)\|_2 = \sigma_{k+1}. \tag{51}
+$$
+where the first line follows from the fact the the 2-norm of a matrix is invariant to pre– and post–multiplication by an orthonormal matrix (properties of matrix p-norms, Lecture 2). Further, it may be shown that, for any matrix $\mathbf{B} \in \mathbb{R}^{m \times n}$ of rank $k < r$,[^chapter3-2]
+$$
+\|\mathbf{A} - \mathbf{B}\|_2 \ge \sigma_{k+1} \tag{52}
+$$
+Comparing (51) and (52), we see the closest rank $k$ matrix to $\mathbf{A}$ is $\mathbf{A}_k$ given by (50).
+$\square$
+
+This result is very useful when we wish to approximate a matrix by another of lower rank. For example, let us look at the Karhunen-Loeve expansion as discussed in Lecture 1. For a sample $\mathbf{x}_n$ of a random process $\mathbf{x} \in \mathbb{R}^m$, we express $\mathbf{x}$ as
+$$
+\mathbf{x}_i = \mathbf{V}\mathbf{\theta}_i \tag{53}
+$$
+where the columns of $\mathbf{V}$ are the eigenvectors of the covariance matrix $\mathbf{R}$. We saw in Lecture 2 that we may represent $\mathbf{x}_i$ with relatively few coefficients by setting the elements of $\mathbf{\theta}$ associated with the smallest eigenvalues of $\mathbf{R}$ to zero. The idea was that the resulting distortion in $\mathbf{x}$ would have minimum energy.
+
+This fact may now be seen in a different light with the aid of this theorem. Suppose we retain the $j=r$ elements of a given $\mathbf{\theta}$ associated with the largest $r$ eigenvalues. Let $\tilde{\mathbf{\theta}} \triangleq [\theta_1, \theta_2, \dots, \theta_r, 0, \dots, 0]^T$ and $\tilde{\mathbf{x}} = \mathbf{V}\tilde{\mathbf{\theta}}$. Then
+$$
+\tilde{\mathbf{R}} = E(\tilde{\mathbf{x}}\tilde{\mathbf{x}}^T) = E(\mathbf{V}\tilde{\mathbf{\theta}}\tilde{\mathbf{\theta}}^T\mathbf{V}) = \mathbf{V} \begin{bmatrix} E|\theta_1|^2 & & & \\ & \ddots & & \\ & & E|\theta_r|^2 & \\ & & & \mathbf{0} \end{bmatrix} \mathbf{V}^T = \mathbf{V}\tilde{\mathbf{\Lambda}}\mathbf{V}^T, \tag{54}
+$$
+where $\tilde{\mathbf{\Lambda}} = \text{diag}[\lambda_1, \dots, \lambda_r, 0, \dots, 0]$. Since $\tilde{\mathbf{R}}$ is positive definite, square and symmetric, its eigendecomposition and singular value decomposition are identical; hence, $\lambda_i = \sigma_i, i=1, \dots, r$. Thus from this theorem, and (54), we know that the covariance matrix $\tilde{\mathbf{R}}$ formed from truncating the K-L coefficients is the closest rank–r matrix to the true covariance matrix $\mathbf{R}$ in the 2–norm sense.
+
+## 4 Orthogonal Projections
+### 4.1 Sufficient Conditions for a Projector
+Suppose we have a subspace $S = \mathcal{R}(\mathbf{X})$, where $\mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_n] \in \mathbb{R}^{m \times n}$ is full rank, $m>n$, and an arbitrary vector $\mathbf{y} \in \mathbb{R}^m$. How do we find a matrix $\mathbf{P} \in \mathbb{R}^{m \times m}$ so that the product $\mathbf{P}\mathbf{y} \in S$?
+
+The matrix $\mathbf{P}$ is referred to as a **projector**. That is, we can project an arbitrary vector $\mathbf{y}$ onto the subspace $S$, by premultiplying $\mathbf{y}$ by $\mathbf{P}$. Note that this projection has non-trivial meaning only when $m > n$. Otherwise, $\mathbf{y} \in S$ already for arbitrary $\mathbf{y}$.
+
+A matrix $\mathbf{P}$ is a projection matrix onto $S$ if:
+1. $\mathcal{R}(\mathbf{P}) = S$
+2. $\mathbf{P}^2 = \mathbf{P}$
+3. $\mathbf{P}^T = \mathbf{P}$
+
+A matrix satisfying condition (2) is called an *idempotent* matrix. This is the fundamental property of a projector.
+
+We now show that these three conditions are *sufficient* for $\mathbf{P}$ to be a projector. An arbitrary vector $\mathbf{y}$ can be expressed as
+$$
+\mathbf{y} = \mathbf{y}_s + \mathbf{y}_c \tag{55}
+$$
+where $\mathbf{y}_s \in S$ and $\mathbf{y}_c \in S_\perp$ (the orthogonal complement subspace of $S$). We see that $\mathbf{y}_s$ is the desired projection of $\mathbf{y}$ onto $S$. Thus, in mathematical terms, our objective is to show that
+$$
+\mathbf{P}\mathbf{y} = \mathbf{y}_s. \tag{56}
+$$
+Because of condition 2, $\mathbf{P}^2 = \mathbf{P}$, hence
+$$
+\mathbf{P}\mathbf{p}_i = \mathbf{p}_i \quad i=1, \dots, m \tag{57}
+$$
+where $\mathbf{p}_i$ is a column of $\mathbf{P}$. Because $\mathbf{y}_s \in S$, and also $(\mathbf{p}_1, \dots, \mathbf{p}_m) \in S$ (condition1), then $\mathbf{y}_s$ can be expressed as a linear combination of the $\mathbf{p}_i$’s:
+$$
+\mathbf{y}_s = \sum_{i=1}^m c_i\mathbf{p}_i, \quad c_i \in \mathbb{R}. \tag{58}
+$$
+Combining (57) and (58), we have
+$$
+\mathbf{P}\mathbf{y}_s = \sum_{i=1}^m c_i\mathbf{P}\mathbf{p}_i = \sum_{i=1}^m c_i\mathbf{p}_i = \mathbf{y}_s. \tag{59}
+$$
+If $\mathcal{R}(\mathbf{P}) = S$ (condition 1), then $\mathbf{P}\mathbf{y}_c = \mathbf{0}$. Hence,
+$$
+\mathbf{P}\mathbf{y} = \mathbf{P}(\mathbf{y}_s + \mathbf{y}_c) = \mathbf{P}\mathbf{y}_s = \mathbf{y}_s. \tag{60}
+$$
+i.e., $\mathbf{P}$ projects $\mathbf{y}$ onto $S$, if $\mathbf{P}$ obeys conditions 1 and 2. Furthermore, by repeating the above proof, and using condition 3, we have
+$$
+\mathbf{y}^T\mathbf{P} \in S
+$$
+i.e., $\mathbf{P}$ projects both column- and row–vectors onto $S$, by pre- and post-multiplying, respectively. Because this property is a direct consequence of the three conditions above, then these conditions are *sufficient* for $\mathbf{P}$ to be a projector.
+
+### 4.2 A Definition for P
+Let $\mathbf{X} = [\mathbf{x}_1, \dots, \mathbf{x}_n]$, $\mathbf{x}_i \in \mathbb{R}^m, n<m$ be full rank. Then the matrix $\mathbf{P}$ where
+$$
+\mathbf{P} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \tag{61}
+$$
+is a projector onto $S = \mathcal{R}(\mathbf{X})$. Other definitions of $\mathbf{P}$ equivalent to (61) will follow later after we discuss pseudo inverses.
+
+Note that when $\mathbf{X}$ has orthonormal columns, then the projector becomes $\mathbf{X}\mathbf{X}^T \in \mathbb{R}^{m \times m}$, which according to our previous discussion on orthonormal matrices in Chapter 2, is *not* the $m \times m$ identity.
+
+**Exercises:**
+- prove (61).
+- How is $\mathbf{P}$ in (61) formed if $r = \text{rank}(\mathbf{X}) < n$?
+
+**Theorem 4** *The projector onto $S$ defined by (61) is unique.*
+
+*Proof:* Let $\mathbf{Y}$ be any other $m \times n$ full rank matrix such that $\mathcal{R}(\mathbf{Y})=S$. Since $\mathbf{X}$ and $\mathbf{Y}$ are both in $S$, each column of $\mathbf{Y}$ must be a linear combination of the columns of $\mathbf{X}$. Therefore, there exists a full-rank matrix $\mathbf{C} \in \mathbb{R}^{n \times n}$ so that
+$$
+\mathbf{Y} = \mathbf{X}\mathbf{C}. \tag{62}
+$$
+The projector $\mathbf{P}_1$ formed from $\mathbf{Y}$ is therefore
+$$
+\begin{aligned}
+\mathbf{P}_1 &= \mathbf{Y}(\mathbf{Y}^T\mathbf{Y})^{-1}\mathbf{Y}^T \\
+&= \mathbf{X}\mathbf{C}((\mathbf{X}\mathbf{C})^T\mathbf{X}\mathbf{C})^{-1}(\mathbf{X}\mathbf{C})^T \\
+&= \mathbf{X}\mathbf{C}(\mathbf{C}^T\mathbf{X}^T\mathbf{X}\mathbf{C})^{-1}\mathbf{C}^T\mathbf{X}^T \\
+&= \mathbf{X}\mathbf{C}\mathbf{C}^{-1}(\mathbf{X}^T\mathbf{X})^{-1}(\mathbf{C}^T)^{-1}\mathbf{C}^T\mathbf{X}^T \\
+&= \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \\
+&= \mathbf{P}.
+\end{aligned} \tag{63}
+$$
+Thus, the projector formed from (61) onto $S$ is unique, regardless of the set of vectors used to form $\mathbf{X}$, provided the corresponding matrix $\mathbf{X}$ is full rank and that $\mathcal{R}(\mathbf{X})=S$.
+$\square$
+
+In Section 4.1 we discussed *sufficient* conditions for a projector. This means that while these conditions are enough to specify a projector, there may be other conditions which also specify a projector. But since we have now proved the projector is unique, the conditions in Section 4.1 are also *necessary*.
+
+### 4.3 The Orthogonal Complement Projector
+Consider the vector $\mathbf{y}$, and let $\mathbf{y}_s$ be the projection of $\mathbf{y}$ onto our subspace $S$, and $\mathbf{y}_c$ be the projection onto the orthogonal complement subspace $S_\perp$. Thus,
+$$
+\mathbf{y} = \mathbf{y}_s + \mathbf{y}_c = \mathbf{P}\mathbf{y} + \mathbf{y}_c. \tag{64}
+$$
+Therefore we have
+$$
+\mathbf{y} - \mathbf{P}\mathbf{y} = \mathbf{y}_c \implies (\mathbf{I} - \mathbf{P})\mathbf{y} = \mathbf{y}_c. \tag{65}
+$$
+It follows that if $\mathbf{P}$ is a projector onto $S$, then the matrix $(\mathbf{I} - \mathbf{P})$ is a projector onto $S_\perp$. It is easily verified that this matrix satisfies the all required properties for this projector.
+
+### 4.4 Orthogonal Projections and the SVD
+Suppose we have a matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$ of rank $r$. Then, using the partitions of eqeqpart, we have these useful relations:
+1. $\mathbf{V}_1\mathbf{V}_1^T$ is the orthogonal projector onto $[\mathcal{N}(\mathbf{A})]_\perp = \mathcal{R}(\mathbf{A}^T)$.
+2. $\mathbf{V}_2\mathbf{V}_2^T$ is the orthogonal projector onto $\mathcal{N}(\mathbf{A})$
+3. $\mathbf{U}_1\mathbf{U}_1^T$ is the orthogonal projector onto $\mathcal{R}(\mathbf{A})$
+4. $\mathbf{U}_2\mathbf{U}_2^T$ is the orthogonal projector onto $[\mathcal{R}(\mathbf{A})]_\perp = \mathcal{N}(\mathbf{A}^T)$
+
+To justify these results, we show each projector listed above satisfies the three conditions for a projector:
+1. First, we must show that each projector above is in the range of the corresponding subspace (condition 1). In Sects. 3.4.2 and 3.4.3, we have already verified that $\mathbf{V}_2$ is a basis for $\mathcal{N}(\mathbf{A})$, and that $\mathbf{U}_1$ is a basis for $\mathcal{R}(\mathbf{A})$, as required. It is easy to verify that the remaining two projectors above (no.’s 1 and 4 respectively) also have the appropriate ranges.
+2. From the orthonormality property of each of the matrix partitions above, it is easy to see condition 2 (idempotency) holds in each case.
+3. Finally, each matrix above is symmetric (condition 3). Therefore, each matrix above is a projector onto the corresponding subspace.
+
+[^chapter3-1]: The concept of *positive definiteness* is discussed next lecture. It means all the eigenvalues are greater than or equal to zero.
+[^chapter3-2]: Golub and van Loan pg. 73.
+
+# 3 The Singular Value Decomposition (SVD)
+In this lecture we learn about one of the most fundamental and important matrix decompositions of linear algebra: the SVD. It bears some similarity with the eigendecomposition (ED), but is more general. Usually, the ED is of interest only on symmetric square matrices, but the SVD may be applied to *any* matrix. The SVD gives us important information about the rank, the column and row spaces of the matrix, and leads to very useful solutions and interpretations of least squares problems. We also discuss the concept of *matrix projectors*, and their relationship with the SVD.
+
+## 3.1 The Singular Value Decomposition (SVD)
+We have found so far that the eigendecomposition is a useful analytic tool. However, it is only applicable on *square symmetric* matrices. We now consider the SVD, which may be considered a generalization of the ED to arbitrary matrices. Thus, with the SVD, all the analytical uses of the ED which before were restricted to symmetric matrices may now be applied to any form of matrix, regardless of size, whether it is symmetric or nonsymmetric, rank deficient, etc.
+
+**Theorem 1** Let $\mathbf{A} \in \mathbb{R}^{m \times n}$. Then $\mathbf{A}$ can be decomposed according to the *singular value decomposition* as
+$$
+\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T \tag{1}
+$$
+where $\mathbf{U}$ and $\mathbf{V}$ are orthonormal and
+$$
+\mathbf{U} \in \mathbb{R}^{m \times m}, \quad \mathbf{V} \in \mathbb{R}^{n \times n}
+$$
+and
+$$
+\mathbf{\Sigma} = \text{diag}(\sigma_1, \sigma_2, \dots, \sigma_p) \in \mathbb{R}^{m \times n} \quad p = \min(m,n)
+$$
+where
+$$
+\sigma_1 \ge \sigma_2 \ge \sigma_3 \dots \ge \sigma_p \ge 0.
+$$
+The matrix $\mathbf{\Sigma}$ must be of dimension $\mathbb{R}^{m \times n}$ (i.e., the same size as $\mathbf{A}$), to maintain dimensional consistency of the product in (1). It is therefore padded with zeros either on the bottom or to the right of the diagonal block, depending on whether $m > n$ or $m < n$, respectively. We denote the square $p \times p$ diagonal matrix as $\tilde{\mathbf{\Sigma}}$; the $m \times n$ diagonal matrix containing the zero blocks is denoted as $\mathbf{\Sigma}$.
+
+Since $\mathbf{U}$ and $\mathbf{V}$ are orthonormal, we may also write (1) in the form:
+$$
+\underset{m \times m}{\mathbf{U}^T} \underset{m \times n}{\mathbf{A}} \underset{n \times n}{\mathbf{V}} = \underset{m \times n}{\mathbf{\Sigma}} \tag{2}
+$$
+where $\mathbf{\Sigma}$ is a diagonal matrix. The values $\sigma_i$ which are defined to be positive, are referred to as the **singular values** of $\mathbf{A}$. The columns $\mathbf{u}_i$ and $\mathbf{v}_i$ of $\mathbf{U}$ and $\mathbf{V}$ are respectively called the **left** and **right singular vectors** of $\mathbf{A}$.
+
+The SVD corresponding to (1) may be shown diagramatically in the following way:
+$$
+\mathbf{A} = \underset{m \times m}{\begin{bmatrix} & & \\ & \mathbf{U} & \\ & & \end{bmatrix}} \underset{m \times n}{\begin{bmatrix} \sigma_1 & & & 0 \\ & \ddots & & \\ & & \sigma_p & \\ 0 & & & \ddots \\ & & & & 0 \end{bmatrix}} \underset{n \times n}{\begin{bmatrix} & \\ \mathbf{V}^T \\ & \end{bmatrix}} \tag{3}
+$$
+Each line above represents a column of either $\mathbf{U}$ or $\mathbf{V}$.
+
+## 3.2 Existence Proof of the SVD
+Consider two vectors $\mathbf{x}$ and $\mathbf{y}$ where $\|\mathbf{x}\|_2 = \|\mathbf{y}\|_2 = 1$, s.t. $\mathbf{A}\mathbf{x} = \sigma\mathbf{y}$, where $\sigma = \|\mathbf{A}\|_2$. The fact that such vectors $\mathbf{x}$ and $\mathbf{y}$ can exist follows from the definition of the matrix 2-norm. We define orthonormal matrices $\mathbf{U}$ and $\mathbf{V}$ so that $\mathbf{x}$ and $\mathbf{y}$ form their first columns, as follows:
+$$
+\begin{aligned}
+\mathbf{U} &= [\mathbf{y}, \mathbf{U}_1] \\
+\mathbf{V} &= [\mathbf{x}, \mathbf{V}_1]
+\end{aligned}
+$$
+That is, $\mathbf{U}_1$ consists of a set of non–unique orthonormal columns which are mutually orthogonal to themselves and to $\mathbf{y}$; similarly for $\mathbf{V}_1$.
+
+We then define a matrix $\mathbf{A}_1$ as
+$$
+\mathbf{U}^T\mathbf{A}\mathbf{V} = \mathbf{A}_1 = \begin{bmatrix} \mathbf{y}^T \\ \mathbf{U}_1^T \end{bmatrix} \mathbf{A} [\mathbf{x}, \mathbf{V}_1] \tag{4}
+$$
+The matrix $\mathbf{A}_1$ has the following structure:
+$$
+\underbrace{\begin{bmatrix} \mathbf{y}^T \\ \mathbf{U}_1^T \end{bmatrix}}_{\text{orthonormal}} \mathbf{A} \underbrace{\begin{bmatrix} \mathbf{x} & \mathbf{V}_1 \end{bmatrix}}_{\text{orthonormal}} = \begin{bmatrix} \mathbf{y}^T \\ \mathbf{U}_1^T \end{bmatrix} \begin{bmatrix} \sigma\mathbf{y} & \mathbf{A}\mathbf{V}_1 \end{bmatrix} = \underset{1 \quad n-1}{\overset{1 \atop m-1}{\begin{bmatrix} \sigma & \mathbf{w}^T \\ \mathbf{0} & \mathbf{B} \end{bmatrix}}} \triangleq \mathbf{A}_1. \tag{5}
+$$
+where $\mathbf{B} \triangleq \mathbf{U}_1^T\mathbf{A}\mathbf{V}_1$. The $\mathbf{0}$ in the (2,1) block above follows from the fact that $\mathbf{U}_1 \perp \mathbf{y}$, because $\mathbf{U}$ is orthonormal.
+
+Now, we post-multiply both sides of (5) by the vector $\begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix}$ and take 2-norms:
+$$
+\left\| \mathbf{A}_1 \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 = \left\| \begin{bmatrix} \sigma & \mathbf{w}^T \\ \mathbf{0} & \mathbf{B} \end{bmatrix} \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 \ge (\sigma^2 + \mathbf{w}^T\mathbf{w})^2. \tag{6}
+$$
+This follows because the term on the extreme right is only the first element of the vector product of the middle term. But, as we have seen, matrix p-norms obey the following property:
+$$
+\|\mathbf{A}\mathbf{x}\|_2 \le \|\mathbf{A}\|_2 \|\mathbf{x}\|_2. \tag{7}
+$$
+Therefore using (6) and (7), we have
+$$
+\|\mathbf{A}_1\|_2^2 \left\| \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 \ge \left\| \mathbf{A}_1 \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 \ge (\sigma^2 + \mathbf{w}^T\mathbf{w})^2. \tag{8}
+$$
+Note that $\left\| \begin{bmatrix} \sigma \\ \mathbf{w} \end{bmatrix} \right\|_2^2 = \sigma^2 + \mathbf{w}^T\mathbf{w}$. Dividing (8) by this quantity, we obtain
+$$
+\|\mathbf{A}_1\|_2^2 \ge \sigma^2 + \mathbf{w}^T\mathbf{w}. \tag{9}
+$$
+But, we defined $\sigma = \|\mathbf{A}\|_2$. Therefore, the following must hold:
+$$
+\sigma = \|\mathbf{A}\|_2 = \|\mathbf{U}^T\mathbf{A}\mathbf{V}\|_2 = \|\mathbf{A}_1\|_2 \tag{10}
+$$
+where the equality on the right follows because the matrix 2-norm is invariant to matrix pre- and post-multiplication by an orthonormal matrix. By comparing (9) and (10), we have the result $\mathbf{w} = \mathbf{0}$.
+
+Substituting this result back into (5), we now have
+$$
+\mathbf{A}_1 = \begin{bmatrix} \sigma & \mathbf{0} \\ \mathbf{0} & \mathbf{B} \end{bmatrix}. \tag{11}
+$$
+The whole process repeats using only the component $\mathbf{B}$, until $\mathbf{A}_n$ becomes diagonal. $\square$
+
+It is instructive to consider an alternative proof for the SVD. The following is useful because it is a *constructive proof*, which shows us how to form the components of the SVD.
+
+**Theorem 2** Let $\mathbf{A} \in \mathbb{R}^{m \times n}$ be a rank $r$ matrix ($r \le p = \min(m, n)$). Then there exist orthonormal matrices $\mathbf{U}$ and $\mathbf{V}$ such that
+$$
+\mathbf{U}^T\mathbf{A}\mathbf{V} = \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \tag{12}
+$$
+where
+$$
+\tilde{\mathbf{\Sigma}} = \text{diag}(\sigma_1, \dots, \sigma_r), \quad \sigma_i > 0. \tag{13}
+$$
+*Proof:*
+Consider the square symmetric positive semi–definite matrix $\mathbf{A}^T\mathbf{A}$[^chapter3-1]. Let the eigenvalues greater than zero be $\sigma_1^2, \sigma_2^2, \dots, \sigma_r^2$. Then, from our knowledge of the eigendecomposition, there exists an orthonormal matrix $\mathbf{V} \in \mathbb{R}^{n \times n}$ such that
+$$
+\mathbf{V}^T\mathbf{A}^T\mathbf{A}\mathbf{V} = \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix}. \tag{14}
+$$
+where $\tilde{\mathbf{\Sigma}}^2 = \text{diag}[\sigma_1^2, \dots, \sigma_r^2]$. We now partition $\mathbf{V}$ as $[\mathbf{V}_1 \ \mathbf{V}_2]$, where $\mathbf{V}_1 \in \mathbb{R}^{n \times r}$. Then (14) has the form
+$$
+\underset{n}{\begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix}} \mathbf{A}^T\mathbf{A} \underset{r \quad n-r}{\begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix}} = \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix}. \tag{15}
+$$
+Then by equating corresponding blocks in (15) we have
+$$
+\begin{gathered}
+\mathbf{V}_1^T\mathbf{A}^T\mathbf{A}\mathbf{V}_1 = \tilde{\mathbf{\Sigma}}^2 \quad (r \times r) \tag{16} \\
+\mathbf{V}_2^T\mathbf{A}^T\mathbf{A}\mathbf{V}_2 = \mathbf{0}. \quad (n-r) \times (n-r) \tag{17}
+\end{gathered}
+$$
+From (16), we can write
+$$
+\tilde{\mathbf{\Sigma}}^{-1}\mathbf{V}_1^T\mathbf{A}^T\mathbf{A}\mathbf{V}_1\tilde{\mathbf{\Sigma}}^{-1} = \mathbf{I}. \tag{18}
+$$
+Then, we define the matrix $\mathbf{U}_1 \in \mathbb{R}^{m \times r}$ from (18) as
+$$
+\mathbf{U}_1 = \mathbf{A}\mathbf{V}_1\tilde{\mathbf{\Sigma}}^{-1}. \tag{19}
+$$
+Then from (18) we have $\mathbf{U}_1^T\mathbf{U}_1 = \mathbf{I}$ and it follows that
+$$
+\mathbf{U}_1^T\mathbf{A}\mathbf{V}_1 = \tilde{\mathbf{\Sigma}}. \tag{20}
+$$
+From (17) we also have
+$$
+\mathbf{A}\mathbf{V}_2 = \mathbf{0}. \tag{21}
+$$
+We now choose a matrix $\mathbf{U}_2$ so that $\mathbf{U} = [\mathbf{U}_1 \ \mathbf{U}_2]$, where $\mathbf{U}_2 \in \mathbb{R}^{m \times (m-r)}$, is orthonormal. Then from (19) and because $\mathbf{U}_1 \perp \mathbf{U}_2$, we have
+$$
+\mathbf{U}_2^T\mathbf{U}_1 = \mathbf{U}_2^T\mathbf{A}\mathbf{V}_1\tilde{\mathbf{\Sigma}}^{-1} = \mathbf{0}. \tag{22}
+$$
+Therefore
+$$
+\mathbf{U}_2^T\mathbf{A}\mathbf{V}_1 = \mathbf{0}. \tag{23}
+$$
+Combining (20), (21) and (23), we have
+$$
+\mathbf{U}^T\mathbf{A}\mathbf{V} = \begin{bmatrix} \mathbf{U}_1^T\mathbf{A}\mathbf{V}_1 & \mathbf{U}_1^T\mathbf{A}\mathbf{V}_2 \\ \mathbf{U}_2^T\mathbf{A}\mathbf{V}_1 & \mathbf{U}_2^T\mathbf{A}\mathbf{V}_2 \end{bmatrix} = \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \tag{24}
+$$
+$\square$
+The proof can be repeated using an eigendecomposition on the matrix $\mathbf{A}\mathbf{A}^T \in \mathbb{R}^{m \times m}$ instead of on $\mathbf{A}^T\mathbf{A}$. In this case, the roles of the orthonormal matrices $\mathbf{V}$ and $\mathbf{U}$ are interchanged.
+
+The above proof is useful for several reasons:
+- It is short and elegant.
+- We can also identify which part of the SVD is not unique. Here, we assume that $\mathbf{A}^T\mathbf{A}$ has no repeated non–zero eigenvalues. Because $\mathbf{V}_2$ are the eigenvectors corresponding to the zero eigenvalues of $\mathbf{A}^T\mathbf{A}$, $\mathbf{V}_2$ is not unique when there are repeated zero eigenvalues. This happens when $m < n+1$, (i.e., $\mathbf{A}$ is sufficiently short) or when the nullity of $\mathbf{A} \ge 2$, or a combination of these conditions.
+- By its construction, the matrix $\mathbf{U}_2 \in \mathbb{R}^{m \times m-r}$ is not unique whenever it consists of two or more columns. This happens when $m-2 \ge r$.
+It is left as an exercise to show that similar conclusions on the uniqueness of $\mathbf{U}$ and $\mathbf{V}$ can be made when the proof is developed using the matrix $\mathbf{A}\mathbf{A}^T$.
+
+## 3.3 Partitioning the SVD
+Here we assume that $\mathbf{A}$ has $r \le p$ non-zero singular values (and $p-r$ zero singular values). Later, we see that $r = \text{rank}(\mathbf{A})$. For convenience of notation, we arrange the singular values as:
+$$
+\underbrace{\sigma_1 \ge \dots \ge \sigma_r}_{\substack{\text{max} \qquad \text{min} \\ \text{non-zero} \\ \text{s.v.} \\ r \text{ non-zero s.v's}}} > \underbrace{\sigma_{r+1} = \dots = \sigma_p = 0}_{p-r \text{ zero s.v.'s}}
+$$
+In the remainder of this lecture, we use the SVD partitioned in both $\mathbf{U}$ and $\mathbf{V}$. We can write the SVD of $\mathbf{A}$ in the form
+$$
+\mathbf{A} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \tag{25}
+$$
+where where $\tilde{\mathbf{\Sigma}} \in \mathbb{R}^{r \times r} = \text{diag}(\sigma_1, \dots, \sigma_r)$, and $\mathbf{U}$ is partitioned as
+$$
+\mathbf{U} = \underset{r \quad m-r}{\begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix}} \quad m \tag{26}
+$$
+The columns of $\mathbf{U}_1$ are the left singular vectors associated with the $r$ nonzero singular values, and the columns of $\mathbf{U}_2$ are the left singular vectors associated with the zero singular values. $\mathbf{V}$ is partitioned in an analogous manner:
+$$
+\mathbf{V} = \underset{r \quad n-r}{\begin{bmatrix} \mathbf{V}_1 & \mathbf{V}_2 \end{bmatrix}} \quad n \tag{27}
+$$
+
+## 3.4 Interesting Properties and Interpretations of the SVD
+The above partition reveals many interesting properties of the SVD:
+
+### 3.4.1 rank(A) = r
+Using (25), we can write $\mathbf{A}$ as
+$$
+\mathbf{A} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}}\mathbf{V}_1^T \\ \mathbf{0} \end{bmatrix} = \mathbf{U}_1\tilde{\mathbf{\Sigma}}\mathbf{V}_1^T = \mathbf{U}_1\mathbf{B} \tag{28}
+$$
+where $\mathbf{B} \in \mathbb{R}^{r \times n} \triangleq \tilde{\mathbf{\Sigma}}\mathbf{V}_1^T$. From (28) it is clear that the $i$th, $i=1, \dots, r$ column of $\mathbf{A}$ is a linear combination of the columns of $\mathbf{U}_1$, whose coefficients are given by the $i$th column of $\mathbf{B}$. But since there are $r \le n$ columns in $\mathbf{U}_1$, there can only be $r$ linearly independent columns in $\mathbf{A}$. It follows from the definition of rank that $\text{rank}(\mathbf{A}) = r$.
+
+This point is analogous to the case previously considered in Lecture 2, where we saw rank is equal to the number of non-zero eigenvalues, when $\mathbf{A}$ is a square symmetric matrix. In this case however, the result applies to *any* matrix. This is another example of how the SVD is a generalization of the eigendecomposition.
+
+Determination of rank when $\sigma_1, \dots, \sigma_r$ are distinctly greater than zero, and when $\sigma_{r+1}, \dots, \sigma_p$ are exactly zero is easy. But often in practice, due to finite precision arithmetic and fuzzy data, $\sigma_r$ may be very small, and $\sigma_{r+1}$ may be not quite zero. Hence, in practice, determination of rank is not so easy. A common method is to declare $\text{rank} \mathbf{A} = r$ if $\sigma_{r+1} \le \epsilon$, where $\epsilon$ is a small number specific to the problem considered.
+
+### 3.4.2 $\mathcal{N}(\mathbf{A}) = \mathcal{R}(\mathbf{V}_2)$
+Recall the nullspace $\mathcal{N}(\mathbf{A}) = \{\mathbf{x} \ne \mathbf{0} \mid \mathbf{A}\mathbf{x} = \mathbf{0}\}$. So, we investigate the set $\{\mathbf{x}\}$ such that $\mathbf{A}\mathbf{x} = \mathbf{0}$. Let $\mathbf{x} \in \text{span}(\mathbf{V}_2)$; i.e., $\mathbf{x} = \mathbf{V}_2\mathbf{c}$, where $\mathbf{c} \in \mathbb{R}^{n-r}$. By substituting (25) for $\mathbf{A}$, by noting that $\mathbf{V}_1 \perp \mathbf{V}_2$ and that $\mathbf{V}_1^T\mathbf{V}_1 = \mathbf{I}$, we have
+$$
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{0} \\ \mathbf{c} \end{bmatrix} = \mathbf{0}. \tag{29}
+$$
+Thus, $\text{span}(\mathbf{V}_2)$ is at least a subspace of $\mathcal{N}(\mathbf{A})$. However, if $\mathbf{x}$ contains any components of $\mathbf{V}_1$, then (29) will not be zero. But since $\mathbf{V} = [\mathbf{V}_1 \mathbf{V}_2]$ is a complete basis in $\mathbb{R}^n$, we see that $\mathbf{V}_2$ alone is a basis for the nullspace of $\mathbf{A}$.
+
+### 3.4.3 $\mathcal{R}(\mathbf{A}) = \mathcal{R}(\mathbf{U}_1)$
+Recall that the definition of range $\mathcal{R}(\mathbf{A})$ is $\{\mathbf{y} \mid \mathbf{y} = \mathbf{A}\mathbf{x}, \mathbf{x} \in \mathbb{R}^n\}$. From (25),
+$$
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \begin{bmatrix} \mathbf{d}_1 \\ \mathbf{d}_2 \end{bmatrix} \tag{30}
+$$
+where
+$$
+\underset{r \atop n-r}{\begin{bmatrix} \mathbf{d}_1 \\ \mathbf{d}_2 \end{bmatrix}} = \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x}. \tag{31}
+$$
+From the above we have
+$$
+\mathbf{A}\mathbf{x} = \begin{bmatrix} \mathbf{U}_1 & \mathbf{U}_2 \end{bmatrix} \begin{bmatrix} \tilde{\mathbf{\Sigma}}\mathbf{d}_1 \\ \mathbf{0} \end{bmatrix} = \mathbf{U}_1(\tilde{\mathbf{\Sigma}}\mathbf{d}_1) \tag{32}
+$$
+We see that as $\mathbf{x}$ moves throughout $\mathbb{R}^n$, the quantity $\tilde{\mathbf{\Sigma}}\mathbf{d}_1$ moves throughout $\mathbb{R}^r$. Thus, the quantity $\mathbf{y} = \mathbf{A}\mathbf{x}$ in this context consists of all linear combinations of the columns of $\mathbf{U}_1$. Thus, an orthonormal basis for $\mathcal{R}(\mathbf{A})$ is $\mathbf{U}_1$.
+
+### 3.4.4 $\mathcal{R}(\mathbf{A}^T) = \mathcal{R}(\mathbf{V}_1)$
+Recall that $\mathcal{R}(\mathbf{A}^T)$ is the set of all linear combinations of rows of $\mathbf{A}$. Our property can be seen using a transposed version of the argument in Section 3.4.3 above. Thus, $\mathbf{V}_1$ is an orthonormal basis for the rows of $\mathbf{A}$.
+
+### 3.4.5 $\mathcal{R}(\mathbf{A})_{\perp} = \mathcal{R}(\mathbf{U}_2)$
+From Sect. 3.4.3, we see that $\mathcal{R}(\mathbf{A}) = \mathcal{R}(\mathbf{U}_1)$. Since from (25), $\mathbf{U}_1 \perp \mathbf{U}_2$, then $\mathbf{U}_2$ is a basis for the orthogonal complement of $\mathcal{R}(\mathbf{A})$. Hence the result.
+
+### 3.4.6 $\|\mathbf{A}\|_2 = \sigma_1 = \sigma_{\max}$
+This is easy to see from the definition of the 2-norm and the ellipsoid example of section 3.6.
+
+### 3.4.7 Inverse of A
+If the svd of a square matrix $\mathbf{A}$ is given, it is easy to find the inverse. Of course, we must assume $\mathbf{A}$ is full rank, (which means $\sigma_i > 0$) for the inverse to exist. The inverse of $\mathbf{A}$ is given from the svd, using the familiar rules, as
+$$
+\mathbf{A}^{-1} = \mathbf{V}\mathbf{\Sigma}^{-1}\mathbf{U}^T. \tag{33}
+$$
+The evaluation of $\mathbf{\Sigma}^{-1}$ is easy because $\mathbf{\Sigma}$ is square and diagonal. Note that this treatment indicates that the singular values of $\mathbf{A}^{-1}$ are $[\sigma_n^{-1}, \sigma_{n-1}^{-1}, \dots, \sigma_1^{-1}]$.
+
+### 3.4.8 The SVD diagonalizes any system of equations
+Consider the system of equations $\mathbf{A}\mathbf{x} = \mathbf{b}$, for an arbitrary matrix $\mathbf{A}$. Using the SVD of $\mathbf{A}$, we have
+$$
+\mathbf{U}\mathbf{\Sigma}\mathbf{V}^T\mathbf{x} = \mathbf{b}. \tag{34}
+$$
+Let us now represent $\mathbf{b}$ in the basis $\mathbf{U}$, and $\mathbf{x}$ in the basis $\mathbf{V}$, in the same way as in Sect. 3.6. We therefore have
+$$
+\mathbf{c} = \underset{r \atop m-r}{\begin{bmatrix} \mathbf{c}_1 \\ \mathbf{c}_2 \end{bmatrix}} = \begin{bmatrix} \mathbf{U}_1^T \\ \mathbf{U}_2^T \end{bmatrix} \mathbf{b} \tag{35}
+$$
+and
+$$
+\mathbf{d} = \underset{r \atop n-r}{\begin{bmatrix} \mathbf{d}_1 \\ \mathbf{d}_2 \end{bmatrix}} = \begin{bmatrix} \mathbf{V}_1^T \\ \mathbf{V}_2^T \end{bmatrix} \mathbf{x} \tag{36}
+$$
+Substituting the above into (34), the system of equations becomes
+$$
+\mathbf{\Sigma}\mathbf{d} = \mathbf{c}. \tag{37}
+$$
+This shows that as long as we choose the correct bases, *any* system of equations can become diagonal. This property represents the power of the SVD; it allows us to transform arbitrary algebraic structures into their simplest forms.
+
+If $m > n$ or if rank $r < \min(m,n)$, then the system of equations $\mathbf{A}\mathbf{x} = \mathbf{b}$ can only be satisfied if $\mathbf{b} \in \mathcal{R}(\mathbf{U}_1)$. To see this, $\mathbf{\Sigma}$ above has an $(m-r) \times n$ block of zeros below the diagonal block of nonzero singular values. Thus, the lower $m-r$ elements of left-hand side of (37) are all zero. Then if the equality of (37) is to be satisfied, $\mathbf{c}_2$ must also be zero. This means that $\mathbf{U}_2^T\mathbf{b} = \mathbf{0}$, or that $\mathbf{b} \in \mathcal{R}(\mathbf{U}_1)$.
+
+Further, if $n > m$, or if $r < \min(m,n)$, then, if $\mathbf{x}_o$ is a solution to $\mathbf{A}\mathbf{x} = \mathbf{b}$, $\mathbf{x}_o + \mathbf{V}_2\mathbf{z}$ is also a solution, where $\mathbf{z} \in \mathbb{R}^{n-r}$. This follows because, as we have seen, $\mathbf{V}_2$ is a basis for $\mathcal{N}(\mathbf{A})$; thus, the component $\mathbf{A}\mathbf{V}_2\mathbf{z} = \mathbf{0}$, and $\mathbf{A}\mathbf{x}_o + \mathbf{A}\mathbf{V}_2\mathbf{z} = \mathbf{A}\mathbf{x}_o = \mathbf{b}$.
+
+### 3.4.9 The “rotation” interpretation of the SVD
+From the SVD relation $\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T$, we have
+$$
+\mathbf{A}\mathbf{V} = \mathbf{U}\mathbf{\Sigma}. \tag{38}
+$$
+Note that since $\mathbf{\Sigma}$ is diagonal, the matrix $\mathbf{U}\mathbf{\Sigma}$ on the right has orthogonal columns, whose 2–norm’s are equal to the corresponding singular value. We can therefore interpret the matrix $\mathbf{V}$ as an orthonormal matrix which *rotates* the rows of $\mathbf{A}$ so that the result is a matrix with orthogonal columns. Likewise, we have
+$$
+\mathbf{U}^T\mathbf{A} = \mathbf{\Sigma}\mathbf{V}^T. \tag{39}
+$$
+The matrix $\mathbf{\Sigma}\mathbf{V}^T$ on the right has orthogonal rows with 2–norm equal to the corresponding singular value. Thus, the orthonormal matrix $\mathbf{U}^T$ operates (rotates) the columns of $\mathbf{A}$ to produce a matrix with orthogonal rows.
+
+In the case where $m > n$, ($\mathbf{A}$ is tall), then the matrix $\mathbf{\Sigma}$ is also tall, with zeros in the bottom $m-n$ rows. Then, only the first $n$ columns of $\mathbf{U}$ are relevant in (38), and only the first $n$ rows of $\mathbf{U}^T$ are relevant in (39). When $m < n$, a corresponding transposed statement replacing $\mathbf{U}$ with $\mathbf{V}$ can be made.
+
+## 3.5 Relationship between SVD and ED
+It is clear that the eigendecomposition and the singular value decomposition share many properties in common. The price we pay for being able to perform a diagonal decomposition on an *arbitray* matrix is that we need two orthonormal matrices instead of just one, as is the case for square symmetric matrices. In this section, we explore further relationships between the ED and the SVD.
+
+Using (25), we can write
+$$
+\mathbf{A}^T\mathbf{A} = \mathbf{V} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{U}^T\mathbf{U} \begin{bmatrix} \tilde{\mathbf{\Sigma}} & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{V}^T = \mathbf{V} \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{V}^T. \tag{40}
+$$
+Thus it is apparent, that the eigenvectors $\mathbf{V}$ of the matrix $\mathbf{A}^T\mathbf{A}$ are the right singular vectors of $\mathbf{A}$, and that the singular values of $\mathbf{A}$ squared are the corresponding nonzero eigenvalues. Note that if $\mathbf{A}$ is short ($m<n$) and full rank, the matrix $\mathbf{A}^T\mathbf{A}$ will contain $n-m$ additional zero eigenvalues that are not included as singular values of $\mathbf{A}$. This follows because the rank of the matrix $\mathbf{A}^T\mathbf{A}$ is $m$ when $\mathbf{A}$ is full rank, yet the size of $\mathbf{A}^T\mathbf{A}$ is $n \times n$.
+
+As discussed in *Golub and van Loan*, the SVD is numerically more stable to compute than the ED. However, in the case where $n >> m$, the matrix $\mathbf{V}$ of the SVD of $\mathbf{A}$ becomes large, which means the SVD on $\mathbf{A}$ becomes more costly to compute, relative to the eigendecomposition of $\mathbf{A}^T\mathbf{A}$.
+
+Further, we can also say, using the form $\mathbf{A}\mathbf{A}^T$, that
+$$
+\mathbf{A}\mathbf{A}^T = \mathbf{U} \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{V}^T\mathbf{V} \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{U}^T = \mathbf{U} \begin{bmatrix} \tilde{\mathbf{\Sigma}}^2 & \mathbf{0} \\ \mathbf{0} & \mathbf{0} \end{bmatrix} \mathbf{U}^T \tag{41}
+$$
+which indicates that the eigenvectors of $\mathbf{A}\mathbf{A}^T$ are the left singular vectors $\mathbf{U}$ of $\mathbf{A}$, and the singular values of $\mathbf{A}$ squared are the nonzero eigenvalues of $\mathbf{A}\mathbf{A}^T$. Notice that in this case, if $\mathbf{A}$ is tall and full rank, the matrix $\mathbf{A}\mathbf{A}^T$ will contain $m-n$ additional zero eigenvalues that are not included as singular values of $\mathbf{A}$.
+
+We now compare the fundamental defining relationships for the ED and the SVD:
+For the ED, if $\mathbf{A}$ is symmetric, we have:
+$$
+\mathbf{A} = \mathbf{Q}\mathbf{\Lambda}\mathbf{Q}^T \rightarrow \mathbf{A}\mathbf{Q} = \mathbf{Q}\mathbf{\Lambda},
+$$
+where $\mathbf{Q}$ is the matrix of eigenvectors, and $\mathbf{\Lambda}$ is the diagonal matrix of eigenvalues. Writing this relation column-by-column, we have the familiar eigenvector/eigenvalue relationship:
+$$
+\mathbf{A}\mathbf{q}_i = \lambda_i\mathbf{q}_i \quad i=1, \dots, n. \tag{42}
+$$
+For the SVD, we have
+$$
+\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T \rightarrow \mathbf{A}\mathbf{V} = \mathbf{U}\mathbf{\Sigma}
+$$
+or
+$$
+\mathbf{A}\mathbf{v}_i = \sigma_i\mathbf{u}_i \quad i=1, \dots, p, \tag{43}
+$$
+where $p=\min(m,n)$. Also, since $\mathbf{A}^T = \mathbf{V}\mathbf{\Sigma}\mathbf{U}^T \rightarrow \mathbf{A}^T\mathbf{U} = \mathbf{V}\mathbf{\Sigma}$, we have
+$$
+\mathbf{A}^T\mathbf{u}_i = \sigma_i\mathbf{v}_i \quad i=1, \dots, p. \tag{44}
+$$
+Thus, by comparing (42), (43), and (44), we see the singular vectors and singular values obey a relation which is similar to that which defines the eigenvectors and eigenvalues. However, we note that in the SVD case, the fundamental relationship expresses left singular values in terms of right singular values, and vice-versa, whereas the eigenvectors are expressed in terms of themselves.
+
+**Exercise:** compare the ED and the SVD on a square symmetric matrix, when i) $\mathbf{A}$ is positive definite, and ii) when $\mathbf{A}$ has some positive and some negative eigenvalues.
+
+## 3.6 Ellipsoidal Interpretation of the SVD
+The singular values of $\mathbf{A}$, where $\mathbf{A} \in \mathbb{R}^{m \times n}$ are the lengths of the semi-axes of the hyperellipsoid E given by:
+$$
+E = \{ \mathbf{y} \mid \mathbf{y} = \mathbf{A}\mathbf{x}, \|\mathbf{x}\|_2 = 1 \}.
+$$
+That is, E is the set of points mapped out as $\mathbf{x}$ takes on all possible values such that $\|\mathbf{x}\|_2 = 1$, as shown in Fig. 1. To appreciate this point, let us look at the set of $\mathbf{y}$ corresponding to $\{\mathbf{x} \mid \|\mathbf{x}\|_2 = 1\}$. We take
+$$
+\mathbf{y} = \mathbf{A}\mathbf{x} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T\mathbf{x}. \tag{45}
+$$
+Let us change bases for both $\mathbf{x}$ and $\mathbf{y}$. Define
+$$
+\begin{aligned}
+\mathbf{c} &= \mathbf{U}^T\mathbf{y} \\
+\mathbf{d} &= \mathbf{V}^T\mathbf{x}.
+\end{aligned} \tag{46}
+$$
+Then (45) becomes
+$$
+\mathbf{c} = \mathbf{\Sigma}\mathbf{d}. \tag{47}
+$$
+We note that $\|\mathbf{d}\|_2 = 1$ if $\|\mathbf{x}\|_2=1$. Thus, our problem is transformed into observing the set $\{\mathbf{c}\}$ corresponding to the set $\{\mathbf{d} \mid \|\mathbf{d}\|_2=1\}$. The set $\{\mathbf{c}\}$ can be determined by evaluating 2-norms on each side of (47):
+$$
+\sum_{i=1}^p \left(\frac{c_i}{\sigma_i}\right)^2 = \sum_{i=1}^p (d_i)^2 = 1. \tag{48}
+$$
+We see that the set $\{\mathbf{c}\}$ defined by (48) is indeed the canonical form of an ellipse in the basis $\mathbf{U}$. Thus, the principal axes of the ellipse are aligned along the columns $\mathbf{u}_i$ of $\mathbf{U}$, with lengths equal to the corresponding singular value $\sigma_i$. This interpretation of the SVD is useful later in our study of *condition numbers*.
+
+## 3.7 An Interesting Theorem
+First, we realize that the SVD of $\mathbf{A}$ provides a “sum of outer-products” representation:
+$$
+\mathbf{A} = \mathbf{U}\mathbf{\Sigma}\mathbf{V}^T = \sum_{i=1}^p \sigma_i \mathbf{u}_i \mathbf{v}_i^T, \quad p=\min(m,n). \tag{49}
+$$
+Given $\mathbf{A} \in \mathbb{R}^{m \times n}$ with rank $r$, then what is the matrix $\mathbf{B} \in \mathbb{R}^{m \times n}$ with rank $k < r$ closest to $\mathbf{A}$ in 2-norm? What is this 2-norm distance? This question is answered in the following theorem:
+
+**Theorem 3** Define
+$$
+\mathbf{A}_k = \sum_{i=1}^k \sigma_i \mathbf{u}_i \mathbf{v}_i^T, \quad k \le r, \tag{50}
+$$
+then
+$$
+\min_{\text{rank}(\mathbf{B})=k} \|\mathbf{A}-\mathbf{B}\|_2 = \|\mathbf{A}-\mathbf{A}_k\|_2 = \sigma_{k+1}.
+$$
+In words, this says the closest rank $k < r$ matrix $\mathbf{B}$ matrix to $\mathbf{A}$ in the 2–norm sense is given by $\mathbf{A}_k$. $\mathbf{A}_k$ is formed from $\mathbf{A}$ by excluding contributions in (49) associated with the smallest singular values.
+
+*Proof:*
+Since $\mathbf{U}^T\mathbf{A}_k\mathbf{V} = \text{diag}(\sigma_1, \dots, \sigma_k, 0, \dots, 0)$ it follows that $\text{rank}(\mathbf{A}_k)=k$, and that
+$$
+\begin{aligned}
+\|\mathbf{A}-\mathbf{A}_k\|_2 &= \|\mathbf{U}^T(\mathbf{A}-\mathbf{A}_k)\mathbf{V}\|_2 \\
+&= \|\text{diag}(0, \dots, 0, \sigma_{k+1}, \dots, \sigma_r, 0, \dots, 0)\|_2 \\
+&= \sigma_{k+1}.
+\end{aligned} \tag{51}
+$$
+where the first line follows from the fact the the 2-norm of a matrix is invariant to pre– and post–multiplication by an orthonormal matrix (properties of matrix p-norms, Lecture 2). Further, it may be shown that, for any matrix $\mathbf{B} \in \mathbb{R}^{m \times n}$ of rank $k<r$,[^chapter3-2]
+$$
+\|\mathbf{A}-\mathbf{B}\|_2 \ge \sigma_{k+1} \tag{52}
+$$
+Comparing (51) and (52), we see the closest rank $k$ matrix to $\mathbf{A}$ is $\mathbf{A}_k$ given by (50).
+$\square$
+
+This result is very useful when we wish to approximate a matrix by another of lower rank. For example, let us look at the Karhunen-Loeve expansion as discussed in Lecture 1. For a sample $\mathbf{x}_n$ of a random process $\mathbf{x} \in \mathbb{R}^m$, we express $\mathbf{x}$ as
+$$
+\mathbf{x}_i = \mathbf{V}\mathbf{\theta}_i \tag{53}
+$$
+where the columns of $\mathbf{V}$ are the eigenvectors of the covariance matrix $\mathbf{R}$. We saw in Lecture 2 that we may represent $\mathbf{x}_i$ with relatively few coefficients by setting the elements of $\mathbf{\theta}$ associated with the smallest eigenvalues of $\mathbf{R}$ to zero. The idea was that the resulting distortion in $\mathbf{x}$ would have minimum energy.
+
+This fact may now be seen in a different light with the aid of this theorem. Suppose we retain the $j=r$ elements of a given $\mathbf{\theta}$ associated with the largest $r$ eigenvalues. Let $\tilde{\mathbf{\theta}} \triangleq [\theta_1, \theta_2, \dots, \theta_r, 0, \dots, 0]^T$ and $\tilde{\mathbf{x}} = \mathbf{V}\tilde{\mathbf{\theta}}$. Then
+$$
+\tilde{\mathbf{R}} = E(\tilde{\mathbf{x}}\tilde{\mathbf{x}}^T) = E(\mathbf{V}\tilde{\mathbf{\theta}}\tilde{\mathbf{\theta}}^T\mathbf{V}) = \mathbf{V} \begin{bmatrix} E|\theta_1|^2 & & & \\ & \ddots & & \\ & & E|\theta_r|^2 & \\ & & & \ddots \\ & & & & 0 \end{bmatrix} \mathbf{V}^T = \mathbf{V}\tilde{\mathbf{\Lambda}}\mathbf{V}^T, \tag{54}
+$$
+where $\tilde{\mathbf{\Lambda}} = \text{diag}[\lambda_1, \dots, \lambda_r, 0, \dots, 0]$. Since $\tilde{\mathbf{R}}$ is positive definite, square and symmetric, its eigendecomposition and singular value decomposition are identical; hence, $\lambda_i = \sigma_i, i=1, \dots, r$. Thus from this theorem, and (54), we know that the covariance matrix $\tilde{\mathbf{R}}$ formed from truncating the K-L coefficients is the closest rank–r matrix to the true covariance matrix $\mathbf{R}$ in the 2–norm sense.
+
+[^chapter3-1]: The concept of *positive definiteness* is discussed next lecture. It means all the eigenvalues are greater than or equal to zero.
+[^chapter3-2]: Golub and van Loan pg. 73.
+
+## 4 Orthogonal Projections
+### 4.1 Sufficient Conditions for a Projector
+Suppose we have a subspace $S = \mathcal{R}(\mathbf{X})$, where $\mathbf{X} = [\mathbf{x}_1 \dots \mathbf{x}_n] \in \mathbb{R}^{m \times n}$ is full rank, $m > n$, and an arbitrary vector $\mathbf{y} \in \mathbb{R}^m$. How do we find a matrix $\mathbf{P} \in \mathbb{R}^{m \times m}$ so that the product $\mathbf{P}\mathbf{y} \in S$?
+
+The matrix $\mathbf{P}$ is referred to as a **projector**. That is, we can project an arbitrary vector $\mathbf{y}$ onto the subspace $S$, by premultiplying $\mathbf{y}$ by $\mathbf{P}$. Note that this projection has non-trivial meaning only when $m > n$. Otherwise, $\mathbf{y} \in S$ already for arbitrary $\mathbf{y}$.
+
+A matrix $\mathbf{P}$ is a projection matrix onto $S$ if:
+1. $\mathcal{R}(\mathbf{P}) = S$
+2. $\mathbf{P}^2 = \mathbf{P}$
+3. $\mathbf{P}^T = \mathbf{P}$
+
+A matrix satisfying condition (2) is called an **idempotent** matrix. This is the fundamental property of a projector.
+
+We now show that these three conditions are *sufficient* for $\mathbf{P}$ to be a projector. An arbitrary vector $\mathbf{y}$ can be expressed as
+$$
+\mathbf{y} = \mathbf{y}_s + \mathbf{y}_c \tag{55}
+$$
+where $\mathbf{y}_s \in S$ and $\mathbf{y}_c \in S_{\perp}$ (the orthogonal complement subspace of $S$). We see that $\mathbf{y}_s$ is the desired projection of $\mathbf{y}$ onto $S$. Thus, in mathematical terms, our objective is to show that
+$$
+\mathbf{P}\mathbf{y} = \mathbf{y}_s. \tag{56}
+$$
+Because of condition 2, $\mathbf{P}^2 = \mathbf{P}$, hence
+$$
+\mathbf{P}\mathbf{p}_i = \mathbf{p}_i \quad i=1, \dots, m \tag{57}
+$$
+where $\mathbf{p}_i$ is a column of $\mathbf{P}$. Because $\mathbf{y}_s \in S$, and also $(\mathbf{p}_1 \dots \mathbf{p}_m) \in S$ (condition 1), then $\mathbf{y}_s$ can be expressed as a linear combination of the $\mathbf{p}_i$’s:
+$$
+\mathbf{y}_s = \sum_{i=1}^m c_i \mathbf{p}_i, \quad c_i \in \mathbb{R}. \tag{58}
+$$
+Combining (57) and (58), we have
+$$
+\mathbf{P}\mathbf{y}_s = \sum_{i=1}^m c_i \mathbf{P}\mathbf{p}_i = \sum_{i=1}^m c_i \mathbf{p}_i = \mathbf{y}_s. \tag{59}
+$$
+If $\mathcal{R}(\mathbf{P}) = S$ (condition 1), then $\mathbf{P}\mathbf{y}_c = \mathbf{0}$. Hence,
+$$
+\mathbf{P}\mathbf{y} = \mathbf{P}(\mathbf{y}_s + \mathbf{y}_c) = \mathbf{P}\mathbf{y}_s = \mathbf{y}_s. \tag{60}
+$$
+i.e., $\mathbf{P}$ projects $\mathbf{y}$ onto $S$, if $\mathbf{P}$ obeys conditions 1 and 2. Furthermore, by repeating the above proof, and using condition 3, we have
+$$
+\mathbf{y}^T\mathbf{P} \in S
+$$
+i.e., $\mathbf{P}$ projects both column- and row–vectors onto $S$, by pre- and post-multiplying, respectively. Because this property is a direct consequence of the three conditions above, then these conditions are *sufficient* for $\mathbf{P}$ to be a projector.
+
+### 4.2 A Definition for P
+Let $\mathbf{X} = [\mathbf{x}_1 \dots \mathbf{x}_n]$, $\mathbf{x}_i \in \mathbb{R}^m, n < m$ be full rank. Then the matrix $\mathbf{P}$ where
+$$
+\mathbf{P} = \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \tag{61}
+$$
+is a projector onto $S = \mathcal{R}(\mathbf{X})$. Other definitions of $\mathbf{P}$ equivalent to (61) will follow later after we discuss pseudo inverses.
+
+Note that when $\mathbf{X}$ has orthonormal columns, then the projector becomes $\mathbf{X}\mathbf{X}^T \in \mathbb{R}^{m \times m}$, which according to our previous discussion on orthonormal matrices in Chapter 2, is *not* the $m \times m$ identity.
+
+**Exercises:**
+- prove (61).
+- How is $\mathbf{P}$ in (61) formed if $r = \text{rank}(\mathbf{X}) < n$?
+
+**Theorem 4** *The projector onto $S$ defined by (61) is unique.*
+
+*Proof:*
+Let $\mathbf{Y}$ be any other $m \times n$ full rank matrix such that $\mathcal{R}(\mathbf{Y}) = S$. Since $\mathbf{X}$ and $\mathbf{Y}$ are both in $S$, each column of $\mathbf{Y}$ must be a linear combination of the columns of $\mathbf{X}$. Therefore, there exists a full-rank matrix $\mathbf{C} \in \mathbb{R}^{n \times n}$ so that
+$$
+\mathbf{Y} = \mathbf{X}\mathbf{C}. \tag{62}
+$$
+The projector $\mathbf{P}_1$ formed from $\mathbf{Y}$ is therefore
+$$
+\begin{aligned}
+\mathbf{P}_1 &= \mathbf{Y}(\mathbf{Y}^T\mathbf{Y})^{-1}\mathbf{Y}^T \\
+&= \mathbf{X}\mathbf{C}((\mathbf{X}\mathbf{C})^T\mathbf{X}\mathbf{C})^{-1}(\mathbf{X}\mathbf{C})^T \\
+&= \mathbf{X}\mathbf{C}(\mathbf{C}^T\mathbf{X}^T\mathbf{X}\mathbf{C})^{-1}\mathbf{C}^T\mathbf{X}^T \\
+&= \mathbf{X}\mathbf{C}\mathbf{C}^{-1}(\mathbf{X}^T\mathbf{X})^{-1}(\mathbf{C}^T)^{-1}\mathbf{C}^T\mathbf{X}^T \\
+&= \mathbf{X}(\mathbf{X}^T\mathbf{X})^{-1}\mathbf{X}^T \\
+&= \mathbf{P}.
+\end{aligned} \tag{63}
+$$
+Thus, the projector formed from (61) onto $S$ is unique, regardless of the set of vectors used to form $\mathbf{X}$, provided the corresponding matrix $\mathbf{X}$ is full rank and that $\mathcal{R}(\mathbf{X}) = S$.
+$\square$
+
+In Section 4.1 we discussed *sufficient* conditions for a projector. This means that while these conditions are enough to specify a projector, there may be other conditions which also specify a projector. But since we have now proved the projector is unique, the conditions in Section 4.1 are also *necessary*.
+
+### 4.3 The Orthogonal Complement Projector
+Consider the vector $\mathbf{y}$, and let $\mathbf{y}_s$ be the projection of $\mathbf{y}$ onto our subspace $S$, and $\mathbf{y}_c$ be the projection onto the orthogonal complement subspace $S_{\perp}$. Thus,
+$$
+\mathbf{y} = \mathbf{y}_s + \mathbf{y}_c = \mathbf{P}\mathbf{y} + \mathbf{y}_c. \tag{64}
+$$
+Therefore we have
+$$
+\begin{aligned}
+\mathbf{y} - \mathbf{P}\mathbf{y} &= \mathbf{y}_c \\
+(\mathbf{I} - \mathbf{P})\mathbf{y} &= \mathbf{y}_c.
+\end{aligned} \tag{65}
+$$
+It follows that if $\mathbf{P}$ is a projector onto $S$, then the matrix $(\mathbf{I} - \mathbf{P})$ is a projector onto $S_{\perp}$. It is easily verified that this matrix satisfies the all required properties for this projector.
+
+### 4.4 Orthogonal Projections and the SVD
+Suppose we have a matrix $\mathbf{A} \in \mathbb{R}^{m \times n}$ of rank $r$. Then, using the partitions of eqeqpart, we have these useful relations:
+1. $\mathbf{V}_1\mathbf{V}_1^T$ is the orthogonal projector onto $[\mathcal{N}(\mathbf{A})]_{\perp} = \mathcal{R}(\mathbf{A}^T)$.
+2. $\mathbf{V}_2\mathbf{V}_2^T$ is the orthogonal projector onto $\mathcal{N}(\mathbf{A})$
+3. $\mathbf{U}_1\mathbf{U}_1^T$ is the orthogonal projector onto $\mathcal{R}(\mathbf{A})$
+4. $\mathbf{U}_2\mathbf{U}_2^T$ is the orthogonal projector onto $[\mathcal{R}(\mathbf{A})]_{\perp} = \mathcal{N}(\mathbf{A}^T)$
+
+To justify these results, we show each projector listed above satisfies the three conditions for a projector:
+1. First, we must show that each projector above is in the range of the corresponding subspace (condition 1). In Sects. 3.4.2 and 3.4.3, we have already verified that $\mathbf{V}_2$ is a basis for $\mathcal{N}(\mathbf{A})$, and that $\mathbf{U}_1$ is a basis for $\mathcal{R}(\mathbf{A})$, as required. It is easy to verify that the remaining two projectors above (no.’s 1 and 4 respectively) also have the appropriate ranges.
+2. From the orthonormality property of each of the matrix partitions above, it is easy to see condition 2 (idempotency) holds in each case.
+3. Finally, each matrix above is symmetric (condition 3). Therefore, each matrix above is a projector onto the corresponding subspace.
+
+# 5 The Quadratic Form
+We introduce the quadratic form by considering the idea of *positive definiteness*. A square matrix $\mathbf{A} \in \mathbb{R}^{n \times n}$ is positive definite if and only if, for any $\mathbf{x} \ne \mathbf{0} \in \mathbb{R}^n$,
+$$
+\mathbf{x}^T \mathbf{A} \mathbf{x} > 0. \tag{1}
+$$
+The matrix $\mathbf{A}$ is *positive semi-definite* if and only if, for any $\mathbf{x} \ne \mathbf{0}$ we have
+$$
+\mathbf{x}^T \mathbf{A} \mathbf{x} \ge 0, \tag{2}
+$$
+which includes the possibility that $\mathbf{A}$ is rank deficient. The quantity on the left in (1) is referred to as a *quadratic form*, and is a matrix equivalent to the scalar quantity $ax^2$.
+
+It is only the symmetric part of $\mathbf{A}$ which is relevant in a quadratric form. This may be seen as follows. The symmetric part $\mathbf{T}$ of $\mathbf{A}$ is defined as $\mathbf{T} = \frac{1}{2}(\mathbf{A} + \mathbf{A}^T)$, whereas the asymmetric part $\mathbf{S}$ of $\mathbf{A}$ is defined as $\mathbf{S} = \frac{1}{2}(\mathbf{A} - \mathbf{A}^T)$. Then $\mathbf{A} = \mathbf{T} + \mathbf{S}$. It may be verified by direct multiplication that the quadratic form can also be expressed in the form
+$$
+\mathbf{x}^T \mathbf{A} \mathbf{x} = \sum_{i=1}^n \sum_{j=1}^n a_{ij} x_i x_j. \tag{3}
+$$
+Because $\mathbf{S}^T = -\mathbf{S}$, the $(i,j)$th term corresponding to the asymmetric part of (3) exactly cancels that corresponding to the $(j,i)$th term. Further, the terms corresponding to $i=j$ are zero for the asymmetric part. Thus the part of the quadratic form corresponding to the asymmetric part $\mathbf{S}$ is zero. Therefore, when considering quadratic forms, it suffices to consider only the symmetric part $\mathbf{T}$ of a matrix. Quadratic forms on positive definite matrices are used very frequently in least-squares and adaptive filtering applications.
+
+**Theorem 1** *A matrix $\mathbf{A}$ is positive definite if and only if all eigenvalues of the symmetric part of $\mathbf{A}$ are positive.*
+
+*Proof:* Since only the symmetric part of $\mathbf{A}$ is relevant, the quadratic form on $\mathbf{A}$ may be expressed as $\mathbf{x}^T \mathbf{A} \mathbf{x} = \mathbf{x}^T \mathbf{V} \mathbf{\Lambda} \mathbf{V}^T \mathbf{x}$ where an eigendecomposition has been performed on the symmetric part of $\mathbf{A}$. Let us define $\mathbf{z} = \mathbf{V}^T \mathbf{x}$. Thus we have
+$$
+\mathbf{x}^T \mathbf{A} \mathbf{x} = \mathbf{z}^T \mathbf{\Lambda} \mathbf{z} = \sum_{i=1}^n z_i^2 \lambda_i. \tag{4}
+$$
+Thus (4) is greater than zero for arbitrary $\mathbf{x}$ if and only if $\lambda_i > 0$, $i=1, \dots, n$.
+$\square$
+
+From (4), it is easy to verify that the equation $k = \sum_{i=1}^n z_i^2 \lambda_i$, where k is a constant, defines a multi-dimensional ellipse where $\sqrt{k/\lambda_i}$ is the length of the ith principal axis. Since $\mathbf{z} = \mathbf{V}^T \mathbf{x}$ where $\mathbf{V}$ is orthonormal, $\mathbf{z}$ is a rotation transformation on $\mathbf{x}$, and the equation $k = \mathbf{x}^T \mathbf{A} \mathbf{x}$ is a rotated version of (4). Thus $k = \mathbf{x}^T \mathbf{A} \mathbf{x}$ is also an ellipse with principal axes given by $\sqrt{k/\lambda_i}$. In this case, the ith principal axes of the ellipse lines up along the ith eigenvector $\mathbf{v}_i$ of $\mathbf{A}$.
+
+Positive definiteness of $\mathbf{A}$ in the quadratic form $\mathbf{x}^T \mathbf{A} \mathbf{x}$ is the matrix analog to the scalar $a$ being positive in the scalar expression $ax^2$. The scalar equation $y = ax^2$ is a parabola which faces upwards if $a$ is positive. Likewise, the equation $y = \mathbf{x}^T \mathbf{A} \mathbf{x}$ is a multi-dimensional parabola which faces upwards in all directions if $\mathbf{A}$ is positive definite.
+
+**Example:** We now discuss an example to illustrate the above discussion. A three-dimensional plot of $y = \mathbf{x}^T \mathbf{A} \mathbf{x}$ is shown plotted in Fig. 1 for $\mathbf{A}$ given by
+$$
+\mathbf{A} = \begin{bmatrix} 2 & 1 \\ 1 & 2 \end{bmatrix}. \tag{5}
+$$
+The corresponding contour plot is plotted in Fig. 2. Note that this curve is elliptical in cross-section in a plane $y=k$ as discussed above. It may be readily verified that the eigenvalues of $\mathbf{A}$ are $3, 1$ with corresponding eigenvectors $^T$ and $[1, -1]^T$. For $y=k=1$, the lengths of the principal axes of the ellipse are then $1/\sqrt{3}$ and $1$. It is seen from the figure these principal axes are indeed the lengths indicated, and are lined up along the directions of the eigenvectors as required.
+
+We write the ellipse in the form
+$$
+y = \mathbf{x}^T \mathbf{A} \mathbf{x} = \mathbf{z}^T \mathbf{\Lambda} \mathbf{z} = \sum_{i=1}^n z_i^2 \lambda_i \tag{6}
+$$
+where $\mathbf{z} = \mathbf{V}\mathbf{x}$ as before. It is seen from Fig. 1 and (6) that, since $\mathbf{A}$ is positive definite, the curve defined by $y = z_i^2 \lambda_i$, for all $z_k, k \ne i$ held constant, is an upward-facing parabola for all $i=1, \dots, n$. (To observe the behaviour of $y$ vs. $z_i$ in this case, we use the vertical axis $y$ and the appropriate eigenvector direction, instead of the usual x-axis direction).
+$\square$
+
+**Theorem 2** *A symmetric matrix $\mathbf{A}$ can be decomposed into the form $\mathbf{A} = \mathbf{B}\mathbf{B}^T$ if and only if $\mathbf{A}$ is positive definite or positive semi-definite.*
+
+*Proof:* (Necessary condition) Let us define $\mathbf{z}$ as $\mathbf{B}^T\mathbf{x}$. Then
+$$
+\mathbf{x}^T \mathbf{A} \mathbf{x} = \mathbf{x}^T \mathbf{B} \mathbf{B}^T \mathbf{x} = \mathbf{z}^T \mathbf{z} \ge 0. \tag{7}
+$$
+Conversely (sufficient condition) without loss of generality we take an eigendecomposition on the symmetric part of $\mathbf{A}$ as $\mathbf{A} = \mathbf{V} \mathbf{\Lambda} \mathbf{V}^T$. Since $\mathbf{A}$ is positive definite by hypothesis, we can write $\mathbf{A} = (\mathbf{V} \mathbf{\Lambda}^{1/2})(\mathbf{V} \mathbf{\Lambda}^{1/2})^T$. Let us define $\mathbf{B} = \mathbf{V} \mathbf{\Lambda}^{1/2} \mathbf{Q}^T$ where $\mathbf{Q}$ is an arbitrary orthonormal matrix of appropriate size. Then $\mathbf{A} = \mathbf{V} \mathbf{\Lambda}^{1/2} \mathbf{Q}^T \mathbf{Q} (\mathbf{\Lambda}^{1/2})^T \mathbf{V}^T = \mathbf{B}\mathbf{B}^T$.
+$\square$
+
+Note that $\mathbf{A}$ in this case can only be positive semi-definite if $\mathbf{A}$ has a non-empty null space. Otherwise, it is strictly positive definite.
+
+The fact that $\mathbf{A}$ can be decomposed into two symmetric factors in this way is the fundamental idea behind the Cholesky factorization, which is a major topic of the following chapter.
+
